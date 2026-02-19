@@ -3,22 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - Gestionale Malusci Camp</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+
+
+  <!-- Icone (Font Awesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
 
-  <div class="login-container">
+  <div class="dashboard-container">
 
-    <h1>DASHBOARD ADMIN</h1>
+    <h1 class="dashboard-title">DASHBOARD ADMIN</h1>
 
-    <p>Benvenuto nel gestionale Malusci Camp</p>
+    <div class="dashboard-grid">
 
-    <button onclick="logout()">LOGOUT</button>
+      <!-- CREA UTENTI -->
+      <div class="card" onclick="goTo('utenti.html')">
+        <i class="fa-solid fa-users"></i>
+        <h2>Crea Utenti</h2>
+      </div>
+
+      <!-- CREA SETTIMANE -->
+      <div class="card" onclick="goTo('settimane.html')">
+        <i class="fa-solid fa-calendar-days"></i>
+        <h2>Crea Settimane Camp</h2>
+      </div>
+
+      <!-- GIRL SOCCER CAMP -->
+      <div class="card pink" onclick="goTo('girlcamp.html')">
+        <i class="fa-solid fa-futbol"></i>
+        <h2>Girl Soccer Camp</h2>
+      </div>
+
+      <!-- CAMP MASCHILE -->
+      <div class="card blue" onclick="goTo('maschile.html')">
+        <i class="fa-solid fa-futbol"></i>
+        <h2>Camp Maschile</h2>
+      </div>
+
+    </div>
+
+    <button class="logout-btn" onclick="logout()">LOGOUT</button>
 
   </div>
 
   <script>
+    function goTo(page) {
+      window.location.href = page;
+    }
+
     function logout() {
       window.location.href = "index.html";
     }
