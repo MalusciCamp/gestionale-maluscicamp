@@ -1,0 +1,40 @@
+/* HEADER */
+
+.main-header {
+  width: 100%;
+  height: 90px;
+  background: linear-gradient(
+      rgba(0, 80, 0, 0.7),
+      rgba(0, 80, 0, 0.7)
+    ),
+    url("../img/campo.jpg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+/* CONTENUTO */
+
+.header-content {
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  width: 100%;
+}
+
+/* LOGO */
+
+.header-logo {
+  height: 60px;
+  margin-right: 20px;
+}
+
+/* TITOLO */
+
+.main-header h1 {
+  color: white;
+  font-size: 26px;
+  letter-spacing: 1px;
+}
