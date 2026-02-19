@@ -7,136 +7,111 @@
 
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/header.css">
-<!-- Firebase -->
-<!-- Firebase compat -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-
-
-  <!-- Icone (Font Awesome) -->
+  <!-- Icone -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
-    <!-- HEADER -->
+
+<!-- HEADER -->
 <div id="header"></div>
 
+<div class="dashboard-container">
 
-  <div class="dashboard-container">
+  <h1 class="dashboard-title">DASHBOARD ADMIN</h1>
 
-    <h1 class="dashboard-title">DASHBOARD ADMIN</h1>
+  <div class="dashboard-grid">
 
-    <div class="dashboard-grid">
-
-      <!-- CREA UTENTI -->
-      <div class="card" onclick="goTo('utenti.html')">
-        <i class="fa-solid fa-users"></i>
-        <h2>Crea Utenti</h2>
-      </div>
-
-      <!-- CREA SETTIMANE -->
-      <div class="card" onclick="openSettimanaPopup()">
-  <i class="fa-solid fa-calendar-days"></i>
-  <h2>Crea Settimane Camp</h2>
-</div>
-
-
-      <!-- GIRL SOCCER CAMP -->
-      <div class="card pink" onclick="goTo('girlcamp.html')">
-        <i class="fa-solid fa-futbol"></i>
-        <h2>Girls Soccer Camp</h2>
-      </div>
-
-      <!-- CAMP MASCHILE -->
-      <div class="card blue" onclick="goTo('maschile.html')">
-        <i class="fa-solid fa-futbol"></i>
-        <h2>Camp Maschile</h2>
-      </div>
-
+    <div class="card" onclick="goTo('utenti.html')">
+      <i class="fa-solid fa-users"></i>
+      <h2>Crea Utenti</h2>
     </div>
 
-    <hr class="divider">
+    <div class="card" onclick="openSettimanaPopup()">
+      <i class="fa-solid fa-calendar-days"></i>
+      <h2>Crea Settimane Camp</h2>
+    </div>
 
-<h2 class="section-title">Settimane Create</h2>
+    <div class="card pink" onclick="goTo('girlcamp.html')">
+      <i class="fa-solid fa-futbol"></i>
+      <h2>Girls Soccer Camp</h2>
+    </div>
 
-<div id="settimaneContainer" class="settimane-container"></div>
-
-
-    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    <div class="card blue" onclick="goTo('maschile.html')">
+      <i class="fa-solid fa-futbol"></i>
+      <h2>Camp Maschile</h2>
+    </div>
 
   </div>
 
-  <script>
-const firebaseConfig = {
+  <hr class="divider">
+  <h2 class="section-title">Settimane Create</h2>
+  <div id="settimaneContainer" class="settimane-container"></div>
 
-  apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
+  <button class="logout-btn" onclick="logout()">LOGOUT</button>
 
-  authDomain: "gestionale-maluscicamp.firebaseapp.com",
+</div>
 
-  projectId: "gestionale-maluscicamp",
-
-  storageBucket: "gestionale-maluscicamp.firebasestorage.app",
-
-  messagingSenderId: "615282026849",
-
-  appId: "1:615282026849:web:bf46adfca227570d7d7d20",
-
-
-};
-
-
-
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-</script>
-
-
-  <script>
-    function goTo(page) {
-      window.location.href = page;
-    }
-
-    function logout() {
-      window.location.href = "index.html";
-    }
-  </script>
-  <script>
-  fetch("components/header.html")
-    .then(res => res.text())
-    .then(data => {
-      document.getElementById("header").innerHTML = data;
-    });
-</script>
-
-<!-- POPUP CREA SETTIMANA -->
-
+<!-- POPUP -->
 <div id="settimanaModal" class="modal">
-
   <div class="modal-content">
-
     <h2>Crea Settimana Camp</h2>
 
     <input type="text" id="nomeSettimana" placeholder="Nome settimana">
-
     <label>Dal:</label>
     <input type="date" id="dataDal">
-
     <label>Al:</label>
     <input type="date" id="dataAl">
-
     <input type="number" id="prezzo" placeholder="Prezzo €">
 
     <div class="modal-buttons">
       <button onclick="salvaSettimana()">Salva</button>
       <button class="close-btn" onclick="closeSettimanaPopup()">Chiudi</button>
     </div>
-
   </div>
-
 </div>
+
+<!-- SCRIPT -->
 <script>
+
+  // CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
+    authDomain: "gestionale-maluscicamp.firebaseapp.com",
+    projectId: "gestionale-maluscicamp",
+    storageBucket: "gestionale-maluscicamp.appspot.com",
+    messagingSenderId: "615282026849",
+    appId: "1:615282026849:web:bf46adfca227570d7d7d20"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+
+  // NAVIGAZIONE
+  function goTo(page) {
+    window.location.href = page;
+  }
+
+  function logout() {
+    window.location.href = "index.html";
+  }
+
+
+  // HEADER LOAD
+  fetch("components/header.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("header").innerHTML = data;
+    });
+
+
+  // POPUP
   function openSettimanaPopup() {
     document.getElementById("settimanaModal").style.display = "flex";
   }
@@ -145,75 +120,87 @@ const firebaseConfig = {
     document.getElementById("settimanaModal").style.display = "none";
   }
 
-function salvaSettimana() {
-
-  const nome = document.getElementById("nomeSettimana").value;
-  const dal = document.getElementById("dataDal").value;
-  const al = document.getElementById("dataAl").value;
-  const prezzo = document.getElementById("prezzo").value;
-
-  if (!nome || !dal || !al || !prezzo) {
-    alert("Compila tutti i campi");
-    return;
-  }
 
   // SALVATAGGIO FIREBASE
-  db.collection("settimane").add({
-    nome: nome,
-    dal: dal,
-    al: al,
-    prezzo: prezzo,
-    createdAt: new Date()
-  })
-  .then(() => {
+  function salvaSettimana() {
 
-    creaCardSettimana(nome, dal, al, prezzo);
+    const nome = document.getElementById("nomeSettimana").value;
+    const dal = document.getElementById("dataDal").value;
+    const al = document.getElementById("dataAl").value;
+    const prezzo = document.getElementById("prezzo").value;
 
-    closeSettimanaPopup();
+    if (!nome || !dal || !al || !prezzo) {
+      alert("Compila tutti i campi");
+      return;
+    }
 
-  })
-  .catch((error) => {
-    alert("Errore salvataggio: " + error);
-  });
-}
-function creaCardSettimana(nome, dal, al, prezzo) {
+    db.collection("settimane").add({
+      nome: nome,
+      dal: dal,
+      al: al,
+      prezzo: prezzo,
+      createdAt: new Date()
+    })
+    .then((docRef) => {
 
-  const container = document.getElementById("settimaneContainer");
+      creaCardSettimana(nome, dal, al, prezzo);
+      closeSettimanaPopup();
 
-  const card = document.createElement("div");
-  card.className = "settimana-card";
+      document.getElementById("nomeSettimana").value = "";
+      document.getElementById("dataDal").value = "";
+      document.getElementById("dataAl").value = "";
+      document.getElementById("prezzo").value = "";
 
-  card.innerHTML = `
-    <h3>${nome}</h3>
-    <p><strong>Periodo:</strong> ${dal} - ${al}</p>
-    <p><strong>Prezzo:</strong> € ${prezzo}</p>
-  `;
+    })
+    .catch((error) => {
+      console.error("Errore:", error);
+      alert("Errore salvataggio: " + error.message);
+    });
+  }
 
-  container.appendChild(card);
-}
-window.onload = function() {
 
-  db.collection("settimane")
-    .orderBy("createdAt")
-    .get()
-    .then((querySnapshot) => {
+  // CREAZIONE CARD
+  function creaCardSettimana(nome, dal, al, prezzo) {
 
-      querySnapshot.forEach((doc) => {
+    const container = document.getElementById("settimaneContainer");
 
-        const data = doc.data();
+    const card = document.createElement("div");
+    card.className = "settimana-card";
 
-        creaCardSettimana(
-          data.nome,
-          data.dal,
-          data.al,
-          data.prezzo
-        );
+    card.innerHTML = `
+      <h3>${nome}</h3>
+      <p><strong>Periodo:</strong> ${dal} - ${al}</p>
+      <p><strong>Prezzo:</strong> € ${prezzo}</p>
+    `;
+
+    container.appendChild(card);
+  }
+
+
+  // CARICA SETTIMANE ALL'AVVIO
+  window.onload = function() {
+
+    db.collection("settimane")
+      .orderBy("createdAt")
+      .get()
+      .then((querySnapshot) => {
+
+        querySnapshot.forEach((doc) => {
+
+          const data = doc.data();
+
+          creaCardSettimana(
+            data.nome,
+            data.dal,
+            data.al,
+            data.prezzo
+          );
+
+        });
 
       });
 
-    });
-
-};
+  };
 
 </script>
 
