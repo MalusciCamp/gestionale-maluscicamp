@@ -8,6 +8,9 @@
 
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/header.css">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
 
 
 
@@ -42,7 +45,7 @@
       <!-- GIRL SOCCER CAMP -->
       <div class="card pink" onclick="goTo('girlcamp.html')">
         <i class="fa-solid fa-futbol"></i>
-        <h2>Girl Soccer Camp</h2>
+        <h2>Girls Soccer Camp</h2>
       </div>
 
       <!-- CAMP MASCHILE -->
@@ -63,6 +66,21 @@
     <button class="logout-btn" onclick="logout()">LOGOUT</button>
 
   </div>
+
+  <script>
+  const firebaseConfig = {
+    apiKey: "XXXX",
+    authDomain: "XXXX",
+    projectId: "XXXX",
+    storageBucket: "XXXX",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
 
   <script>
     function goTo(page) {
@@ -116,7 +134,7 @@
     document.getElementById("settimanaModal").style.display = "none";
   }
 
-  function salvaSettimana() {
+function salvaSettimana() {
 
   const nome = document.getElementById("nomeSettimana").value;
   const dal = document.getElementById("dataDal").value;
@@ -127,6 +145,27 @@
     alert("Compila tutti i campi");
     return;
   }
+
+  // SALVATAGGIO FIREBASE
+  db.collection("settimane").add({
+    nome: nome,
+    dal: dal,
+    al: al,
+    prezzo: prezzo,
+    createdAt: new Date()
+  })
+  .then(() => {
+
+    creaCardSettimana(nome, dal, al, prezzo);
+
+    closeSettimanaPopup();
+
+  })
+  .catch((error) => {
+    alert("Errore salvataggio: " + error);
+  });
+}
+function creaCardSettimana(nome, dal, al, prezzo) {
 
   const container = document.getElementById("settimaneContainer");
 
@@ -140,15 +179,30 @@
   `;
 
   container.appendChild(card);
-
-  closeSettimanaPopup();
-
-  // Reset campi
-  document.getElementById("nomeSettimana").value = "";
-  document.getElementById("dataDal").value = "";
-  document.getElementById("dataAl").value = "";
-  document.getElementById("prezzo").value = "";
 }
+window.onload = function() {
+
+  db.collection("settimane")
+    .orderBy("createdAt")
+    .get()
+    .then((querySnapshot) => {
+
+      querySnapshot.forEach((doc) => {
+
+        const data = doc.data();
+
+        creaCardSettimana(
+          data.nome,
+          data.dal,
+          data.al,
+          data.prezzo
+        );
+
+      });
+
+    });
+
+};
 
 </script>
 
