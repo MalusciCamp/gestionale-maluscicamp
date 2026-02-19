@@ -1,59 +1,92 @@
+/* SFONDO PAGINA */
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #e4ecf7);
+}
+
+/* CONTENITORE */
+
 .dashboard-container {
-  padding: 40px;
+  padding: 60px 20px;
   text-align: center;
 }
 
+/* TITOLO */
+
 .dashboard-title {
-  margin-bottom: 40px;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 50px;
+  color: #222;
+  letter-spacing: 1px;
 }
+
+/* GRIGLIA */
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  max-width: 900px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
+/* CARD BASE */
+
 .card {
   background: #ffffff;
-  padding: 40px 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  padding: 50px 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card i {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* HOVER ELEGANTE */
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* COLORI PERSONALIZZATI */
+
+.pink {
+  background: linear-gradient(135deg, #ffe0ec, #ffc1da);
+  color: #a0004d;
+}
+
+.blue {
+  background: linear-gradient(135deg, #d0ebff, #a5d8ff);
+  color: #084298;
+}
+
+/* LOGOUT */
+
+.logout-btn {
+  margin-top: 60px;
+  padding: 12px 25px;
+  border: none;
+  background: #333;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
   cursor: pointer;
   transition: 0.3s;
 }
 
-.card i {
-  font-size: 40px;
-  margin-bottom: 15px;
-}
-
-.card h2 {
-  font-size: 18px;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-.pink {
-  background: #ffe6f0;
-  color: #c2185b;
-}
-
-.blue {
-  background: #e3f2fd;
-  color: #1565c0;
-}
-
-.logout-btn {
-  margin-top: 40px;
-  padding: 10px 20px;
-  border: none;
-  background: #444;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
+.logout-btn:hover {
+  background: #000;
 }
