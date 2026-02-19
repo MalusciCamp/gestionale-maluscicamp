@@ -30,10 +30,11 @@
       </div>
 
       <!-- CREA SETTIMANE -->
-      <div class="card" onclick="goTo('settimane.html')">
-        <i class="fa-solid fa-calendar-days"></i>
-        <h2>Crea Settimane Camp</h2>
-      </div>
+      <<div class="card" onclick="openSettimanaPopup()">
+  <i class="fa-solid fa-calendar-days"></i>
+  <h2>Crea Settimane Camp</h2>
+</div>
+
 
       <!-- GIRL SOCCER CAMP -->
       <div class="card pink" onclick="goTo('girlcamp.html')">
@@ -70,6 +71,57 @@
     });
 </script>
 
+<!-- POPUP CREA SETTIMANA -->
+
+<div id="settimanaModal" class="modal">
+
+  <div class="modal-content">
+
+    <h2>Crea Settimana Camp</h2>
+
+    <input type="text" id="nomeSettimana" placeholder="Nome settimana">
+
+    <label>Dal:</label>
+    <input type="date" id="dataDal">
+
+    <label>Al:</label>
+    <input type="date" id="dataAl">
+
+    <input type="number" id="prezzo" placeholder="Prezzo €">
+
+    <div class="modal-buttons">
+      <button onclick="salvaSettimana()">Salva</button>
+      <button class="close-btn" onclick="closeSettimanaPopup()">Chiudi</button>
+    </div>
+
+  </div>
+
+</div>
+<script>
+  function openSettimanaPopup() {
+    document.getElementById("settimanaModal").style.display = "flex";
+  }
+
+  function closeSettimanaPopup() {
+    document.getElementById("settimanaModal").style.display = "none";
+  }
+
+  function salvaSettimana() {
+
+    const nome = document.getElementById("nomeSettimana").value;
+    const dal = document.getElementById("dataDal").value;
+    const al = document.getElementById("dataAl").value;
+    const prezzo = document.getElementById("prezzo").value;
+
+    alert(
+      "Settimana creata:\n" +
+      nome + "\n" +
+      dal + " - " + al + "\nPrezzo: €" + prezzo
+    );
+
+    closeSettimanaPopup();
+  }
+</script>
 
 </body>
 </html>
