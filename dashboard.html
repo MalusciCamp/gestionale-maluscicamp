@@ -53,6 +53,13 @@
 
     </div>
 
+    <hr class="divider">
+
+<h2 class="section-title">Settimane Create</h2>
+
+<div id="settimaneContainer" class="settimane-container"></div>
+
+
     <button class="logout-btn" onclick="logout()">LOGOUT</button>
 
   </div>
@@ -111,19 +118,38 @@
 
   function salvaSettimana() {
 
-    const nome = document.getElementById("nomeSettimana").value;
-    const dal = document.getElementById("dataDal").value;
-    const al = document.getElementById("dataAl").value;
-    const prezzo = document.getElementById("prezzo").value;
+  const nome = document.getElementById("nomeSettimana").value;
+  const dal = document.getElementById("dataDal").value;
+  const al = document.getElementById("dataAl").value;
+  const prezzo = document.getElementById("prezzo").value;
 
-    alert(
-      "Settimana creata:\n" +
-      nome + "\n" +
-      dal + " - " + al + "\nPrezzo: €" + prezzo
-    );
-
-    closeSettimanaPopup();
+  if (!nome || !dal || !al || !prezzo) {
+    alert("Compila tutti i campi");
+    return;
   }
+
+  const container = document.getElementById("settimaneContainer");
+
+  const card = document.createElement("div");
+  card.className = "settimana-card";
+
+  card.innerHTML = `
+    <h3>${nome}</h3>
+    <p><strong>Periodo:</strong> ${dal} - ${al}</p>
+    <p><strong>Prezzo:</strong> € ${prezzo}</p>
+  `;
+
+  container.appendChild(card);
+
+  closeSettimanaPopup();
+
+  // Reset campi
+  document.getElementById("nomeSettimana").value = "";
+  document.getElementById("dataDal").value = "";
+  document.getElementById("dataAl").value = "";
+  document.getElementById("prezzo").value = "";
+}
+
 </script>
 
 </body>
