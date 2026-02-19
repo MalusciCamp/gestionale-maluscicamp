@@ -29,7 +29,11 @@
 .header-logo {
   height: 60px;
   margin-right: 20px;
+  background: white;
+  padding: 6px 10px;
+  border-radius: 8px;
 }
+
 
 /* TITOLO */
 
