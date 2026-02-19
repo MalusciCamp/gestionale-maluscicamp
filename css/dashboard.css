@@ -144,3 +144,27 @@ body {
 .close-btn {
   background: #777 !important;
 }
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  .dashboard-title {
+    font-size: 26px;
+  }
+
+  .card {
+    padding: 35px 15px;
+  }
+
+  .card i {
+    font-size: 36px;
+  }
+
+}
+@media (max-width: 600px) {
+
+  .modal-content {
+    width: 90%;
+  }
+
+}
