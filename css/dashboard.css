@@ -1,0 +1,59 @@
+.dashboard-container {
+  padding: 40px;
+  text-align: center;
+}
+
+.dashboard-title {
+  margin-bottom: 40px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #ffffff;
+  padding: 40px 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.card i {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.card h2 {
+  font-size: 18px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.pink {
+  background: #ffe6f0;
+  color: #c2185b;
+}
+
+.blue {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.logout-btn {
+  margin-top: 40px;
+  padding: 10px 20px;
+  border: none;
+  background: #444;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
