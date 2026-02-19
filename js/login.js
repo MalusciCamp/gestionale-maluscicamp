@@ -1,3 +1,16 @@
 document.getElementById("loginBtn").addEventListener("click", () => {
-  alert("Login da collegare a Firebase");
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  // LOGIN ADMIN FISSO DI TEST
+  if (username === "admin" && password === "admin123") {
+
+    // Vai alla dashboard
+    window.location.href = "dashboard.html";
+
+  } else {
+    alert("Credenziali errate");
+  }
+
 });
