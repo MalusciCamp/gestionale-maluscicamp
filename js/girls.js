@@ -17,9 +17,8 @@ function closeIscrizionePopup(){
 }
 
 function openArchivio(){
-  alert("Archivio - prossimo step");
+  window.location.href = "archivio.html";
 }
-
 
 // ================= DOCUMENTI TOGGLE =================
 
