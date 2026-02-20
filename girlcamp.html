@@ -181,46 +181,45 @@
   </div>
 
   <!-- =========================
-       SETTIMANE
-  ========================= -->
-  <div class="section-card">
-
-    <h3>📅 Settimane</h3>
-
-    <div id="settimaneToggle" class="toggle-grid">
-      <!-- Firebase -->
-    </div>
-
-  </div>
-
-  <div class="modal-footer">
-    <button class="save-btn">Salva Iscrizione</button>
-  </div>
-
-</div>
-
-<!-- =========================
-     PAGAMENTO
+     SETTIMANE + PAGAMENTO
 ========================= -->
 <div class="section-card">
 
-  <h3>💰 Pagamento</h3>
+  <h3>📅 Settimane & Pagamento</h3>
 
-  <div class="pagamento-grid">
+  <div class="settimane-pagamento-wrapper">
 
-    <div>
-      <label>Totale da Pagare</label>
+    <!-- SETTIMANE -->
+    <div class="settimane-box">
+
+      <h4>Seleziona Settimane</h4>
+
+      <div id="settimaneToggle" class="toggle-grid">
+        <!-- Firebase -->
+      </div>
+
+    </div>
+
+    <!-- PAGAMENTO -->
+    <div class="pagamento-box">
+
+      <h4>💰 Pagamento</h4>
+
+      <label>Totale</label>
       <input type="text" id="totalePagamento" readonly>
-    </div>
 
-    <div>
+      <label>Sconto</label>
+      <input type="number" id="scontoPagamento" value="0">
+
+      <label>Totale Scontato</label>
+      <input type="text" id="totaleScontato" readonly>
+
       <label>Acconto Versato</label>
-      <input type="number" id="accontoPagamento">
-    </div>
+      <input type="number" id="accontoPagamento" value="0">
 
-    <div>
       <label>Rimanenza</label>
       <input type="text" id="restoPagamento" readonly>
+
     </div>
 
   </div>
@@ -265,10 +264,11 @@
   // =========================
 // CARICA SETTIMANE FIREBASE
 // =========================
+
+
 function caricaSettimane() {
 
   const container = document.getElementById("settimaneToggle");
-
   container.innerHTML = "";
 
   db.collection("settimane")
@@ -281,12 +281,22 @@ function caricaSettimane() {
         const data = doc.data();
 
         const box = document.createElement("div");
-
         box.className = "toggle red";
         box.innerText = data.nome;
 
-        // SALVIAMO ID SETTIMANA
+        // SALVIAMO ID + PREZZO
         box.dataset.id = doc.id;
+        box.dataset.prezzo = data.prezzo;
+
+        // CLICK CALCOLO
+        box.onclick = function() {
+
+          box.classList.toggle("red");
+          box.classList.toggle("green");
+
+          calcolaTotale();
+
+        };
 
         container.appendChild(box);
 
@@ -295,6 +305,82 @@ function caricaSettimane() {
     });
 
 }
+
+
+
+// =========================
+// CALCOLO TOTALE
+// =========================
+function calcolaTotale() {
+
+  let totale = 0;
+
+  document.querySelectorAll("#settimaneToggle .green")
+    .forEach(box => {
+      totale += Number(box.dataset.prezzo);
+    });
+
+  document.getElementById("totalePagamento").value = totale + " €";
+
+  calcolaSconto();
+
+}
+
+
+// =========================
+// SCONTO
+// =========================
+function calcolaSconto() {
+
+  const totale = parseFloat(
+    document.getElementById("totalePagamento").value
+  ) || 0;
+
+  const sconto = Number(
+    document.getElementById("scontoPagamento").value
+  ) || 0;
+
+  const totaleScontato = totale - sconto;
+
+  document.getElementById("totaleScontato").value =
+    totaleScontato + " €";
+
+  calcolaRimanenza();
+
+}
+
+
+// =========================
+// RIMANENZA
+// =========================
+function calcolaRimanenza() {
+
+  const totale = parseFloat(
+    document.getElementById("totaleScontato").value
+  ) || 0;
+
+  const acconto = Number(
+    document.getElementById("accontoPagamento").value
+  ) || 0;
+
+  const resto = totale - acconto;
+
+  document.getElementById("restoPagamento").value =
+    resto + " €";
+
+}
+
+
+// EVENTI INPUT
+document
+  .getElementById("scontoPagamento")
+  .addEventListener("input", calcolaSconto);
+
+document
+  .getElementById("accontoPagamento")
+  .addEventListener("input", calcolaRimanenza);
+
+
 
   // HEADER LOAD
   fetch("components/header.html")
