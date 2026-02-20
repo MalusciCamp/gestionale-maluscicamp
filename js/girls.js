@@ -224,31 +224,44 @@ function salvaIscrizione(){
   // ===== ATLETA =====
   const atleta = {
 
-    nome: document.getElementById("nome").value,
-    cognome: document.getElementById("cognome").value,
-    classe: document.getElementById("classe").value,
-    ruolo: document.getElementById("ruolo").value,
-    altezza: document.getElementById("altezza").value,
-    taglia: document.getElementById("taglia").value,
-    scarpa: document.getElementById("scarpa").value,
-    telefono1: document.getElementById("telefono1").value,
-    telefono2: document.getElementById("telefono2").value,
-    email: document.getElementById("email").value,
+  // ===== DATI BASE =====
+  nome: document.getElementById("nome").value,
+  cognome: document.getElementById("cognome").value,
+  dataNascita: document.getElementById("dataNascita").value,
+  luogoNascita: document.getElementById("luogoNascita").value,
+  classe: document.getElementById("classe").value,
+  ruolo: document.getElementById("ruolo").value,
 
-    documenti: documenti,
+  // ===== FISICI =====
+  altezza: document.getElementById("altezza").value,
+  taglia: document.getElementById("taglia").value,
+  scarpa: document.getElementById("scarpa").value,
 
-    allergie: {
-      stato:
-        document.querySelector(".allergia-btn.green")
-        ?.innerText === "SI",
+  // ===== CONTATTI =====
+  telefono1: document.getElementById("telefono1").value,
+  telefono2: document.getElementById("telefono2").value,
+  indirizzo: document.getElementById("indirizzo").value,
+  email: document.getElementById("email").value,
 
-      descrizione:
-        document.getElementById("boxAllergie").value
-    },
+  // ===== NOTE =====
+  note: document.getElementById("note").value,
 
-    createdAt: new Date()
+  // ===== ALLERGIE =====
+  allergie:{
+    stato:
+      document.querySelector(".allergia-btn.green")
+      ?.innerText === "SI",
 
-  };
+    descrizione:
+      document.getElementById("boxAllergie").value
+  },
+
+  // ===== DOCUMENTI =====
+  documenti: documenti,
+
+  createdAt: new Date()
+
+};
 
 
   // ===== SALVA ATLETA =====
