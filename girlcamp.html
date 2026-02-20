@@ -63,62 +63,138 @@
     </div>
 
     <!-- ================= MANUALE ================= -->
-    <div id="manualeContent" class="modal-body">
+   <div id="manualeContent" class="modal-body">
 
-      <h3>Dati Giocatore</h3>
-      <div class="form-grid">
-        <input type="text" placeholder="Nome">
-        <input type="text" placeholder="Cognome">
-        <input type="date">
-        <input type="text" placeholder="Luogo di Nascita">
-        <input type="text" placeholder="Classe">
-        <input type="text" placeholder="Ruolo">
-      </div>
+  <!-- =========================
+       DATI GIOCATORE
+  ========================= -->
+  <div class="section-card">
 
-      <h3>Dati Fisici</h3>
-      <div class="form-grid">
-        <input type="number" placeholder="Altezza (cm)">
-        <input type="text" placeholder="Taglia">
-        <input type="number" placeholder="Numero Scarpa">
-      </div>
+    <h3>👤 Dati Giocatore</h3>
 
-      <h3>Documenti</h3>
-      <div class="toggle-grid">
-        <div class="toggle red">Cert. Medico</div>
-        <div class="toggle red">Tessera Sanitaria</div>
-        <div class="toggle red">Documento Identità</div>
-        <div class="toggle red">Cert. Vaccinazioni</div>
-        <div class="toggle red">Firme Moduli</div>
-      </div>
+    <div class="form-grid">
 
-      <h3>Allergie / Intolleranze</h3>
-      <div class="form-grid">
-        <input type="text" placeholder="Allergie (SI/NO)">
-        <textarea placeholder="Descrizione Allergie"></textarea>
-      </div>
+      <input type="text" placeholder="Nome">
+      <input type="text" placeholder="Cognome">
 
-      <h3>Contatti</h3>
-      <div class="form-grid">
-        <input type="text" placeholder="Telefono 1">
-        <input type="text" placeholder="Telefono 2">
-        <input type="text" placeholder="Indirizzo">
-        <input type="email" placeholder="Email">
-      </div>
+      <input type="date">
+      <input type="text" placeholder="Luogo di Nascita">
 
-      <h3>Note</h3>
-      <textarea placeholder="Note..."></textarea>
+      <input type="text" placeholder="Classe">
 
-      <h3>Settimane</h3>
-      <div id="settimaneToggle" class="toggle-grid">
-        <!-- Caricheremo settimane Firebase -->
-      </div>
-
-      <div class="modal-footer">
-        <button class="save-btn">Salva Iscrizione</button>
-      </div>
+      <!-- RUOLO PREIMPOSTATO -->
+      <select>
+        <option>Ruolo</option>
+        <option>Portiere</option>
+        <option>Difensore</option>
+        <option>Centrocampista</option>
+        <option>Attaccante</option>
+      </select>
 
     </div>
 
+  </div>
+
+  <!-- =========================
+       DATI FISICI
+  ========================= -->
+  <div class="section-card">
+
+    <h3>📏 Dati Fisici</h3>
+
+    <div class="fisici-grid">
+
+      <input type="number" placeholder="Altezza cm">
+      <input type="text" placeholder="Taglia">
+      <input type="number" placeholder="Scarpa">
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       DOCUMENTI
+  ========================= -->
+  <div class="section-card">
+
+    <h3>📄 Documenti</h3>
+
+    <div class="toggle-grid">
+
+      <div class="toggle red">Cert. Medico</div>
+      <div class="toggle red">Tessera Sanitaria</div>
+      <div class="toggle red">Documento Identità</div>
+      <div class="toggle red">Cert. Vaccinazioni</div>
+      <div class="toggle red">Firme Moduli</div>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       ALLERGIE
+  ========================= -->
+  <div class="section-card">
+
+    <h3>🩺 Allergie / Intolleranze</h3>
+
+    <div class="toggle-grid">
+
+      <div class="toggle red" onclick="toggleAllergie(this, true)">SI</div>
+      <div class="toggle red" onclick="toggleAllergie(this, false)">NO</div>
+
+    </div>
+
+    <textarea id="boxAllergie" class="hidden" placeholder="Descrizione Allergie..."></textarea>
+
+  </div>
+
+  <!-- =========================
+       CONTATTI
+  ========================= -->
+  <div class="section-card">
+
+    <h3>📞 Contatti</h3>
+
+    <div class="form-grid">
+
+      <input type="text" placeholder="Telefono 1">
+      <input type="text" placeholder="Telefono 2">
+      <input type="text" placeholder="Indirizzo">
+      <input type="email" placeholder="Email">
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       NOTE
+  ========================= -->
+  <div class="section-card">
+
+    <h3>📝 Note</h3>
+    <textarea placeholder="Note..."></textarea>
+
+  </div>
+
+  <!-- =========================
+       SETTIMANE
+  ========================= -->
+  <div class="section-card">
+
+    <h3>📅 Settimane</h3>
+
+    <div id="settimaneToggle" class="toggle-grid">
+      <!-- Firebase -->
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button class="save-btn">Salva Iscrizione</button>
+  </div>
+
+</div>
     <!-- ================= IMPORT ================= -->
     <div id="importContent" class="modal-body hidden">
 
@@ -194,6 +270,40 @@
     document.getElementById("manualeContent").classList.add("hidden");
     document.getElementById("importContent").classList.remove("hidden");
   }
+
+</script>
+<script>
+
+// TOGGLE GENERICO
+document.querySelectorAll(".toggle").forEach(btn => {
+  btn.addEventListener("click", () => {
+    btn.classList.toggle("red");
+    btn.classList.toggle("green");
+  });
+});
+
+// ALLERGIE LOGICA
+function toggleAllergie(btn, stato) {
+
+  document.querySelectorAll(".section-card .toggle")
+    .forEach(t => {
+      if (t.innerText === "SI" || t.innerText === "NO") {
+        t.classList.remove("green");
+        t.classList.add("red");
+      }
+    });
+
+  btn.classList.remove("red");
+  btn.classList.add("green");
+
+  const box = document.getElementById("boxAllergie");
+
+  if (stato) {
+    box.classList.remove("hidden");
+  } else {
+    box.classList.add("hidden");
+  }
+}
 
 </script>
 
