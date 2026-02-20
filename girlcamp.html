@@ -16,14 +16,12 @@
 
 <body>
 
-<!-- HEADER -->
 <div id="header"></div>
 
 <div class="page-container">
 
   <h1>Girls Soccer Camp</h1>
 
-  <!-- BOX AZIONI -->
   <div class="girls-cards">
 
     <div class="girls-card new" onclick="openPopup()">
@@ -40,431 +38,284 @@
 
 </div>
 
-<!-- =========================
-     POPUP NUOVA ISCRIZIONE
-========================= -->
+<!-- ================= POPUP ================= -->
 
 <div id="iscrizioneModal" class="modal">
-
   <div class="modal-large">
 
-    <!-- HEADER POPUP -->
     <div class="modal-header">
-
       <h2>Nuova Iscrizione</h2>
 
       <div class="modal-tabs">
-        <button class="tab-btn active" onclick="showManuale()">Inserimento Manuale</button>
-        <button class="tab-btn" onclick="showImport()">Import Excel</button>
+        <button class="tab-btn active" onclick="showManuale()">Manuale</button>
+        <button class="tab-btn" onclick="showImport()">Import</button>
       </div>
 
       <span class="close-x" onclick="closeIscrizionePopup()">✖</span>
-
     </div>
 
     <!-- ================= MANUALE ================= -->
-   <div id="manualeContent" class="modal-body">
 
-  <!-- =========================
-       DATI GIOCATORE
-  ========================= -->
-  <div class="section-card">
+    <div id="manualeContent" class="modal-body">
 
-    <h3>👤 Dati Giocatore</h3>
+      <!-- DATI GIOCATORE -->
+      <div class="section-card">
+        <h3>👤 Dati Giocatore</h3>
 
-    <div class="form-grid">
+        <div class="form-grid">
+          <input type="text" placeholder="Nome">
+          <input type="text" placeholder="Cognome">
+          <input type="date">
+          <input type="text" placeholder="Luogo di Nascita">
+          <input type="text" placeholder="Classe">
 
-      <input type="text" placeholder="Nome">
-      <input type="text" placeholder="Cognome">
+          <select>
+            <option value="">Ruolo</option>
+            <option>Portiere</option>
+            <option>Difensore</option>
+            <option>Centrocampista</option>
+            <option>Attaccante</option>
+          </select>
+        </div>
+      </div>
 
-      <input type="date">
-      <input type="text" placeholder="Luogo di Nascita">
+      <!-- DATI FISICI -->
+      <div class="section-card">
+        <h3>📏 Dati Fisici</h3>
 
-      <input type="text" placeholder="Classe">
+        <div class="fisici-grid">
+          <input type="number" placeholder="Altezza">
+          <input type="text" placeholder="Taglia">
+          <input type="number" placeholder="Scarpa">
+        </div>
+      </div>
 
-      <!-- RUOLO PREIMPOSTATO -->
-      <select>
-        <option>Ruolo</option>
-        <option>Portiere</option>
-        <option>Difensore</option>
-        <option>Centrocampista</option>
-        <option>Attaccante</option>
-      </select>
+      <!-- DOCUMENTI -->
+      <div class="section-card">
+        <h3>📄 Documenti</h3>
 
-    </div>
+        <div class="toggle-grid documenti-grid">
+          <div class="toggle red documento">Cert. Medico</div>
+          <div class="toggle red documento">Tessera Sanitaria</div>
+          <div class="toggle red documento">Documento Identità</div>
+          <div class="toggle red documento">Cert. Vaccinazioni</div>
+          <div class="toggle red documento">Firme Moduli</div>
+        </div>
+      </div>
 
-  </div>
+      <!-- ALLERGIE -->
+      <div class="section-card">
+        <h3>🩺 Allergie / Intolleranze</h3>
 
-  <!-- =========================
-       DATI FISICI
-  ========================= -->
-  <div class="section-card">
+        <div class="toggle-grid">
+          <div class="toggle red allergia-btn" onclick="toggleAllergie(this,true)">SI</div>
+          <div class="toggle red allergia-btn" onclick="toggleAllergie(this,false)">NO</div>
+        </div>
 
-    <h3>📏 Dati Fisici</h3>
+        <textarea id="boxAllergie" class="hidden" placeholder="Descrizione Allergie..."></textarea>
+      </div>
 
-    <div class="fisici-grid">
+      <!-- CONTATTI -->
+      <div class="section-card">
+        <h3>📞 Contatti</h3>
 
-      <input type="number" placeholder="Altezza cm">
-      <input type="text" placeholder="Taglia">
-      <input type="number" placeholder="Scarpa">
+        <div class="form-grid">
+          <input type="text" placeholder="Telefono 1">
+          <input type="text" placeholder="Telefono 2">
+          <input type="text" placeholder="Indirizzo">
+          <input type="email" placeholder="Email">
+        </div>
+      </div>
 
-    </div>
+      <!-- NOTE -->
+      <div class="section-card">
+        <h3>📝 Note</h3>
+        <textarea placeholder="Note..."></textarea>
+      </div>
 
-  </div>
+      <!-- SETTIMANE + PAGAMENTO -->
+      <div class="section-card">
 
-  <!-- =========================
-       DOCUMENTI
-  ========================= -->
-  <div class="section-card">
+        <h3>📅 Settimane & Pagamento</h3>
 
-    <h3>📄 Documenti</h3>
+        <div class="settimane-pagamento-wrapper">
 
-    <div class="toggle-grid">
+          <div>
+            <div id="settimaneToggle" class="toggle-grid"></div>
+          </div>
 
-      <div class="toggle red">Cert. Medico</div>
-      <div class="toggle red">Tessera Sanitaria</div>
-      <div class="toggle red">Documento Identità</div>
-      <div class="toggle red">Cert. Vaccinazioni</div>
-      <div class="toggle red">Firme Moduli</div>
+          <div class="pagamento-box">
+            <label>Totale</label>
+            <input type="text" id="totalePagamento" readonly>
 
-    </div>
+            <label>Sconto</label>
+            <input type="number" id="scontoPagamento" value="0">
 
-  </div>
+            <label>Totale Scontato</label>
+            <input type="text" id="totaleScontato" readonly>
 
-  <!-- =========================
-       ALLERGIE
-  ========================= -->
-  <div class="section-card">
+            <label>Acconto</label>
+            <input type="number" id="accontoPagamento" value="0">
 
-    <h3>🩺 Allergie / Intolleranze</h3>
+            <label>Rimanenza</label>
+            <input type="text" id="restoPagamento" readonly>
+          </div>
 
-    <div class="toggle-grid">
+        </div>
 
-      <div class="toggle red allergia-btn"
-     onclick="toggleAllergie(this, true)">SI</div>
-
-<div class="toggle red allergia-btn"
-     onclick="toggleAllergie(this, false)">NO</div>
-
-    </div>
-
-    <textarea id="boxAllergie" class="hidden" placeholder="Descrizione Allergie..."></textarea>
-
-  </div>
-
-  <!-- =========================
-       CONTATTI
-  ========================= -->
-  <div class="section-card">
-
-    <h3>📞 Contatti</h3>
-
-    <div class="form-grid">
-
-      <input type="text" placeholder="Telefono 1">
-      <input type="text" placeholder="Telefono 2">
-      <input type="text" placeholder="Indirizzo">
-      <input type="email" placeholder="Email">
-
-    </div>
-
-  </div>
-
-  <!-- =========================
-       NOTE
-  ========================= -->
-  <div class="section-card">
-
-    <h3>📝 Note</h3>
-    <textarea placeholder="Note..."></textarea>
-
-  </div>
-
-  <!-- =========================
-     SETTIMANE + PAGAMENTO
-========================= -->
-<div class="section-card">
-
-  <h3>📅 Settimane & Pagamento</h3>
-
-  <div class="settimane-pagamento-wrapper">
-
-    <!-- SETTIMANE -->
-    <div class="settimane-box">
-
-      <h4>Seleziona Settimane</h4>
-
-      <div id="settimaneToggle" class="toggle-grid">
-        <!-- Firebase -->
       </div>
 
     </div>
 
-    <!-- PAGAMENTO -->
-    <div class="pagamento-box">
-
-      <h4>💰 Pagamento</h4>
-
-      <label>Totale</label>
-      <input type="text" id="totalePagamento" readonly>
-
-      <label>Sconto</label>
-      <input type="number" id="scontoPagamento" value="0">
-
-      <label>Totale Scontato</label>
-      <input type="text" id="totaleScontato" readonly>
-
-      <label>Acconto Versato</label>
-      <input type="number" id="accontoPagamento" value="0">
-
-      <label>Rimanenza</label>
-      <input type="text" id="restoPagamento" readonly>
-
-    </div>
-
-  </div>
-
-</div>
     <!-- ================= IMPORT ================= -->
+
     <div id="importContent" class="modal-body hidden">
-
-      <h3>Importa da File Excel</h3>
-
+      <h3>Importa da Excel</h3>
       <input type="file" accept=".xlsx,.xls">
-
-      <div class="modal-footer">
-        <button class="save-btn">Carica File</button>
-      </div>
-
     </div>
 
   </div>
-
 </div>
 
-<!-- =========================
-     SCRIPT
-========================= -->
+<!-- ================= SCRIPT ================= -->
 
 <script>
 
-  // FIREBASE
-  const firebaseConfig = {
-    apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
-    authDomain: "gestionale-maluscicamp.firebaseapp.com",
-    projectId: "gestionale-maluscicamp",
-    storageBucket: "gestionale-maluscicamp.appspot.com",
-    messagingSenderId: "615282026849",
-    appId: "1:615282026849:web:bf46adfca227570d7d7d20"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
+  authDomain: "gestionale-maluscicamp.firebaseapp.com",
+  projectId: "gestionale-maluscicamp",
+  storageBucket: "gestionale-maluscicamp.appspot.com",
+  messagingSenderId: "615282026849",
+  appId: "1:615282026849:web:bf46adfca227570d7d7d20"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  // =========================
-// CARICA SETTIMANE FIREBASE
-// =========================
+fetch("components/header.html")
+.then(res => res.text())
+.then(data => document.getElementById("header").innerHTML = data);
 
+// ================= POPUP =================
 
-function caricaSettimane() {
-
-  const container = document.getElementById("settimaneToggle");
-  container.innerHTML = "";
-
-  db.collection("settimane")
-    .orderBy("createdAt")
-    .get()
-    .then((querySnapshot) => {
-
-      querySnapshot.forEach((doc) => {
-
-        const data = doc.data();
-
-        const box = document.createElement("div");
-        box.className = "toggle red";
-        box.innerText = data.nome;
-
-        // SALVIAMO ID + PREZZO
-        box.dataset.id = doc.id;
-        box.dataset.prezzo = data.prezzo;
-
-        // CLICK CALCOLO
-        box.onclick = function() {
-
-          box.classList.toggle("red");
-          box.classList.toggle("green");
-
-          calcolaTotale();
-
-        };
-
-        container.appendChild(box);
-
-      });
-
-    });
-
-}
-
-
-
-// =========================
-// CALCOLO TOTALE
-// =========================
-function calcolaTotale() {
-
-  let totale = 0;
-
-  document.querySelectorAll("#settimaneToggle .green")
-    .forEach(box => {
-      totale += Number(box.dataset.prezzo);
-    });
-
-  document.getElementById("totalePagamento").value = totale + " €";
-
-  calcolaSconto();
-
-}
-
-
-// =========================
-// SCONTO
-// =========================
-function calcolaSconto() {
-
-  const totale = parseFloat(
-    document.getElementById("totalePagamento").value
-  ) || 0;
-
-  const sconto = Number(
-    document.getElementById("scontoPagamento").value
-  ) || 0;
-
-  const totaleScontato = totale - sconto;
-
-  document.getElementById("totaleScontato").value =
-    totaleScontato + " €";
-
-  calcolaRimanenza();
-
-}
-
-
-// =========================
-// RIMANENZA
-// =========================
-function calcolaRimanenza() {
-
-  const totale = parseFloat(
-    document.getElementById("totaleScontato").value
-  ) || 0;
-
-  const acconto = Number(
-    document.getElementById("accontoPagamento").value
-  ) || 0;
-
-  const resto = totale - acconto;
-
-  document.getElementById("restoPagamento").value =
-    resto + " €";
-
-}
-
-
-// EVENTI INPUT
-document
-  .getElementById("scontoPagamento")
-  .addEventListener("input", calcolaSconto);
-
-document
-  .getElementById("accontoPagamento")
-  .addEventListener("input", calcolaRimanenza);
-
-
-
-  // HEADER LOAD
-  fetch("components/header.html")
-    .then(res => res.text())
-    .then(data => {
-      document.getElementById("header").innerHTML = data;
-    });
-
-  // NAVIGAZIONE HEADER
-  function goDashboard() {
-    window.location.href = "dashboard.html";
-  }
-
-  function goBack() {
-    window.history.back();
-  }
-
-  // POPUP
-  function openPopup() {
+function openPopup() {
   document.getElementById("iscrizioneModal").style.display = "flex";
   caricaSettimane();
 }
 
-  function closeIscrizionePopup() {
-    document.getElementById("iscrizioneModal").style.display = "none";
-  }
+function closeIscrizionePopup() {
+  document.getElementById("iscrizioneModal").style.display = "none";
+}
 
-  function openArchivio() {
-    alert("Archivio Atlete - Step successivo");
-  }
+function showManuale() {
+  document.getElementById("manualeContent").classList.remove("hidden");
+  document.getElementById("importContent").classList.add("hidden");
+}
 
-  // TAB SWITCH
-  function showManuale() {
-    document.getElementById("manualeContent").classList.remove("hidden");
-    document.getElementById("importContent").classList.add("hidden");
-  }
+function showImport() {
+  document.getElementById("manualeContent").classList.add("hidden");
+  document.getElementById("importContent").classList.remove("hidden");
+}
 
-  function showImport() {
-    document.getElementById("manualeContent").classList.add("hidden");
-    document.getElementById("importContent").classList.remove("hidden");
-  }
+function openArchivio(){
+  alert("Archivio - prossimo step");
+}
 
-</script>
-<script>
+// ================= DOCUMENTI =================
 
-// =========================
-// TOGGLE DOCUMENTI + SETTIMANE
-// =========================
-document.addEventListener("click", function(e) {
-
-  if (e.target.classList.contains("toggle") &&
-      !e.target.classList.contains("allergia-btn")) {
-
+document.addEventListener("click", function(e){
+  if(e.target.classList.contains("documento")){
     e.target.classList.toggle("red");
     e.target.classList.toggle("green");
   }
-
 });
 
+// ================= ALLERGIE =================
 
-// =========================
-// TOGGLE ALLERGIE
-// =========================
-function toggleAllergie(element, stato) {
+function toggleAllergie(btn, stato){
 
-  const buttons = document.querySelectorAll(".allergia-btn");
-
-  buttons.forEach(btn => {
-    btn.classList.remove("green");
-    btn.classList.add("red");
+  document.querySelectorAll(".allergia-btn").forEach(b=>{
+    b.classList.remove("green");
+    b.classList.add("red");
   });
 
-  element.classList.remove("red");
-  element.classList.add("green");
+  btn.classList.remove("red");
+  btn.classList.add("green");
 
   const box = document.getElementById("boxAllergie");
-
-  if (stato) {
-    box.classList.remove("hidden");
-  } else {
-    box.classList.add("hidden");
-  }
-
+  stato ? box.classList.remove("hidden") : box.classList.add("hidden");
 }
+
+// ================= SETTIMANE =================
+
+function caricaSettimane(){
+
+  const container = document.getElementById("settimaneToggle");
+  container.innerHTML = "";
+
+  db.collection("settimane").orderBy("createdAt").get()
+  .then(snapshot=>{
+
+    snapshot.forEach(doc=>{
+
+      const data = doc.data();
+
+      const box = document.createElement("div");
+      box.className="toggle red";
+      box.innerText=data.nome;
+      box.dataset.prezzo=data.prezzo;
+
+      box.addEventListener("click",function(){
+
+        box.classList.toggle("red");
+        box.classList.toggle("green");
+
+        calcolaTotale();
+      });
+
+      container.appendChild(box);
+    });
+
+  });
+}
+
+// ================= CALCOLI =================
+
+function calcolaTotale(){
+
+  let totale=0;
+
+  document.querySelectorAll("#settimaneToggle .green")
+  .forEach(box=>{
+    totale+=Number(box.dataset.prezzo);
+  });
+
+  document.getElementById("totalePagamento").value=totale+" €";
+  calcolaSconto();
+}
+
+function calcolaSconto(){
+
+  const totale=parseFloat(document.getElementById("totalePagamento").value)||0;
+  const sconto=Number(document.getElementById("scontoPagamento").value)||0;
+
+  const totaleScontato=totale-sconto;
+
+  document.getElementById("totaleScontato").value=totaleScontato+" €";
+  calcolaRimanenza();
+}
+
+function calcolaRimanenza(){
+
+  const totale=parseFloat(document.getElementById("totaleScontato").value)||0;
+  const acconto=Number(document.getElementById("accontoPagamento").value)||0;
+
+  document.getElementById("restoPagamento").value=(totale-acconto)+" €";
+}
+
+document.getElementById("scontoPagamento").addEventListener("input",calcolaSconto);
+document.getElementById("accontoPagamento").addEventListener("input",calcolaRimanenza);
 
 </script>
 
