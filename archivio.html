@@ -6,11 +6,102 @@
 <title>Archivio Atlete</title>
 
 <link rel="stylesheet" href="css/header.css">
-<link rel="stylesheet" href="css/archivio.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+
+/* ===== LAYOUT ===== */
+
+.page-container{
+  padding:40px;
+  max-width:1200px;
+  margin:auto;
+}
+
+h1{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+/* ===== TABELLA ===== */
+
+.archivio-table{
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+
+.archivio-table thead{
+  background:#0f5132;
+  color:white;
+}
+
+.archivio-table th,
+.archivio-table td{
+  padding:14px;
+  text-align:center;
+  border-bottom:1px solid #eee;
+}
+
+.archivio-table tr:hover{
+  background:#f5f5f5;
+}
+
+/* ===== BOTTONI ===== */
+
+.archivio-table button{
+  border:none;
+  padding:8px 12px;
+  margin:0 3px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.archivio-table .view{
+  background:#0d6efd;
+  color:white;
+}
+
+.archivio-table .delete{
+  background:#dc3545;
+  color:white;
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:768px){
+
+  .archivio-table thead{
+    display:none;
+  }
+
+  .archivio-table,
+  .archivio-table tbody,
+  .archivio-table tr,
+  .archivio-table td{
+    display:block;
+    width:100%;
+  }
+
+  .archivio-table tr{
+    margin-bottom:15px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:10px;
+  }
+
+}
+
+</style>
 </head>
 
 <body>
@@ -21,9 +112,23 @@
 
 <h1>Archivio Atlete</h1>
 
-<div id="listaAtlete" class="lista-atlete">
-<!-- Caricate da Firebase -->
-</div>
+<table class="archivio-table">
+
+<thead>
+<tr>
+<th>Nome</th>
+<th>Cognome</th>
+<th>Classe</th>
+<th>Ruolo</th>
+<th>Azioni</th>
+</tr>
+</thead>
+
+<tbody id="tabellaAtlete">
+<!-- Firebase -->
+</tbody>
+
+</table>
 
 </div>
 
@@ -34,7 +139,6 @@
 function goDashboard(){
   window.location.href="dashboard.html";
 }
-
 function goBack(){
   window.history.back();
 }
