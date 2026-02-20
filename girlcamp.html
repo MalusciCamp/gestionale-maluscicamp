@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Girls Soccer Camp</title>
+
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/girlcamp.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div id="header"></div>
+
+<div class="page-container">
+
+  <!-- TITOLO -->
+  <h1>Girls Soccer Camp</h1>
+
+  <!-- AZIONI -->
+  <div class="actions-bar">
+
+    <button class="add-btn" onclick="openPopup()">
+      ➕ Nuova Iscritta
+    </button>
+
+    <button class="archive-btn" onclick="openArchivio()">
+      📂 Archivio Atlete
+    </button>
+
+  </div>
+
+  <!-- FILTRO SETTIMANE -->
+  <div class="filter-box">
+
+    <label>Filtra per settimana:</label>
+    <select id="filtroSettimane">
+      <option value="">Tutte</option>
+    </select>
+
+  </div>
+
+  <!-- TABELLA -->
+  <table class="iscritti-table">
+
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Cognome</th>
+        <th>Settimane</th>
+        <th>Pagato</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+
+    <tbody id="tabellaIscritti">
+      <!-- Dati Firebase -->
+    </tbody>
+
+  </table>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+
+  // CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
+    authDomain: "gestionale-maluscicamp.firebaseapp.com",
+    projectId: "gestionale-maluscicamp",
+    storageBucket: "gestionale-maluscicamp.appspot.com",
+    messagingSenderId: "615282026849",
+    appId: "1:615282026849:web:bf46adfca227570d7d7d20"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+
+  // HEADER
+  fetch("components/header.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("header").innerHTML = data;
+    });
+
+
+  // POPUP PLACEHOLDER
+  function openPopup() {
+    alert("Popup inserimento iscritta - prossimo step");
+  }
+
+  function openArchivio() {
+    alert("Archivio atlete - prossimo step");
+  }
+
+
+  // CARICA SETTIMANE NEL FILTRO
+  window.onload = function() {
+
+    const select = document.getElementById("filtroSettimane");
+
+    db.collection("settimane")
+      .get()
+      .then((querySnapshot) => {
+
+        querySnapshot.forEach((doc) => {
+
+          const data = doc.data();
+
+          const option = document.createElement("option");
+          option.value = doc.id;
+          option.textContent = data.nome;
+
+          select.appendChild(option);
+
+        });
+
+      });
+
+  };
+
+</script>
+
+</body>
+</html>
