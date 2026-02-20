@@ -1,0 +1,62 @@
+.page-container {
+  padding: 40px;
+}
+
+h1 {
+  margin-bottom: 25px;
+}
+
+/* ACTION BAR */
+
+.actions-bar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.add-btn {
+  background: #e91e63;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.archive-btn {
+  background: #555;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* FILTRO */
+
+.filter-box {
+  margin-bottom: 25px;
+}
+
+.filter-box select {
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* TABELLA */
+
+.iscritti-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.iscritti-table th,
+.iscritti-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.iscritti-table th {
+  background: #f5f5f5;
+}
