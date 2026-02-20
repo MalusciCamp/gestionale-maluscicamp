@@ -12,8 +12,16 @@ let atletaInModifica = null;
 // ================= POPUP =================
 
 function openPopup(){
-  document.getElementById("iscrizioneModal").style.display = "flex";
+
+  document.getElementById("iscrizioneModal").style.display="flex";
+
   caricaSettimane();
+
+  // 👇 NUOVO
+  setTimeout(()=>{
+    caricaDatiAtleta();
+  },300);
+
 }
 
 function closeIscrizionePopup(){
@@ -151,7 +159,38 @@ function apriModificaAtleta(id){
   openPopup(); // usa popup già esistente
 
 }
+// ================= CARICA DATI ATLETA =================
 
+function caricaDatiAtleta(){
+
+  if(!atletaInModifica) return;
+
+  db.collection("atleti")
+  .doc(atletaInModifica)
+  .get()
+  .then(doc=>{
+
+    const data = doc.data();
+
+    // DATI BASE
+    document.getElementById("nome").value = data.nome || "";
+    document.getElementById("cognome").value = data.cognome || "";
+    document.getElementById("classe").value = data.classe || "";
+    document.getElementById("ruolo").value = data.ruolo || "";
+
+    // FISICI
+    document.getElementById("altezza").value = data.altezza || "";
+    document.getElementById("taglia").value = data.taglia || "";
+    document.getElementById("scarpa").value = data.scarpa || "";
+
+    // CONTATTI
+    document.getElementById("telefono1").value = data.telefono1 || "";
+    document.getElementById("telefono2").value = data.telefono2 || "";
+    document.getElementById("email").value = data.email || "";
+
+  });
+
+}
 // ================= SALVATAGGIO COMPLETO =================
 
 function salvaIscrizione(){
