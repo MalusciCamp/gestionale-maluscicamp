@@ -39,7 +39,7 @@ function toggleAllergie(btn,stato){
 
   btn.classList.replace("red","green");
 
-  const box=document.getElementById("descrizioneAllergie");
+const box = document.getElementById("boxAllergie");
   stato?box.classList.remove("hidden"):box.classList.add("hidden");
 }
 
@@ -129,10 +129,10 @@ function salvaIscrizione(){
     telefono1:telefono1.value,
     telefono2:telefono2.value,
     email:email.value,
-    allergie:{
-      stato:document.querySelector(".allergia-btn.green")?.innerText==="SI",
-      descrizione:descrizioneAllergie.value
-    },
+   allergie:{
+  stato: document.querySelector(".allergia-btn.green")?.innerText === "SI",
+  descrizione: document.getElementById("boxAllergie").value
+},
     createdAt:new Date()
   };
 
