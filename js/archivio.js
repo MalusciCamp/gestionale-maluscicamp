@@ -8,8 +8,8 @@ fetch("components/header.html")
 
 function caricaAtlete(){
 
-  const container = document.getElementById("listaAtlete");
-  container.innerHTML="";
+  const tbody = document.getElementById("tabellaAtlete");
+  tbody.innerHTML="";
 
   db.collection("atleti")
   .orderBy("createdAt","desc")
@@ -20,28 +20,25 @@ function caricaAtlete(){
 
       const data = doc.data();
 
-      const card = document.createElement("div");
-      card.className="atleta-card";
+      const row = document.createElement("tr");
 
-      card.innerHTML = `
-        <div class="atleta-info">
-          <h3>${data.nome} ${data.cognome}</h3>
-          <p>Classe: ${data.classe || "-"}</p>
-          <p>Ruolo: ${data.ruolo || "-"}</p>
-        </div>
-
-        <div class="atleta-actions">
-          <button onclick="modificaAtleta('${doc.id}')">
-            <i class="fa-solid fa-pen"></i>
+      row.innerHTML = `
+        <td>${data.nome || ""}</td>
+        <td>${data.cognome || ""}</td>
+        <td>${data.classe || ""}</td>
+        <td>${data.ruolo || ""}</td>
+        <td>
+          <button onclick="visualizzaScheda('${doc.id}')">
+            <i class="fa-solid fa-eye"></i>
           </button>
 
           <button onclick="eliminaAtleta('${doc.id}')">
             <i class="fa-solid fa-trash"></i>
           </button>
-        </div>
+        </td>
       `;
 
-      container.appendChild(card);
+      tbody.appendChild(row);
 
     });
 
@@ -65,10 +62,12 @@ function eliminaAtleta(id){
 }
 
 
-// ================= MODIFICA (placeholder) =================
+// ================= VISUALIZZA SCHEDA =================
 
-function modificaAtleta(id){
-  alert("Modifica atleta - prossimo step");
+function visualizzaScheda(id){
+
+  window.location.href = "scheda-atleta.html?id=" + id;
+
 }
 
 
