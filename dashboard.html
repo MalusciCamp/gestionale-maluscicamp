@@ -27,29 +27,30 @@
 
   <div class="dashboard-grid">
 
-<div class="card utenti" onclick="goTo('utenti.html')">
-  <i class="fa-solid fa-users"></i>
-  <h2>Crea Utenti</h2>
-</div>
+    <div class="card utenti" onclick="goTo('utenti.html')">
+      <i class="fa-solid fa-users"></i>
+      <h2>Crea Utenti</h2>
+    </div>
 
-   <div class="card settimane" onclick="openSettimanaPopup()">
-  <i class="fa-solid fa-calendar-days"></i>
-  <h2>Crea Settimane Camp</h2>
-</div>
+    <div class="card settimane" onclick="openSettimanaPopup()">
+      <i class="fa-solid fa-calendar-days"></i>
+      <h2>Crea Settimane Camp</h2>
+    </div>
 
-   <div class="card girls" onclick="goTo('girlcamp.html')">
-  <i class="fa-solid fa-futbol"></i>
-  <h2>Girls Soccer Camp</h2>
-</div>
+    <div class="card girls" onclick="goTo('girlcamp.html')">
+      <i class="fa-solid fa-futbol"></i>
+      <h2>Girls Soccer Camp</h2>
+    </div>
 
-  <div class="card maschile" onclick="goTo('maschile.html')">
-  <i class="fa-solid fa-futbol"></i>
-  <h2>Camp Maschile</h2>
-</div>
+    <div class="card maschile" onclick="goTo('maschile.html')">
+      <i class="fa-solid fa-futbol"></i>
+      <h2>Camp Maschile</h2>
+    </div>
 
   </div>
 
   <hr class="divider">
+
   <h2 class="section-title">Settimane Create</h2>
   <div id="settimaneContainer" class="settimane-container"></div>
 
@@ -57,16 +58,19 @@
 
 </div>
 
-<!-- POPUP -->
+<!-- POPUP CREA SETTIMANA -->
 <div id="settimanaModal" class="modal">
   <div class="modal-content">
     <h2>Crea Settimana Camp</h2>
 
     <input type="text" id="nomeSettimana" placeholder="Nome settimana">
+
     <label>Dal:</label>
     <input type="date" id="dataDal">
+
     <label>Al:</label>
     <input type="date" id="dataAl">
+
     <input type="number" id="prezzo" placeholder="Prezzo €">
 
     <div class="modal-buttons">
@@ -76,10 +80,11 @@
   </div>
 </div>
 
-<!-- SCRIPT -->
 <script>
 
-  // CONFIG FIREBASE
+  // ===============================
+  // FIREBASE CONFIG
+  // ===============================
   const firebaseConfig = {
     apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
     authDomain: "gestionale-maluscicamp.firebaseapp.com",
@@ -93,7 +98,9 @@
   const db = firebase.firestore();
 
 
+  // ===============================
   // NAVIGAZIONE
+  // ===============================
   function goTo(page) {
     window.location.href = page;
   }
@@ -102,8 +109,18 @@
     window.location.href = "index.html";
   }
 
+  function goDashboard() {
+    window.location.href = "dashboard.html";
+  }
 
+  function goBack() {
+    window.history.back();
+  }
+
+
+  // ===============================
   // HEADER LOAD
+  // ===============================
   fetch("components/header.html")
     .then(res => res.text())
     .then(data => {
@@ -111,7 +128,9 @@
     });
 
 
+  // ===============================
   // POPUP
+  // ===============================
   function openSettimanaPopup() {
     document.getElementById("settimanaModal").style.display = "flex";
   }
@@ -121,7 +140,9 @@
   }
 
 
-  // SALVATAGGIO FIREBASE
+  // ===============================
+  // SALVA SETTIMANA
+  // ===============================
   function salvaSettimana() {
 
     const nome = document.getElementById("nomeSettimana").value;
@@ -143,13 +164,9 @@
     })
     .then((docRef) => {
 
-      creaCardSettimana(
-  data.nome,
-  data.dal,
-  data.al,
-  data.prezzo,
-  doc.id
-);
+      // CREA CARD SENZA PREZZO VISIBILE
+      creaCardSettimana(nome, dal, al, docRef.id);
+
       closeSettimanaPopup();
 
       document.getElementById("nomeSettimana").value = "";
@@ -165,28 +182,32 @@
   }
 
 
-  // CREAZIONE CARD
-  function creaCardSettimana(nome, dal, al, prezzo, docId) {
+  // ===============================
+  // CREA CARD SETTIMANA
+  // ===============================
+  function creaCardSettimana(nome, dal, al, id) {
 
-  const container = document.getElementById("settimaneContainer");
+    const container = document.getElementById("settimaneContainer");
 
-  const card = document.createElement("div");
-  card.className = "settimana-card";
+    const card = document.createElement("div");
+    card.className = "settimana-card";
 
-  card.onclick = function() {
-    window.location.href = "settimana.html?id=" + docId;
-  };
+    card.onclick = function() {
+      window.location.href = "settimana.html?id=" + id;
+    };
 
-  card.innerHTML = `
-    <h3>${nome}</h3>
-    <p><strong>Periodo:</strong> ${dal} - ${al}</p>
-    <p><strong>Prezzo:</strong> € ${prezzo}</p>
-  `;
+    card.innerHTML = `
+      <h3>${nome}</h3>
+      <p><strong>Periodo:</strong> ${dal} - ${al}</p>
+    `;
 
-  container.appendChild(card);
-}
+    container.appendChild(card);
+  }
 
+
+  // ===============================
   // CARICA SETTIMANE ALL'AVVIO
+  // ===============================
   window.onload = function() {
 
     db.collection("settimane")
@@ -202,7 +223,7 @@
             data.nome,
             data.dal,
             data.al,
-            data.prezzo
+            doc.id
           );
 
         });
@@ -212,16 +233,6 @@
   };
 
 </script>
-<script>
 
-function goDashboard() {
-  window.location.href = "dashboard.html";
-}
-
-function goBack() {
-  window.history.back();
-}
-
-</script>
 </body>
 </html>
