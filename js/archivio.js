@@ -71,10 +71,12 @@ function eliminaAtleta(id){
 // ================= SCHEDA =================
 
 function visualizzaScheda(id){
-  window.location.href =
-    "scheda-atleta.html?id=" + id;
-}
 
+  localStorage.setItem("atletaEditId", id);
+
+  window.location.href = "girlcamp.html";
+
+}
 
 // AVVIO
 window.onload = caricaAtlete;

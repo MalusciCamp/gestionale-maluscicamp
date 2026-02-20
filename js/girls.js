@@ -4,6 +4,10 @@ fetch("components/header.html")
 .then(r => r.text())
 .then(h => document.getElementById("header").innerHTML = h);
 
+// ================= MODALITÀ =================
+
+let atletaInModifica = null;
+
 
 // ================= POPUP =================
 
@@ -138,6 +142,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// ================= APRI IN MODIFICA =================
+
+function apriModificaAtleta(id){
+
+  atletaInModifica = id;
+
+  openPopup(); // usa popup già esistente
+
+}
 
 // ================= SALVATAGGIO COMPLETO =================
 
@@ -231,3 +244,20 @@ function salvaIscrizione(){
   });
 
 }
+// ================= CONTROLLO EDIT =================
+
+window.addEventListener("load", ()=>{
+
+  const id = localStorage.getItem("atletaEditId");
+
+  if(id){
+
+    atletaInModifica = id;
+
+    openPopup();
+
+    localStorage.removeItem("atletaEditId");
+
+  }
+
+});
