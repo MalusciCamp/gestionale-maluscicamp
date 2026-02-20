@@ -143,7 +143,13 @@
     })
     .then((docRef) => {
 
-      creaCardSettimana(nome, dal, al, prezzo);
+      creaCardSettimana(
+  data.nome,
+  data.dal,
+  data.al,
+  data.prezzo,
+  doc.id
+);
       closeSettimanaPopup();
 
       document.getElementById("nomeSettimana").value = "";
@@ -160,22 +166,25 @@
 
 
   // CREAZIONE CARD
-  function creaCardSettimana(nome, dal, al, prezzo) {
+  function creaCardSettimana(nome, dal, al, prezzo, docId) {
 
-    const container = document.getElementById("settimaneContainer");
+  const container = document.getElementById("settimaneContainer");
 
-    const card = document.createElement("div");
-    card.className = "settimana-card";
+  const card = document.createElement("div");
+  card.className = "settimana-card";
 
-    card.innerHTML = `
-      <h3>${nome}</h3>
-      <p><strong>Periodo:</strong> ${dal} - ${al}</p>
-      <p><strong>Prezzo:</strong> € ${prezzo}</p>
-    `;
+  card.onclick = function() {
+    window.location.href = "settimana.html?id=" + docId;
+  };
 
-    container.appendChild(card);
-  }
+  card.innerHTML = `
+    <h3>${nome}</h3>
+    <p><strong>Periodo:</strong> ${dal} - ${al}</p>
+    <p><strong>Prezzo:</strong> € ${prezzo}</p>
+  `;
 
+  container.appendChild(card);
+}
 
   // CARICA SETTIMANE ALL'AVVIO
   window.onload = function() {

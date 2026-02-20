@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settimana Camp</title>
+
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/settimana.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<div class="page-container">
+
+  <h1 id="titoloSettimana">Settimana</h1>
+
+  <div class="settimana-grid">
+
+    <!-- ISCRITTI -->
+    <div class="settimana-card interno">
+      <i class="fa-solid fa-users"></i>
+      <h2>Iscritti</h2>
+    </div>
+
+    <!-- FUTURE -->
+    <div class="settimana-card interno disabled">
+      <i class="fa-solid fa-layer-group"></i>
+      <h2>Gruppi</h2>
+    </div>
+
+    <div class="settimana-card interno disabled">
+      <i class="fa-solid fa-bed"></i>
+      <h2>Camere</h2>
+    </div>
+
+    <div class="settimana-card interno disabled">
+      <i class="fa-solid fa-euro-sign"></i>
+      <h2>Pagamenti</h2>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
+    authDomain: "gestionale-maluscicamp.firebaseapp.com",
+    projectId: "gestionale-maluscicamp",
+    storageBucket: "gestionale-maluscicamp.appspot.com",
+    messagingSenderId: "615282026849",
+    appId: "1:615282026849:web:bf46adfca227570d7d7d20"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // HEADER
+  fetch("components/header.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("header").innerHTML = data;
+    });
+
+  // PRENDI ID SETTIMANA DA URL
+  const params = new URLSearchParams(window.location.search);
+  const settimanaID = params.get("id");
+
+  // CARICA NOME SETTIMANA
+  db.collection("settimane")
+    .doc(settimanaID)
+    .get()
+    .then((doc) => {
+
+      const data = doc.data();
+      document.getElementById("titoloSettimana").textContent = data.nome;
+
+    });
+
+</script>
+
+</body>
+</html>
