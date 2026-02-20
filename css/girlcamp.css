@@ -296,3 +296,43 @@ textarea {
   padding: 8px;
   font-weight: bold;
 }
+/* WRAPPER */
+
+.settimane-pagamento-wrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+  align-items: start;
+}
+
+/* BOX SETTIMANE */
+
+.settimane-box {
+  background: #fff;
+}
+
+/* BOX PAGAMENTO */
+
+.pagamento-box {
+  background: #f4f6f8;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pagamento-box input {
+  padding: 8px;
+  font-weight: bold;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+  .settimane-pagamento-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+}
