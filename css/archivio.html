@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archivio Atlete</title>
+
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/archivio.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<div class="page-container">
+
+<h1>Archivio Atlete</h1>
+
+<table class="archivio-table">
+
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Cognome</th>
+      <th>Classe</th>
+      <th>Ruolo</th>
+      <th>Azioni</th>
+    </tr>
+  </thead>
+
+  <tbody id="tabellaAtlete">
+    <!-- Firebase -->
+  </tbody>
+
+</table>
+
+</div>
+<!-- Caricate da Firebase -->
+</div>
+
+</div>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/archivio.js"></script>
+
+<script>
+function goDashboard(){
+  window.location.href="dashboard.html";
+}
+
+function goBack(){
+  window.history.back();
+}
+</script>
+
+</body>
+</html>
