@@ -9,7 +9,10 @@ fetch("components/header.html")
 function caricaAtlete(){
 
   const tbody = document.getElementById("tabellaAtlete");
-  tbody.innerHTML="";
+
+  if(!tbody) return; // evita errore null
+
+  tbody.innerHTML = "";
 
   db.collection("atleti")
   .orderBy("createdAt","desc")
@@ -27,12 +30,15 @@ function caricaAtlete(){
         <td>${data.cognome || ""}</td>
         <td>${data.classe || ""}</td>
         <td>${data.ruolo || ""}</td>
+
         <td>
-          <button onclick="visualizzaScheda('${doc.id}')">
+          <button class="view"
+            onclick="visualizzaScheda('${doc.id}')">
             <i class="fa-solid fa-eye"></i>
           </button>
 
-          <button onclick="eliminaAtleta('${doc.id}')">
+          <button class="delete"
+            onclick="eliminaAtleta('${doc.id}')">
             <i class="fa-solid fa-trash"></i>
           </button>
         </td>
@@ -62,12 +68,11 @@ function eliminaAtleta(id){
 }
 
 
-// ================= VISUALIZZA SCHEDA =================
+// ================= SCHEDA =================
 
 function visualizzaScheda(id){
-
-  window.location.href = "scheda-atleta.html?id=" + id;
-
+  window.location.href =
+    "scheda-atleta.html?id=" + id;
 }
 
 
