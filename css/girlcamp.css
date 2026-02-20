@@ -103,3 +103,126 @@ h1 {
 .girls-card.archive {
   background: linear-gradient(135deg, #616161, #9e9e9e);
 }
+
+/* =========================
+   MODAL LARGE
+========================= */
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-large {
+  background: white;
+  width: 90%;
+  max-width: 1100px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 25px;
+  position: relative;
+}
+
+/* HEADER */
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.tab-btn {
+  padding: 8px 15px;
+  border: none;
+  cursor: pointer;
+  background: #ddd;
+  border-radius: 6px;
+}
+
+.tab-btn.active {
+  background: #e91e63;
+  color: white;
+}
+
+.close-x {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* FORM GRID */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 8px;
+}
+
+/* TOGGLE */
+
+.toggle-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.toggle {
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+}
+
+.toggle.red {
+  background: #d32f2f;
+}
+
+.toggle.green {
+  background: #388e3c;
+}
+
+/* FOOTER */
+
+.modal-footer {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.save-btn {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+
+  .modal-large {
+    padding: 15px;
+  }
+
+}
