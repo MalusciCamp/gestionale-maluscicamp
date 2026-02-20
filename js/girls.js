@@ -161,6 +161,8 @@ function apriModificaAtleta(id){
 }
 // ================= CARICA DATI ATLETA =================
 
+// ================= CARICA DATI ATLETA =================
+
 function caricaDatiAtleta(){
 
   if(!atletaInModifica) return;
@@ -172,21 +174,27 @@ function caricaDatiAtleta(){
 
     const data = doc.data();
 
-    // DATI BASE
+    // ===== DATI BASE =====
     document.getElementById("nome").value = data.nome || "";
     document.getElementById("cognome").value = data.cognome || "";
+    document.getElementById("dataNascita").value = data.dataNascita || "";
+    document.getElementById("luogoNascita").value = data.luogoNascita || "";
     document.getElementById("classe").value = data.classe || "";
     document.getElementById("ruolo").value = data.ruolo || "";
 
-    // FISICI
+    // ===== FISICI =====
     document.getElementById("altezza").value = data.altezza || "";
     document.getElementById("taglia").value = data.taglia || "";
     document.getElementById("scarpa").value = data.scarpa || "";
 
-    // CONTATTI
+    // ===== CONTATTI =====
     document.getElementById("telefono1").value = data.telefono1 || "";
     document.getElementById("telefono2").value = data.telefono2 || "";
+    document.getElementById("indirizzo").value = data.indirizzo || "";
     document.getElementById("email").value = data.email || "";
+
+    // ===== NOTE =====
+    document.getElementById("note").value = data.note || "";
 
   });
 
