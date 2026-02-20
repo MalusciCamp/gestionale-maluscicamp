@@ -21,59 +21,128 @@
 
 <div class="page-container">
 
-  <!-- TITOLO -->
   <h1>Girls Soccer Camp</h1>
 
-  <!-- AZIONI -->
-<div class="girls-cards">
+  <!-- BOX AZIONI -->
+  <div class="girls-cards">
 
-  <div class="girls-card new" onclick="openPopup()">
-    <i class="fa-solid fa-user-plus"></i>
-    <h2>Nuova Iscritta</h2>
-  </div>
+    <div class="girls-card new" onclick="openPopup()">
+      <i class="fa-solid fa-user-plus"></i>
+      <h2>Nuova Iscritta</h2>
+    </div>
 
-  <div class="girls-card archive" onclick="openArchivio()">
-    <i class="fa-solid fa-folder-open"></i>
-    <h2>Archivio Atlete</h2>
+    <div class="girls-card archive" onclick="openArchivio()">
+      <i class="fa-solid fa-folder-open"></i>
+      <h2>Archivio Atlete</h2>
+    </div>
+
   </div>
 
 </div>
 
-  <!-- FILTRO SETTIMANE -->
-  <div class="filter-box">
+<!-- =========================
+     POPUP NUOVA ISCRIZIONE
+========================= -->
 
-    <label>Filtra per settimana:</label>
-    <select id="filtroSettimane">
-      <option value="">Tutte</option>
-    </select>
+<div id="iscrizioneModal" class="modal">
+
+  <div class="modal-large">
+
+    <!-- HEADER POPUP -->
+    <div class="modal-header">
+
+      <h2>Nuova Iscrizione</h2>
+
+      <div class="modal-tabs">
+        <button class="tab-btn active" onclick="showManuale()">Inserimento Manuale</button>
+        <button class="tab-btn" onclick="showImport()">Import Excel</button>
+      </div>
+
+      <span class="close-x" onclick="closeIscrizionePopup()">✖</span>
+
+    </div>
+
+    <!-- ================= MANUALE ================= -->
+    <div id="manualeContent" class="modal-body">
+
+      <h3>Dati Giocatore</h3>
+      <div class="form-grid">
+        <input type="text" placeholder="Nome">
+        <input type="text" placeholder="Cognome">
+        <input type="date">
+        <input type="text" placeholder="Luogo di Nascita">
+        <input type="text" placeholder="Classe">
+        <input type="text" placeholder="Ruolo">
+      </div>
+
+      <h3>Dati Fisici</h3>
+      <div class="form-grid">
+        <input type="number" placeholder="Altezza (cm)">
+        <input type="text" placeholder="Taglia">
+        <input type="number" placeholder="Numero Scarpa">
+      </div>
+
+      <h3>Documenti</h3>
+      <div class="toggle-grid">
+        <div class="toggle red">Cert. Medico</div>
+        <div class="toggle red">Tessera Sanitaria</div>
+        <div class="toggle red">Documento Identità</div>
+        <div class="toggle red">Cert. Vaccinazioni</div>
+        <div class="toggle red">Firme Moduli</div>
+      </div>
+
+      <h3>Allergie / Intolleranze</h3>
+      <div class="form-grid">
+        <input type="text" placeholder="Allergie (SI/NO)">
+        <textarea placeholder="Descrizione Allergie"></textarea>
+      </div>
+
+      <h3>Contatti</h3>
+      <div class="form-grid">
+        <input type="text" placeholder="Telefono 1">
+        <input type="text" placeholder="Telefono 2">
+        <input type="text" placeholder="Indirizzo">
+        <input type="email" placeholder="Email">
+      </div>
+
+      <h3>Note</h3>
+      <textarea placeholder="Note..."></textarea>
+
+      <h3>Settimane</h3>
+      <div id="settimaneToggle" class="toggle-grid">
+        <!-- Caricheremo settimane Firebase -->
+      </div>
+
+      <div class="modal-footer">
+        <button class="save-btn">Salva Iscrizione</button>
+      </div>
+
+    </div>
+
+    <!-- ================= IMPORT ================= -->
+    <div id="importContent" class="modal-body hidden">
+
+      <h3>Importa da File Excel</h3>
+
+      <input type="file" accept=".xlsx,.xls">
+
+      <div class="modal-footer">
+        <button class="save-btn">Carica File</button>
+      </div>
+
+    </div>
 
   </div>
 
-  <!-- TABELLA -->
-  <table class="iscritti-table">
-
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Cognome</th>
-        <th>Settimane</th>
-        <th>Pagato</th>
-        <th>Azioni</th>
-      </tr>
-    </thead>
-
-    <tbody id="tabellaIscritti">
-      <!-- Dati Firebase -->
-    </tbody>
-
-  </table>
-
 </div>
 
-<!-- SCRIPT -->
+<!-- =========================
+     SCRIPT
+========================= -->
+
 <script>
 
-  // CONFIG FIREBASE
+  // FIREBASE
   const firebaseConfig = {
     apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
     authDomain: "gestionale-maluscicamp.firebaseapp.com",
@@ -86,61 +155,47 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-
-  // HEADER
+  // HEADER LOAD
   fetch("components/header.html")
     .then(res => res.text())
     .then(data => {
       document.getElementById("header").innerHTML = data;
     });
 
+  // NAVIGAZIONE HEADER
+  function goDashboard() {
+    window.location.href = "dashboard.html";
+  }
 
-  // POPUP PLACEHOLDER
+  function goBack() {
+    window.history.back();
+  }
+
+  // POPUP
   function openPopup() {
-    alert("Popup inserimento iscritta - prossimo step");
+    document.getElementById("iscrizioneModal").style.display = "flex";
+  }
+
+  function closeIscrizionePopup() {
+    document.getElementById("iscrizioneModal").style.display = "none";
   }
 
   function openArchivio() {
-    alert("Archivio atlete - prossimo step");
+    alert("Archivio Atlete - Step successivo");
   }
 
+  // TAB SWITCH
+  function showManuale() {
+    document.getElementById("manualeContent").classList.remove("hidden");
+    document.getElementById("importContent").classList.add("hidden");
+  }
 
-  // CARICA SETTIMANE NEL FILTRO
-  window.onload = function() {
-
-    const select = document.getElementById("filtroSettimane");
-
-    db.collection("settimane")
-      .get()
-      .then((querySnapshot) => {
-
-        querySnapshot.forEach((doc) => {
-
-          const data = doc.data();
-
-          const option = document.createElement("option");
-          option.value = doc.id;
-          option.textContent = data.nome;
-
-          select.appendChild(option);
-
-        });
-
-      });
-
-  };
+  function showImport() {
+    document.getElementById("manualeContent").classList.add("hidden");
+    document.getElementById("importContent").classList.remove("hidden");
+  }
 
 </script>
-<script>
 
-function goDashboard() {
-  window.location.href = "dashboard.html";
-}
-
-function goBack() {
-  window.history.back();
-}
-
-</script>
 </body>
 </html>
