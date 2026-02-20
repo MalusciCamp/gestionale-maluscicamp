@@ -286,3 +286,13 @@ textarea {
 .hidden {
   display: none;
 }
+.pagamento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.pagamento-grid input {
+  padding: 8px;
+  font-weight: bold;
+}
