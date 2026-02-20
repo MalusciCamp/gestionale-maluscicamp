@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/girlcamp.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -24,17 +25,19 @@
   <h1>Girls Soccer Camp</h1>
 
   <!-- AZIONI -->
-  <div class="actions-bar">
+<div class="girls-cards">
 
-    <button class="add-btn" onclick="openPopup()">
-      ➕ Nuova Iscritta
-    </button>
-
-    <button class="archive-btn" onclick="openArchivio()">
-      📂 Archivio Atlete
-    </button>
-
+  <div class="girls-card new" onclick="openPopup()">
+    <i class="fa-solid fa-user-plus"></i>
+    <h2>Nuova Iscritta</h2>
   </div>
+
+  <div class="girls-card archive" onclick="openArchivio()">
+    <i class="fa-solid fa-folder-open"></i>
+    <h2>Archivio Atlete</h2>
+  </div>
+
+</div>
 
   <!-- FILTRO SETTIMANE -->
   <div class="filter-box">
