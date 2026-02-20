@@ -140,8 +140,11 @@
 
     <div class="toggle-grid">
 
-      <div class="toggle red" onclick="toggleAllergie(this, true)">SI</div>
-      <div class="toggle red" onclick="toggleAllergie(this, false)">NO</div>
+      <div class="toggle red allergia-btn"
+     onclick="toggleAllergie(this, true)">SI</div>
+
+<div class="toggle red allergia-btn"
+     onclick="toggleAllergie(this, false)">NO</div>
 
     </div>
 
@@ -231,6 +234,40 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // =========================
+// CARICA SETTIMANE FIREBASE
+// =========================
+function caricaSettimane() {
+
+  const container = document.getElementById("settimaneToggle");
+
+  container.innerHTML = "";
+
+  db.collection("settimane")
+    .orderBy("createdAt")
+    .get()
+    .then((querySnapshot) => {
+
+      querySnapshot.forEach((doc) => {
+
+        const data = doc.data();
+
+        const box = document.createElement("div");
+
+        box.className = "toggle red";
+        box.innerText = data.nome;
+
+        // SALVIAMO ID SETTIMANA
+        box.dataset.id = doc.id;
+
+        container.appendChild(box);
+
+      });
+
+    });
+
+}
+
   // HEADER LOAD
   fetch("components/header.html")
     .then(res => res.text())
@@ -249,8 +286,9 @@
 
   // POPUP
   function openPopup() {
-    document.getElementById("iscrizioneModal").style.display = "flex";
-  }
+  document.getElementById("iscrizioneModal").style.display = "flex";
+  caricaSettimane();
+}
 
   function closeIscrizionePopup() {
     document.getElementById("iscrizioneModal").style.display = "none";
@@ -274,27 +312,35 @@
 </script>
 <script>
 
-// TOGGLE GENERICO
-document.querySelectorAll(".toggle").forEach(btn => {
-  btn.addEventListener("click", () => {
-    btn.classList.toggle("red");
-    btn.classList.toggle("green");
-  });
+// =========================
+// TOGGLE DOCUMENTI + SETTIMANE
+// =========================
+document.addEventListener("click", function(e) {
+
+  if (e.target.classList.contains("toggle") &&
+      !e.target.classList.contains("allergia-btn")) {
+
+    e.target.classList.toggle("red");
+    e.target.classList.toggle("green");
+  }
+
 });
 
-// ALLERGIE LOGICA
-function toggleAllergie(btn, stato) {
 
-  document.querySelectorAll(".section-card .toggle")
-    .forEach(t => {
-      if (t.innerText === "SI" || t.innerText === "NO") {
-        t.classList.remove("green");
-        t.classList.add("red");
-      }
-    });
+// =========================
+// TOGGLE ALLERGIE
+// =========================
+function toggleAllergie(element, stato) {
 
-  btn.classList.remove("red");
-  btn.classList.add("green");
+  const buttons = document.querySelectorAll(".allergia-btn");
+
+  buttons.forEach(btn => {
+    btn.classList.remove("green");
+    btn.classList.add("red");
+  });
+
+  element.classList.remove("red");
+  element.classList.add("green");
 
   const box = document.getElementById("boxAllergie");
 
@@ -303,6 +349,7 @@ function toggleAllergie(btn, stato) {
   } else {
     box.classList.add("hidden");
   }
+
 }
 
 </script>
