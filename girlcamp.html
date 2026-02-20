@@ -105,14 +105,22 @@
 
 <!-- ALLERGIE -->
 <div class="section-card">
-<h3>Allergie</h3>
+  <h3>Allergie</h3>
 
-<div class="toggle-grid">
-<div class="toggle red allergia-btn" onclick="toggleAllergie(this,true)">SI</div>
-<div class="toggle red allergia-btn" onclick="toggleAllergie(this,false)">NO</div>
-</div>
+  <div class="toggle-grid">
 
-<textarea id="boxAllergie" class="hidden"></textarea>
+    <div class="toggle red allergia-btn"
+         onclick="toggleAllergie(this,true)">SI</div>
+
+    <div class="toggle red allergia-btn"
+         onclick="toggleAllergie(this,false)">NO</div>
+
+  </div>
+
+  <textarea id="boxAllergie"
+            class="hidden"
+            placeholder="Descrizione Allergie..."></textarea>
+
 </div>
 
 <!-- CONTATTI -->
