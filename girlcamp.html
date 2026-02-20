@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Girls Soccer Camp</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Girls Soccer Camp</title>
 
-  <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/girlcamp.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/girlcamp.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- Firebase LIB -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 </head>
 
 <body>
@@ -20,306 +21,160 @@
 
 <div class="page-container">
 
-  <h1>Girls Soccer Camp</h1>
+<h1>Girls Soccer Camp</h1>
 
-  <div class="girls-cards">
+<div class="girls-cards">
 
-    <div class="girls-card new" onclick="openPopup()">
-      <i class="fa-solid fa-user-plus"></i>
-      <h2>Nuova Iscritta</h2>
-    </div>
+<div class="girls-card new" onclick="openPopup()">
+<i class="fa-solid fa-user-plus"></i>
+<h2>Nuova Iscritta</h2>
+</div>
 
-    <div class="girls-card archive" onclick="openArchivio()">
-      <i class="fa-solid fa-folder-open"></i>
-      <h2>Archivio Atlete</h2>
-    </div>
+<div class="girls-card archive" onclick="openArchivio()">
+<i class="fa-solid fa-folder-open"></i>
+<h2>Archivio Atlete</h2>
+</div>
 
-  </div>
-
+</div>
 </div>
 
 <!-- ================= POPUP ================= -->
 
 <div id="iscrizioneModal" class="modal">
-  <div class="modal-large">
+<div class="modal-large">
 
-    <div class="modal-header">
-      <h2>Nuova Iscrizione</h2>
+<div class="modal-header">
+<h2>Nuova Iscrizione</h2>
 
-      <div class="modal-tabs">
-        <button class="tab-btn active" onclick="showManuale()">Manuale</button>
-        <button class="tab-btn" onclick="showImport()">Import</button>
-      </div>
-
-      <span class="close-x" onclick="closeIscrizionePopup()">✖</span>
-    </div>
-
-    <!-- ================= MANUALE ================= -->
-
-    <div id="manualeContent" class="modal-body">
-
-      <!-- DATI GIOCATORE -->
-      <div class="section-card">
-        <h3>👤 Dati Giocatore</h3>
-
-        <div class="form-grid">
-          <input type="text" placeholder="Nome">
-          <input type="text" placeholder="Cognome">
-          <input type="date">
-          <input type="text" placeholder="Luogo di Nascita">
-          <input type="text" placeholder="Classe">
-
-          <select>
-            <option value="">Ruolo</option>
-            <option>Portiere</option>
-            <option>Difensore</option>
-            <option>Centrocampista</option>
-            <option>Attaccante</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- DATI FISICI -->
-      <div class="section-card">
-        <h3>📏 Dati Fisici</h3>
-
-        <div class="fisici-grid">
-          <input type="number" placeholder="Altezza">
-          <input type="text" placeholder="Taglia">
-          <input type="number" placeholder="Scarpa">
-        </div>
-      </div>
-
-      <!-- DOCUMENTI -->
-      <div class="section-card">
-        <h3>📄 Documenti</h3>
-
-        <div class="toggle-grid documenti-grid">
-          <div class="toggle red documento">Cert. Medico</div>
-          <div class="toggle red documento">Tessera Sanitaria</div>
-          <div class="toggle red documento">Documento Identità</div>
-          <div class="toggle red documento">Cert. Vaccinazioni</div>
-          <div class="toggle red documento">Firme Moduli</div>
-        </div>
-      </div>
-
-      <!-- ALLERGIE -->
-      <div class="section-card">
-        <h3>🩺 Allergie / Intolleranze</h3>
-
-        <div class="toggle-grid">
-          <div class="toggle red allergia-btn" onclick="toggleAllergie(this,true)">SI</div>
-          <div class="toggle red allergia-btn" onclick="toggleAllergie(this,false)">NO</div>
-        </div>
-
-        <textarea id="boxAllergie" class="hidden" placeholder="Descrizione Allergie..."></textarea>
-      </div>
-
-      <!-- CONTATTI -->
-      <div class="section-card">
-        <h3>📞 Contatti</h3>
-
-        <div class="form-grid">
-          <input type="text" placeholder="Telefono 1">
-          <input type="text" placeholder="Telefono 2">
-          <input type="text" placeholder="Indirizzo">
-          <input type="email" placeholder="Email">
-        </div>
-      </div>
-
-      <!-- NOTE -->
-      <div class="section-card">
-        <h3>📝 Note</h3>
-        <textarea placeholder="Note..."></textarea>
-      </div>
-
-      <!-- SETTIMANE + PAGAMENTO -->
-      <div class="section-card">
-
-        <h3>📅 Settimane & Pagamento</h3>
-
-        <div class="settimane-pagamento-wrapper">
-
-          <div>
-            <div id="settimaneToggle" class="toggle-grid"></div>
-          </div>
-
-          <div class="pagamento-box">
-            <label>Totale</label>
-            <input type="text" id="totalePagamento" readonly>
-
-            <label>Sconto</label>
-            <input type="number" id="scontoPagamento" value="0">
-
-            <label>Totale Scontato</label>
-            <input type="text" id="totaleScontato" readonly>
-
-            <label>Acconto</label>
-            <input type="number" id="accontoPagamento" value="0">
-
-            <label>Rimanenza</label>
-            <input type="text" id="restoPagamento" readonly>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- ================= IMPORT ================= -->
-
-    <div id="importContent" class="modal-body hidden">
-      <h3>Importa da Excel</h3>
-      <input type="file" accept=".xlsx,.xls">
-    </div>
-
-  </div>
+<div class="modal-tabs">
+<button class="tab-btn active" onclick="showManuale()">Manuale</button>
+<button class="tab-btn" onclick="showImport()">Import</button>
 </div>
 
-<!-- ================= SCRIPT ================= -->
+<span class="close-x" onclick="closeIscrizionePopup()">✖</span>
+</div>
 
+<!-- ================= MANUALE ================= -->
+
+<div id="manualeContent" class="modal-body">
+
+<!-- DATI -->
+<div class="section-card">
+<h3>Dati Giocatore</h3>
+
+<div class="form-grid">
+<input id="nome" placeholder="Nome">
+<input id="cognome" placeholder="Cognome">
+<input id="dataNascita" type="date">
+<input id="luogoNascita" placeholder="Luogo di Nascita">
+<input id="classe" placeholder="Classe">
+
+<select id="ruolo">
+<option value="">Ruolo</option>
+<option>Portiere</option>
+<option>Difensore</option>
+<option>Centrocampista</option>
+<option>Attaccante</option>
+</select>
+</div>
+</div>
+
+<!-- FISICI -->
+<div class="section-card">
+<h3>Dati Fisici</h3>
+
+<div class="fisici-grid">
+<input id="altezza" placeholder="Altezza">
+<input id="taglia" placeholder="Taglia">
+<input id="scarpa" placeholder="Scarpa">
+</div>
+</div>
+
+<!-- DOCUMENTI -->
+<div class="section-card">
+<h3>Documenti</h3>
+
+<div class="toggle-grid">
+<div class="toggle red documento">CertMedico</div>
+<div class="toggle red documento">TesseraSanitaria</div>
+<div class="toggle red documento">DocumentoIdentita</div>
+<div class="toggle red documento">Vaccini</div>
+<div class="toggle red documento">Firme</div>
+</div>
+</div>
+
+<!-- ALLERGIE -->
+<div class="section-card">
+<h3>Allergie</h3>
+
+<div class="toggle-grid">
+<div class="toggle red allergia-btn" onclick="toggleAllergie(this,true)">SI</div>
+<div class="toggle red allergia-btn" onclick="toggleAllergie(this,false)">NO</div>
+</div>
+
+<textarea id="boxAllergie" class="hidden"></textarea>
+</div>
+
+<!-- CONTATTI -->
+<div class="section-card">
+<h3>Contatti</h3>
+
+<div class="form-grid">
+<input id="telefono1" placeholder="Telefono 1">
+<input id="telefono2" placeholder="Telefono 2">
+<input id="indirizzo" placeholder="Indirizzo">
+<input id="email" placeholder="Email">
+</div>
+</div>
+
+<!-- NOTE -->
+<div class="section-card">
+<h3>Note</h3>
+<textarea id="note"></textarea>
+</div>
+
+<!-- SETTIMANE + PAGAMENTO -->
+<div class="section-card">
+
+<h3>Settimane & Pagamento</h3>
+
+<div class="settimane-pagamento-wrapper">
+
+<div id="settimaneToggle" class="toggle-grid"></div>
+
+<div class="pagamento-box">
+<input id="totalePagamento" readonly>
+<input id="scontoPagamento" type="number" value="0">
+<input id="totaleScontato" readonly>
+<input id="accontoPagamento" type="number" value="0">
+<input id="restoPagamento" readonly>
+</div>
+
+</div>
+</div>
+
+<button onclick="salvaIscrizione()" class="save-btn">
+Salva Iscrizione
+</button>
+
+</div>
+
+<!-- IMPORT -->
+<div id="importContent" class="modal-body hidden">
+<h3>Importa da Excel</h3>
+<input type="file" accept=".xlsx,.xls">
+</div>
+
+</div>
+</div>
+
+<!-- ================= JS ESTERNI ================= -->
+
+<script src="js/firebase-config.js"></script>
+<script src="js/girls.js"></script>
+
+<!-- NAV HEADER -->
 <script>
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
-  authDomain: "gestionale-maluscicamp.firebaseapp.com",
-  projectId: "gestionale-maluscicamp",
-  storageBucket: "gestionale-maluscicamp.appspot.com",
-  messagingSenderId: "615282026849",
-  appId: "1:615282026849:web:bf46adfca227570d7d7d20"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-fetch("components/header.html")
-.then(res => res.text())
-.then(data => document.getElementById("header").innerHTML = data);
-
-// ================= POPUP =================
-
-function openPopup() {
-  document.getElementById("iscrizioneModal").style.display = "flex";
-  caricaSettimane();
-}
-
-function closeIscrizionePopup() {
-  document.getElementById("iscrizioneModal").style.display = "none";
-}
-
-function showManuale() {
-  document.getElementById("manualeContent").classList.remove("hidden");
-  document.getElementById("importContent").classList.add("hidden");
-}
-
-function showImport() {
-  document.getElementById("manualeContent").classList.add("hidden");
-  document.getElementById("importContent").classList.remove("hidden");
-}
-
-function openArchivio(){
-  alert("Archivio - prossimo step");
-}
-
-// ================= DOCUMENTI =================
-
-document.addEventListener("click", function(e){
-  if(e.target.classList.contains("documento")){
-    e.target.classList.toggle("red");
-    e.target.classList.toggle("green");
-  }
-});
-
-// ================= ALLERGIE =================
-
-function toggleAllergie(btn, stato){
-
-  document.querySelectorAll(".allergia-btn").forEach(b=>{
-    b.classList.remove("green");
-    b.classList.add("red");
-  });
-
-  btn.classList.remove("red");
-  btn.classList.add("green");
-
-  const box = document.getElementById("boxAllergie");
-  stato ? box.classList.remove("hidden") : box.classList.add("hidden");
-}
-
-// ================= SETTIMANE =================
-
-function caricaSettimane(){
-
-  const container = document.getElementById("settimaneToggle");
-  container.innerHTML = "";
-
-  db.collection("settimane").orderBy("createdAt").get()
-  .then(snapshot=>{
-
-    snapshot.forEach(doc=>{
-
-      const data = doc.data();
-
-      const box = document.createElement("div");
-      box.className="toggle red";
-      box.innerText=data.nome;
-      box.dataset.prezzo=data.prezzo;
-
-      box.addEventListener("click",function(){
-
-        box.classList.toggle("red");
-        box.classList.toggle("green");
-
-        calcolaTotale();
-      });
-
-      container.appendChild(box);
-    });
-
-  });
-}
-
-// ================= CALCOLI =================
-
-function calcolaTotale(){
-
-  let totale=0;
-
-  document.querySelectorAll("#settimaneToggle .green")
-  .forEach(box=>{
-    totale+=Number(box.dataset.prezzo);
-  });
-
-  document.getElementById("totalePagamento").value=totale+" €";
-  calcolaSconto();
-}
-
-function calcolaSconto(){
-
-  const totale=parseFloat(document.getElementById("totalePagamento").value)||0;
-  const sconto=Number(document.getElementById("scontoPagamento").value)||0;
-
-  const totaleScontato=totale-sconto;
-
-  document.getElementById("totaleScontato").value=totaleScontato+" €";
-  calcolaRimanenza();
-}
-
-function calcolaRimanenza(){
-
-  const totale=parseFloat(document.getElementById("totaleScontato").value)||0;
-  const acconto=Number(document.getElementById("accontoPagamento").value)||0;
-
-  document.getElementById("restoPagamento").value=(totale-acconto)+" €";
-}
-
-document.getElementById("scontoPagamento").addEventListener("input",calcolaSconto);
-document.getElementById("accontoPagamento").addEventListener("input",calcolaRimanenza);
-
-</script>
-<script>
-
 function goDashboard() {
   window.location.href = "dashboard.html";
 }
@@ -327,7 +182,7 @@ function goDashboard() {
 function goBack() {
   window.history.back();
 }
-
 </script>
+
 </body>
 </html>
