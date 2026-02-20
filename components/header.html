@@ -1,13 +1,36 @@
-<header class="main-header">
+<div class="main-header">
 
-  <div class="header-content">
+  <!-- SINISTRA NAV -->
+  <div class="header-left">
 
-    <!-- LOGO -->
-    <img src="img/logo.png" class="header-logo">
+    <button class="nav-btn" onclick="goDashboard()">
+      🏠 Dashboard
+    </button>
 
-    <!-- TITOLO -->
+    <button class="nav-btn back" onclick="goBack()">
+      ⬅️ Indietro
+    </button>
+
+  </div>
+
+  <!-- CENTRO LOGO -->
+  <div class="header-center">
+
+    <img src="img/LOGO.PNG" class="header-logo">
+
     <h1>ALBERTO MALUSCI CAMP</h1>
 
   </div>
 
-</header>
+</div>
+<script>
+
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+
+function goBack() {
+  window.history.back();
+}
+
+</script>
