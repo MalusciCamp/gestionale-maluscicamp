@@ -53,22 +53,11 @@ function openArchivio(){
 
 // ================= DOCUMENTI =================
 
-// ================= DOCUMENTI =================
-
 document.addEventListener("click", e => {
 
-  if(e.target.classList.contains("toggle-doc")){
-
-    if(e.target.innerText === "NO"){
-      e.target.innerText = "SI";
-      e.target.classList.remove("red");
-      e.target.classList.add("green");
-    }else{
-      e.target.innerText = "NO";
-      e.target.classList.remove("green");
-      e.target.classList.add("red");
-    }
-
+  if(e.target.classList.contains("documento")){
+    e.target.classList.toggle("green");
+    e.target.classList.toggle("red");
   }
 
 });
@@ -229,11 +218,25 @@ if(data.documenti){
   const tess = document.querySelector('[data-key="tesseraSanitaria"]');
   const docId = document.querySelector('[data-key="documentoIdentita"]');
 
-  if(cert){
-    cert.innerText = data.documenti.certMedico ? "SI" : "NO";
-    cert.classList.toggle("green", data.documenti.certMedico);
-    cert.classList.toggle("red", !data.documenti.certMedico);
-  }
+  // ===== DOCUMENTI =====
+if(data.documenti){
+
+  document.querySelectorAll(".documento")
+  .forEach(box=>{
+
+    const key = box.dataset.key;
+
+    if(data.documenti[key]){
+      box.classList.remove("red");
+      box.classList.add("green");
+    }else{
+      box.classList.remove("green");
+      box.classList.add("red");
+    }
+
+  });
+
+}
 
   if(tess){
     tess.innerText = data.documenti.tesseraSanitaria ? "SI" : "NO";
@@ -343,21 +346,13 @@ const pagamento = {
   metodoSaldo: metodoSaldo.value || ""
 };
 
-  const documenti = {
+ const documenti = {};
 
-  certMedico:
-    document.querySelector('[data-key="certMedico"]')
-    ?.innerText === "SI",
-
-  tesseraSanitaria:
-    document.querySelector('[data-key="tesseraSanitaria"]')
-    ?.innerText === "SI",
-
-  documentoIdentita:
-    document.querySelector('[data-key="documentoIdentita"]')
-    ?.innerText === "SI"
-
-};
+document.querySelectorAll(".documento")
+.forEach(box=>{
+  documenti[box.dataset.key] =
+    box.classList.contains("green");
+});
   const atleta = {
 
     nome: nome.value,
