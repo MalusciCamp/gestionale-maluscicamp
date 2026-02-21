@@ -14,8 +14,8 @@ function caricaAtlete(){
   tbody.innerHTML = "";
 
   db.collection("atleti")
-  .orderBy("cognome")
-  .get()
+.orderBy("cognomeLower")
+.get()
   .then(snapshot=>{
 
     snapshot.forEach(doc=>{

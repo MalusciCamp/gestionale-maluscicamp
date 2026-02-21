@@ -347,6 +347,7 @@ const pagamento = {
 
     nome: nome.value,
     cognome: cognome.value,
+    cognomeLower: cognome.value.toLowerCase(),
     dataNascita: dataNascita.value,
     luogoNascita: luogoNascita.value,
     classe: classe.value,
