@@ -177,6 +177,7 @@ function caricaDatiAtleta(){
     const data = doc.data();
     if(!data) return;
 
+    // ===== DATI BASE =====
     nome.value = data.nome || "";
     cognome.value = data.cognome || "";
     dataNascita.value = data.dataNascita || "";
@@ -184,17 +185,19 @@ function caricaDatiAtleta(){
     classe.value = data.classe || "";
     ruolo.value = data.ruolo || "";
 
+    // ===== FISICI =====
     altezza.value = data.altezza || "";
     taglia.value = data.taglia || "";
     scarpa.value = data.scarpa || "";
 
+    // ===== CONTATTI =====
     telefono1.value = data.telefono1 || "";
     telefono2.value = data.telefono2 || "";
     indirizzo.value = data.indirizzo || "";
     email.value = data.email || "";
     note.value = data.note || "";
 
-    // Allergie
+    // ===== ALLERGIE =====
     if(data.allergie?.stato){
       toggleAllergie(
         document.querySelectorAll(".allergia-btn")[0],
@@ -202,9 +205,14 @@ function caricaDatiAtleta(){
       );
       boxAllergie.value =
         data.allergie.descrizione || "";
+    }else{
+      toggleAllergie(
+        document.querySelectorAll(".allergia-btn")[1],
+        false
+      );
     }
 
-    // Documenti
+    // ===== DOCUMENTI =====
     if(data.documenti){
 
       const cert =
@@ -226,6 +234,57 @@ function caricaDatiAtleta(){
 
       documentoIdentitaNumero.value =
         data.documenti.documentoIdentitaNumero || "";
+    }
+
+    // ===== SETTIMANE =====
+    if(data.settimane){
+
+      setTimeout(()=>{
+
+        document
+        .querySelectorAll("#settimaneToggle .toggle")
+        .forEach(box=>{
+
+          const trovata =
+            data.settimane.find(
+              s => s.id === box.dataset.id
+            );
+
+          if(trovata){
+            box.classList.remove("red");
+            box.classList.add("green");
+          }
+
+        });
+
+        calcolaTotale();
+
+      },300);
+    }
+
+    // ===== PAGAMENTO =====
+    if(data.pagamento){
+
+      totalePagamento.value =
+        data.pagamento.totale || 0;
+
+      scontoPagamento.value =
+        data.pagamento.sconto || 0;
+
+      totaleScontato.value =
+        data.pagamento.totaleScontato || 0;
+
+      accontoPagamento.value =
+        data.pagamento.acconto || 0;
+
+      restoPagamento.value =
+        data.pagamento.saldo || 0;
+
+      metodoAcconto.value =
+        data.pagamento.metodoAcconto || "";
+
+      metodoSaldo.value =
+        data.pagamento.metodoSaldo || "";
     }
 
   });
