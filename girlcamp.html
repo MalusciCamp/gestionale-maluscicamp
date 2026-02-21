@@ -63,7 +63,7 @@
 <h3>Dati Giocatore</h3>
 
 <div class="form-grid">
-<input id="nome" placeholder="Nome">
+<input id="nome" placeholder="Nome"> 
 <input id="cognome" placeholder="Cognome">
 <input id="dataNascita" type="date">
 <input id="luogoNascita" placeholder="Luogo di Nascita">
@@ -104,19 +104,19 @@
   </div>
 
   <!-- NUMERI DOCUMENTI -->
-  <div class="documenti-inputs">
-
-    <label>Tessera Sanitaria</label>
-    <input id="tesseraSanitariaNumero"
-           placeholder="Numero Tessera">
-
-    <label>Documento Identità</label>
-    <input id="documentoIdentitaNumero"
-           placeholder="Numero Documento">
-
-  </div>
-
+<div class="documento-row">
+  <label>Certificato medico</label>
+  <div class="toggle-doc" data-key="certMedico">NO</div>
 </div>
+
+<div class="documento-row">
+  <label>Tessera sanitaria</label>
+  <div class="toggle-doc" data-key="tesseraSanitaria">NO</div>
+</div>
+
+<div class="documento-row">
+  <label>Documento identità</label>
+  <div class="toggle-doc" data-key="documentoIdentita">NO</div>
 </div>
 <!-- ALLERGIE -->
 <div class="section-card">
