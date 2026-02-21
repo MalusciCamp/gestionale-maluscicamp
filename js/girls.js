@@ -53,15 +53,25 @@ function openArchivio(){
 
 // ================= DOCUMENTI =================
 
+// ================= DOCUMENTI =================
+
 document.addEventListener("click", e => {
 
-  if(e.target.classList.contains("documento")){
-    e.target.classList.toggle("green");
-    e.target.classList.toggle("red");
+  if(e.target.classList.contains("toggle-doc")){
+
+    if(e.target.innerText === "NO"){
+      e.target.innerText = "SI";
+      e.target.classList.remove("red");
+      e.target.classList.add("green");
+    }else{
+      e.target.innerText = "NO";
+      e.target.classList.remove("green");
+      e.target.classList.add("red");
+    }
+
   }
 
 });
-
 
 // ================= ALLERGIE =================
 
@@ -213,28 +223,31 @@ function caricaDatiAtleta(){
     }
 
     // ===== DOCUMENTI =====
-    if(data.documenti){
+if(data.documenti){
 
-      const cert =
-        document.querySelector('[data-key="certMedico"]');
+  const cert = document.querySelector('[data-key="certMedico"]');
+  const tess = document.querySelector('[data-key="tesseraSanitaria"]');
+  const docId = document.querySelector('[data-key="documentoIdentita"]');
 
-      if(cert){
-        cert.classList.toggle(
-          "green",
-          data.documenti.certMedico
-        );
-        cert.classList.toggle(
-          "red",
-          !data.documenti.certMedico
-        );
-      }
+  if(cert){
+    cert.innerText = data.documenti.certMedico ? "SI" : "NO";
+    cert.classList.toggle("green", data.documenti.certMedico);
+    cert.classList.toggle("red", !data.documenti.certMedico);
+  }
 
-      tesseraSanitariaNumero.value =
-        data.documenti.tesseraSanitariaNumero || "";
+  if(tess){
+    tess.innerText = data.documenti.tesseraSanitaria ? "SI" : "NO";
+    tess.classList.toggle("green", data.documenti.tesseraSanitaria);
+    tess.classList.toggle("red", !data.documenti.tesseraSanitaria);
+  }
 
-      documentoIdentitaNumero.value =
-        data.documenti.documentoIdentitaNumero || "";
-    }
+  if(docId){
+    docId.innerText = data.documenti.documentoIdentita ? "SI" : "NO";
+    docId.classList.toggle("green", data.documenti.documentoIdentita);
+    docId.classList.toggle("red", !data.documenti.documentoIdentita);
+  }
+
+}
 
     // =========================
     // ===== SETTIMANE =====
@@ -332,17 +345,19 @@ const pagamento = {
 
   const documenti = {
 
-    certMedico:
-      document.querySelector('[data-key="certMedico"]')
-      ?.classList.contains("green") || false,
+  certMedico:
+    document.querySelector('[data-key="certMedico"]')
+    ?.innerText === "SI",
 
-    tesseraSanitariaNumero:
-      tesseraSanitariaNumero.value,
+  tesseraSanitaria:
+    document.querySelector('[data-key="tesseraSanitaria"]')
+    ?.innerText === "SI",
 
-    documentoIdentitaNumero:
-      documentoIdentitaNumero.value
-  };
+  documentoIdentita:
+    document.querySelector('[data-key="documentoIdentita"]')
+    ?.innerText === "SI"
 
+};
   const atleta = {
 
     nome: nome.value,
