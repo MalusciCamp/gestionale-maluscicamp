@@ -51,39 +51,58 @@ h1{
 
 /* ===== TABELLA ===== */
 
+/* ===== TABELLA ===== */
+
 .archivio-table{
   width:100%;
   border-collapse:collapse;
+  table-layout:fixed;   /* FONDAMENTALE */
 }
 
 .archivio-table thead{
-  background:linear-gradient(90deg,#0f5132,#157347);
+  background:#0f5132;
   color:white;
 }
 
+.archivio-table th,
+.archivio-table td{
+  padding:14px;
+  text-align:center;
+  border-bottom:1px solid #eee;
+  vertical-align:middle;
+}
+
 .archivio-table th{
-  padding:16px;
-  font-size:14px;
-  text-transform:uppercase;
+  font-weight:600;
   letter-spacing:0.5px;
 }
 
-.archivio-table td{
-  padding:14px;
-  border-bottom:1px solid #eee;
-  font-size:14px;
+/* LARGHEZZE COLONNE */
+
+.archivio-table th:nth-child(1),
+.archivio-table td:nth-child(1){
+  width:25%;
 }
 
-.archivio-table tbody tr{
-  transition:0.2s;
+.archivio-table th:nth-child(2),
+.archivio-table td:nth-child(2){
+  width:25%;
 }
 
-.archivio-table tbody tr:hover{
-  background:#f1fdf6;
-  transform:scale(1.01);
+.archivio-table th:nth-child(3),
+.archivio-table td:nth-child(3){
+  width:15%;
 }
 
+.archivio-table th:nth-child(4),
+.archivio-table td:nth-child(4){
+  width:15%;
+}
 
+.archivio-table th:nth-child(5),
+.archivio-table td:nth-child(5){
+  width:20%;
+}
 /* ===== AZIONI ===== */
 
 .archivio-actions{
