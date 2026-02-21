@@ -467,3 +467,81 @@ function formattaData(dataISO){
   return d.toLocaleDateString("it-IT");
 }
 
+function apriPopupAggiungi(){
+  document.getElementById("popupAggiungi").classList.remove("popup-hidden");
+  document.getElementById("ricercaCognome").value = "";
+  document.getElementById("risultatiRicerca").innerHTML = "";
+}
+
+function chiudiPopupAggiungi(){
+  document.getElementById("popupAggiungi").classList.add("popup-hidden");
+}
+async function cercaAtleta(){
+
+  const testo = document
+    .getElementById("ricercaCognome")
+    .value
+    .toLowerCase()
+    .trim();
+
+  const box = document.getElementById("risultatiRicerca");
+  box.innerHTML = "";
+
+  if(testo.length < 2) return;
+
+  const snapshot = await db.collection("atleti").get();
+
+  snapshot.forEach(doc => {
+
+    const atleta = doc.data();
+
+    if(atleta.cognomeLower?.includes(testo)){
+
+      const div = document.createElement("div");
+      div.className = "riga-risultato";
+      div.innerText = atleta.cognome + " " + atleta.nome;
+
+      div.onclick = () => aggiungiIscrizioneManuale(doc.id);
+
+      box.appendChild(div);
+    }
+
+  });
+}
+async function aggiungiIscrizioneManuale(atletaId){
+
+  // 🔹 controllo se già iscritto
+  const giaIscritto = await db.collection("iscrizioni")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
+    .get();
+
+  if(!giaIscritto.empty){
+    alert("Atleta già iscritto a questa settimana.");
+    return;
+  }
+
+  // 🔹 recupero prezzo settimana
+  const settimanaDoc = await db.collection("settimane")
+    .doc(settimanaID)
+    .get();
+
+  if(!settimanaDoc.exists) return;
+
+  const settimana = settimanaDoc.data();
+
+  await db.collection("iscrizioni").add({
+    atletaId: atletaId,
+    settimanaId: settimanaID,
+    quota: Number(settimana.prezzo),
+    pagato: 0,
+    statoPagamento: "da_pagare",
+    anno: new Date().getFullYear(),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  alert("Iscrizione aggiunta!");
+
+  chiudiPopupAggiungi();
+  caricaIscritti();
+}
