@@ -50,8 +50,6 @@ async function caricaTitoloSettimana() {
 }
 
 
-// ================= CARICA ISCRITTI =================
-
 async function caricaIscritti(){
 
   tbody.innerHTML = "";
@@ -89,46 +87,46 @@ async function caricaIscritti(){
       const atleta = atletaDoc.data();
 
       righe.push({
-  cognome: atleta.cognome || "",
-  html: `
-    <tr>
-      <td>${atleta.cognome} ${atleta.nome}</td>
+        cognome: atleta.cognome || "",
+        html: `
+          <tr>
+            <td>${atleta.cognome} ${atleta.nome}</td>
 
-      <td>
-        <span class="cert-toggle ${atleta.documenti?.certMedico ? "green" : "red"}"
-          onclick="toggleCert(this)">
-          ${atleta.documenti?.certMedico ? "SI" : "NO"}
-        </span>
-      </td>
+            <td>
+              <span class="cert-toggle ${atleta.documenti?.certMedico ? "green" : "red"}">
+                ${atleta.documenti?.certMedico ? "SI" : "NO"}
+              </span>
+            </td>
 
-      <td>
-        <input type="text"
-          value="${atleta.documenti?.tesseraSanitariaNumero || ""}"
-          class="input-doc tessera-${atletaId}">
-      </td>
+            <td>
+              <span class="cert-toggle ${atleta.documenti?.tesseraSanitaria ? "green" : "red"}">
+                ${atleta.documenti?.tesseraSanitaria ? "SI" : "NO"}
+              </span>
+            </td>
 
-      <td>
-        <input type="text"
-          value="${atleta.documenti?.documentoIdentitaNumero || ""}"
-          class="input-doc documento-${atletaId}">
-      </td>
+            <td>
+              <span class="cert-toggle ${atleta.documenti?.documentoIdentita ? "green" : "red"}">
+                ${atleta.documenti?.documentoIdentita ? "SI" : "NO"}
+              </span>
+            </td>
 
-      <td class="stato-${iscrizione.statoPagamento}">
-        ${iscrizione.statoPagamento}
-      </td>
+            <td class="stato-${iscrizione.statoPagamento}">
+              ${iscrizione.statoPagamento}
+            </td>
 
-    <td class="azioni-box">
-  <button onclick="salvaDocumentiRiga('${atletaId}', this)">
-    💾
-  </button>
+            <td class="azioni-box">
+              <button onclick="salvaDocumentiRiga('${atletaId}', this)">
+                💾
+              </button>
 
-  <button onclick="apriPagamento('${atletaId}')">
-    💰
-  </button>
-</td>
-    </tr>
-  `
-});
+              <button onclick="apriPagamento('${atletaId}')">
+                💰
+              </button>
+            </td>
+          </tr>
+        `
+      });
+
     }
 
     // Ordine alfabetico per cognome
