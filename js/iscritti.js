@@ -334,6 +334,9 @@ async function stampaRicevuta(){
     return;
   }
 
+  const { jsPDF } = window.jspdf;
+
+  // 🔹 Recupero dati atleta
   const atletaDoc = await db.collection("atleti")
     .doc(ultimoPagamentoRegistrato.atletaId)
     .get();
@@ -342,18 +345,84 @@ async function stampaRicevuta(){
 
   const atleta = atletaDoc.data();
 
-  const contenuto = `
-    RICEVUTA PAGAMENTO
+  // 🔹 Recupero settimana
+  const iscrizioniSnap = await db.collection("iscrizioni")
+    .where("atletaId","==", ultimoPagamentoRegistrato.atletaId)
+    .get();
 
-    Atleta: ${atleta.cognome} ${atleta.nome}
-    Importo: € ${ultimoPagamentoRegistrato.importo}
-    Metodo: ${ultimoPagamentoRegistrato.metodo}
-    Data: ${ultimoPagamentoRegistrato.data.toLocaleDateString()}
+  let periodo = "";
+  iscrizioniSnap.forEach(doc=>{
+    const data = doc.data();
+    if(data.settimanaNome){
+      periodo = data.settimanaNome;
+    }
+  });
 
-    Gestionale Malusci Camp
-  `;
+  // 🔹 Numero progressivo
+  const configRef = db.collection("config").doc("ricevute");
 
-  const finestra = window.open("", "_blank");
-  finestra.document.write("<pre>" + contenuto + "</pre>");
-  finestra.print();
+  let numeroRicevuta = 1;
+
+  await db.runTransaction(async (transaction) => {
+    const doc = await transaction.get(configRef);
+
+    if(!doc.exists){
+      transaction.set(configRef, { numeroProgressivo: 2 });
+      numeroRicevuta = 1;
+    } else {
+      numeroRicevuta = doc.data().numeroProgressivo;
+      transaction.update(configRef, {
+        numeroProgressivo: numeroRicevuta + 1
+      });
+    }
+  });
+
+  // 🔹 Creazione PDF A5 orizzontale
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a5"
+  });
+
+  const anno = new Date().getFullYear();
+  const dataOggi = new Date().toLocaleDateString("it-IT");
+
+  // LOGO
+  try{
+    pdf.addImage("img/logo.png", "PNG", 10, 10, 40, 15);
+  }catch(e){}
+
+  pdf.setFontSize(12);
+  pdf.text("A.S.D. MALUSCI CAMP", 60, 15);
+  pdf.text("Via Montalbano N°98 51039 QUARRATA (PT)", 60, 20);
+  pdf.text("P.IVA 01963540479", 60, 25);
+
+  pdf.setFontSize(14);
+  pdf.text(`RICEVUTA DI PAGAMENTO N° ${numeroRicevuta}   ANNO ${anno}`, 20, 40);
+
+  pdf.setFontSize(12);
+
+  pdf.text(`Ha versato la somma di € ${ultimoPagamentoRegistrato.importo}`, 20, 55);
+
+  pdf.text("A titolo di: PARTECIPAZIONE A CAMP ESTIVO MALUSCI CAMP", 20, 65);
+
+  pdf.text("Settimana dal __________________ al __________________", 20, 75);
+
+  pdf.text("Con pernottamento in LIZZANO BELVEDERE (BO)", 20, 85);
+
+  pdf.text(`Per l'atleta ${atleta.cognome} ${atleta.nome}`, 20, 95);
+
+  pdf.text(`Nato a ${atleta.luogoNascita} il ${atleta.dataNascita}`, 20, 105);
+
+  pdf.text("CF ____________________________", 20, 115);
+
+  pdf.text(`Residente in ${atleta.indirizzo || ""}`, 20, 125);
+
+  pdf.text(`Luogo ____________________`, 20, 140);
+  pdf.text(`Data ${dataOggi}`, 100, 140);
+
+  pdf.text("Per Associazione Sportiva Dilettantistica", 20, 155);
+  pdf.text("(Timbro e Firma)", 20, 165);
+
+  pdf.save(`Ricevuta_${atleta.cognome}_${numeroRicevuta}.pdf`);
 }
