@@ -17,7 +17,7 @@ function openPopup(edit = false){
 
   modalitaArchivio = edit;
 
-  const sezioneSP = document.getElementById("sezioneSettimanePagamento");
+  const sezioneSP = document.querySelector(".settimane-pagamento-wrapper");
 
   if(edit){
     sezioneSP.style.display = "none";
