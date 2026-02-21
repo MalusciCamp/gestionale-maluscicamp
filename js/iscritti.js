@@ -117,11 +117,15 @@ async function caricaIscritti(){
         ${iscrizione.statoPagamento}
       </td>
 
-      <td>
-        <button onclick="salvaDocumentiRiga('${atletaId}', this)">
-          💾
-        </button>
-      </td>
+    <td class="azioni-box">
+  <button onclick="salvaDocumentiRiga('${atletaId}', this)">
+    💾
+  </button>
+
+  <button onclick="apriPagamento('${atletaId}')">
+    💰
+  </button>
+</td>
     </tr>
   `
 });
