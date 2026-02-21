@@ -1,3 +1,5 @@
+let ultimoPagamentoRegistrato = null;
+
 // ================= FIREBASE CONFIG =================
 
 const firebaseConfig = {
@@ -266,13 +268,21 @@ async function registraPagamento(){
   }
 
   // 1️⃣ CREA MOVIMENTO PAGAMENTO
-  await db.collection("pagamenti").add({
-    atletaId: atletaPagamentoInCorso,
-    importo: importo,
-    metodo: metodo,
-    data: firebase.firestore.FieldValue.serverTimestamp(),
-    anno: new Date().getFullYear()
-  });
+const pagamentoRef = await db.collection("pagamenti").add({
+  atletaId: atletaPagamentoInCorso,
+  importo: importo,
+  metodo: metodo,
+  data: firebase.firestore.FieldValue.serverTimestamp(),
+  anno: new Date().getFullYear()
+});
+
+ultimoPagamentoRegistrato = {
+  id: pagamentoRef.id,
+  atletaId: atletaPagamentoInCorso,
+  importo: importo,
+  metodo: metodo,
+  data: new Date()
+};
 
   // 2️⃣ DISTRIBUZIONE AUTOMATICA
   let residuo = importo;
@@ -309,6 +319,41 @@ async function registraPagamento(){
     }
   }
 
-  chiudiPopupPagamento();
-  caricaIscritti();
+  // DOPO distribuzione pagamento
+
+caricaIscritti();
+
+// Mostra pulsante stampa
+document.getElementById("btnStampaRicevuta").style.display = "block";
+}
+
+async function stampaRicevuta(){
+
+  if(!ultimoPagamentoRegistrato){
+    alert("Nessun pagamento registrato.");
+    return;
+  }
+
+  const atletaDoc = await db.collection("atleti")
+    .doc(ultimoPagamentoRegistrato.atletaId)
+    .get();
+
+  if(!atletaDoc.exists) return;
+
+  const atleta = atletaDoc.data();
+
+  const contenuto = `
+    RICEVUTA PAGAMENTO
+
+    Atleta: ${atleta.cognome} ${atleta.nome}
+    Importo: € ${ultimoPagamentoRegistrato.importo}
+    Metodo: ${ultimoPagamentoRegistrato.metodo}
+    Data: ${ultimoPagamentoRegistrato.data.toLocaleDateString()}
+
+    Gestionale Malusci Camp
+  `;
+
+  const finestra = window.open("", "_blank");
+  finestra.document.write("<pre>" + contenuto + "</pre>");
+  finestra.print();
 }
