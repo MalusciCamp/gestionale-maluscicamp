@@ -336,7 +336,6 @@ async function stampaRicevuta(){
 
   const { jsPDF } = window.jspdf;
 
-  // 🔹 Recupero atleta
   const atletaDoc = await db.collection("atleti")
     .doc(ultimoPagamentoRegistrato.atletaId)
     .get();
@@ -345,7 +344,6 @@ async function stampaRicevuta(){
 
   const atleta = atletaDoc.data();
 
-  // 🔹 Recupero iscrizioni atleta
   const iscrizioniSnap = await db.collection("iscrizioni")
     .where("atletaId","==", ultimoPagamentoRegistrato.atletaId)
     .get();
@@ -363,10 +361,7 @@ async function stampaRicevuta(){
       .get();
 
     if(settimanaDoc.exists){
-
       const settimana = settimanaDoc.data();
-
-      // 🔹 USA I TUOI CAMPI REALI
       if(settimana.dal && settimana.al){
         periodi.push(
           `${formattaData(settimana.dal)} - ${formattaData(settimana.al)}`
@@ -377,7 +372,6 @@ async function stampaRicevuta(){
 
   const periodoTesto = periodi.join("  |  ");
 
-  // 🔹 Numero progressivo
   const configRef = db.collection("config").doc("ricevute");
   let numeroRicevuta = 1;
 
@@ -404,56 +398,103 @@ async function stampaRicevuta(){
   const anno = new Date().getFullYear();
   const dataOggi = new Date().toLocaleDateString("it-IT");
 
-  // LOGO
+  // 🔹 LOGO
   try{
-    pdf.addImage("img/logo.png", "PNG", 10, 10, 40, 15);
+    pdf.addImage("img/logo.png", "PNG", 10, 8, 35, 12);
   }catch(e){}
 
+  // 🔹 INTESTAZIONE
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("A.S.D. MALUSCI CAMP", 55, 12);
+  pdf.setFont("helvetica", "normal");
+  pdf.text("Via Montalbano N°98 51039 QUARRATA (PT)", 55, 17);
+  pdf.text("P.IVA 01963540479", 55, 22);
+
+  // 🔹 LINEA SEPARATRICE
+  pdf.setDrawColor(0);
+  pdf.line(10, 28, 200, 28);
+
+  // 🔹 TITOLO
   pdf.setFontSize(12);
-  pdf.text("A.S.D. MALUSCI CAMP", 60, 15);
-  pdf.text("Via Montalbano N°98 51039 QUARRATA (PT)", 60, 20);
-  pdf.text("P.IVA 01963540479", 60, 25);
-
-  pdf.setFontSize(14);
+  pdf.setFont("helvetica", "bold");
   pdf.text(
-    `RICEVUTA DI PAGAMENTO N° ${numeroRicevuta}   ANNO ${anno}`,
-    20,
-    40
+    `RICEVUTA DI PAGAMENTO N° ${numeroRicevuta}   -   ANNO ${anno}`,
+    15,
+    38
   );
 
-  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(9);
 
-  pdf.text(`Ha versato la somma di € ${totalePagato.toFixed(2)}`, 20, 55);
-
-  pdf.text("A titolo di: Partecipazione a Camp Estivo Malusci Camp", 20, 65);
-
-  pdf.text(`Periodo: ${periodoTesto}`, 20, 75);
-
-  pdf.text("Con pernottamento in Lizzano Belvedere (BO)", 20, 85);
-
-  pdf.text(`Atleta: ${atleta.cognome} ${atleta.nome}`, 20, 95);
+  // 🔹 CORPO COMPATTO
+  let y = 48;
 
   pdf.text(
-    `Nato/a a ${atleta.luogoNascita} il ${formattaData(atleta.dataNascita)}`,
-    20,
-    105
+    `Il sottoscritto dichiara di aver ricevuto la somma di € ${totalePagato.toFixed(2)}`,
+    15,
+    y
   );
 
-  pdf.text("CF ____________________________", 20, 115);
+  y += 6;
+  pdf.text(
+    "a titolo di partecipazione al Camp Estivo Malusci Camp",
+    15,
+    y
+  );
 
-  pdf.text(`Residente in ${atleta.indirizzo || ""}`, 20, 125);
+  y += 6;
+  pdf.text(
+    `Periodo di svolgimento: ${periodoTesto}`,
+    15,
+    y
+  );
 
-  pdf.text(`Luogo ____________________`, 20, 140);
-  pdf.text(`Data ${dataOggi}`, 100, 140);
+  y += 6;
+  pdf.text(
+    "Con pernottamento in Lizzano Belvedere (BO)",
+    15,
+    y
+  );
 
-  pdf.text("Per Associazione Sportiva Dilettantistica", 20, 155);
-  pdf.text("(Timbro e Firma)", 20, 165);
+  y += 10;
+
+  pdf.text(
+    `Atleta: ${atleta.cognome || ""} ${atleta.nome || ""}`,
+    15,
+    y
+  );
+
+  y += 6;
+  pdf.text(
+    `Nato/a a ${atleta.luogoNascita || "________"} il ${formattaData(atleta.dataNascita) || "________"}`,
+    15,
+    y
+  );
+
+  y += 6;
+  pdf.text(
+    `Residente in ${atleta.indirizzo || "______________________________"}`,
+    15,
+    y
+  );
+
+  y += 6;
+  pdf.text("Codice Fiscale ________________________________", 15, y);
+
+  y += 10;
+  pdf.text(`Luogo ____________________    Data ${dataOggi}`, 15, y);
+
+  // 🔹 BOX TIMBRO E FIRMA GRANDE E PULITO
+  pdf.setDrawColor(0);
+  pdf.rect(120, 90, 65, 35);
+  pdf.setFontSize(8);
+  pdf.text("Per Associazione Sportiva Dilettantistica", 122, 96);
+  pdf.text("Timbro e Firma", 122, 102);
 
   pdf.save(`Ricevuta_${atleta.cognome}_${numeroRicevuta}.pdf`);
 }
 
-
-// 🔹 Funzione formato data
 function formattaData(dataISO){
   if(!dataISO) return "";
   const d = new Date(dataISO);
