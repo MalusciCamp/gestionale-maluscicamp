@@ -231,11 +231,91 @@ function caricaDatiAtleta(){
   });
 
 }
+// ===== SETTIMANE =====
+if(data.settimane){
+
+  setTimeout(()=>{
+
+    document
+    .querySelectorAll("#settimaneToggle .toggle")
+    .forEach(box=>{
+
+      const trovata = data.settimane.find(
+        s => s.id === box.dataset.id
+      );
+
+      if(trovata){
+        box.classList.remove("red");
+        box.classList.add("green");
+      }
+
+    });
+
+    calcolaTotale();
+
+  },300);
+}
+// ===== PAGAMENTO =====
+if(data.pagamento){
+
+  totalePagamento.value =
+    data.pagamento.totale || 0;
+
+  scontoPagamento.value =
+    data.pagamento.sconto || 0;
+
+  totaleScontato.value =
+    data.pagamento.totaleScontato || 0;
+
+  accontoPagamento.value =
+    data.pagamento.acconto || 0;
+
+  restoPagamento.value =
+    data.pagamento.saldo || 0;
+
+  metodoAcconto.value =
+    data.pagamento.metodoAcconto || "";
+
+  metodoSaldo.value =
+    data.pagamento.metodoSaldo || "";
+}
 
 
 // ================= SALVATAGGIO =================
 
 function salvaIscrizione(){
+
+  // ===== SETTIMANE SELEZIONATE =====
+const settimaneSelezionate = [];
+
+document
+.querySelectorAll("#settimaneToggle .green")
+.forEach(box => {
+
+  settimaneSelezionate.push({
+    id: box.dataset.id,
+    nome: box.innerText,
+    prezzo: Number(box.dataset.prezzo)
+  });
+
+});
+
+// ===== PAGAMENTO =====
+const pagamento = {
+
+  totale: Number(totalePagamento.value) || 0,
+  sconto: Number(scontoPagamento.value) || 0,
+  totaleScontato: Number(totaleScontato.value) || 0,
+
+  acconto: Number(accontoPagamento.value) || 0,
+  metodoAcconto: metodoAcconto.value || "",
+
+  saldo:
+    Number(totaleScontato.value || 0) -
+    Number(accontoPagamento.value || 0),
+
+  metodoSaldo: metodoSaldo.value || ""
+};
 
   const documenti = {
 
@@ -276,7 +356,9 @@ function salvaIscrizione(){
       descrizione: boxAllergie.value
     },
 
-    documenti: documenti
+    documenti: documenti,
+settimane: settimaneSelezionate,
+pagamento: pagamento
   };
 
   if(modalitaArchivio){
