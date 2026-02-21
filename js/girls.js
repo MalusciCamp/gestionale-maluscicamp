@@ -4,6 +4,7 @@ fetch("components/header.html")
 .then(r => r.text())
 .then(h => document.getElementById("header").innerHTML = h);
 
+
 // ================= MODALITÀ =================
 
 let atletaInModifica = null;
@@ -13,14 +14,13 @@ let atletaInModifica = null;
 
 function openPopup(){
 
-  document.getElementById("iscrizioneModal").style.display="flex";
+  atletaInModifica = null;
+
+  resetPopup();
+
+  document.getElementById("iscrizioneModal").style.display = "flex";
 
   caricaSettimane();
-
-  // 👇 NUOVO
-  setTimeout(()=>{
-    caricaDatiAtleta();
-  },300);
 
 }
 
@@ -28,11 +28,26 @@ function closeIscrizionePopup(){
   document.getElementById("iscrizioneModal").style.display = "none";
 }
 
+function resetPopup(){
+
+  document.querySelectorAll(
+    "#iscrizioneModal input, #iscrizioneModal textarea"
+  ).forEach(el => el.value = "");
+
+  document.querySelectorAll(".toggle")
+  .forEach(t=>{
+    t.classList.remove("green");
+    t.classList.add("red");
+  });
+
+}
+
 function openArchivio(){
   window.location.href = "archivio.html";
 }
 
-// ================= DOCUMENTI TOGGLE =================
+
+// ================= DOCUMENTI =================
 
 document.addEventListener("click", e => {
 
@@ -48,37 +63,33 @@ document.addEventListener("click", e => {
 
 function toggleAllergie(btn, stato){
 
-  // Reset bottoni
   document.querySelectorAll(".allergia-btn")
   .forEach(b=>{
     b.classList.remove("green");
     b.classList.add("red");
   });
 
-  // Attivo cliccato
   btn.classList.remove("red");
   btn.classList.add("green");
 
-  // Box descrizione
   const box = document.getElementById("boxAllergie");
 
-  if(stato){
-    box.classList.remove("hidden");
-  }else{
-    box.classList.add("hidden");
-  }
-
+  stato
+    ? box.classList.remove("hidden")
+    : box.classList.add("hidden");
 }
 
 
-// ================= CARICA SETTIMANE =================
+// ================= SETTIMANE =================
 
 function caricaSettimane(){
 
   const c = document.getElementById("settimaneToggle");
   c.innerHTML = "";
 
-  db.collection("settimane").orderBy("createdAt").get()
+  db.collection("settimane")
+  .orderBy("createdAt")
+  .get()
   .then(s => {
 
     s.forEach(doc => {
@@ -106,7 +117,7 @@ function caricaSettimane(){
 }
 
 
-// ================= CALCOLI PAGAMENTO =================
+// ================= PAGAMENTI =================
 
 function calcolaTotale(){
 
@@ -115,53 +126,40 @@ function calcolaTotale(){
   document.querySelectorAll("#settimaneToggle .green")
   .forEach(b => tot += Number(b.dataset.prezzo));
 
-  document.getElementById("totalePagamento").value = tot;
+  totalePagamento.value = tot;
+
   calcolaSconto();
 }
 
-
 function calcolaSconto(){
 
-  const s = Number(document.getElementById("scontoPagamento").value) || 0;
-  const tot = Number(document.getElementById("totalePagamento").value) || 0;
+  const s = Number(scontoPagamento.value) || 0;
+  const tot = Number(totalePagamento.value) || 0;
 
-  document.getElementById("totaleScontato").value = tot - s;
+  totaleScontato.value = tot - s;
+
   calcolaRimanenza();
 }
 
-
 function calcolaRimanenza(){
 
-  const a = Number(document.getElementById("accontoPagamento").value) || 0;
-  const t = Number(document.getElementById("totaleScontato").value) || 0;
+  const a = Number(accontoPagamento.value) || 0;
+  const t = Number(totaleScontato.value) || 0;
 
-  document.getElementById("restoPagamento").value = t - a;
+  restoPagamento.value = t - a;
 }
 
 
-// Listener sicuri dopo caricamento DOM
+// Listener
 window.addEventListener("DOMContentLoaded", () => {
 
-  document.getElementById("scontoPagamento")
-  ?.addEventListener("input", calcolaSconto);
-
-  document.getElementById("accontoPagamento")
-  ?.addEventListener("input", calcolaRimanenza);
+  scontoPagamento?.addEventListener("input", calcolaSconto);
+  accontoPagamento?.addEventListener("input", calcolaRimanenza);
 
 });
 
-// ================= APRI IN MODIFICA =================
 
-function apriModificaAtleta(id){
-
-  atletaInModifica = id;
-
-  openPopup(); // usa popup già esistente
-
-}
-// ================= CARICA DATI ATLETA =================
-
-// ================= CARICA DATI ATLETA =================
+// ================= CARICA DATI MODIFICA =================
 
 function caricaDatiAtleta(){
 
@@ -173,153 +171,189 @@ function caricaDatiAtleta(){
   .then(doc=>{
 
     const data = doc.data();
+    if(!data) return;
 
-    // ===== DATI BASE =====
-    document.getElementById("nome").value = data.nome || "";
-    document.getElementById("cognome").value = data.cognome || "";
-    document.getElementById("dataNascita").value = data.dataNascita || "";
-    document.getElementById("luogoNascita").value = data.luogoNascita || "";
-    document.getElementById("classe").value = data.classe || "";
-    document.getElementById("ruolo").value = data.ruolo || "";
+    nome.value = data.nome || "";
+    cognome.value = data.cognome || "";
+    dataNascita.value = data.dataNascita || "";
+    luogoNascita.value = data.luogoNascita || "";
+    classe.value = data.classe || "";
+    ruolo.value = data.ruolo || "";
 
-    // ===== FISICI =====
-    document.getElementById("altezza").value = data.altezza || "";
-    document.getElementById("taglia").value = data.taglia || "";
-    document.getElementById("scarpa").value = data.scarpa || "";
+    altezza.value = data.altezza || "";
+    taglia.value = data.taglia || "";
+    scarpa.value = data.scarpa || "";
 
-    // ===== CONTATTI =====
-    document.getElementById("telefono1").value = data.telefono1 || "";
-    document.getElementById("telefono2").value = data.telefono2 || "";
-    document.getElementById("indirizzo").value = data.indirizzo || "";
-    document.getElementById("email").value = data.email || "";
+    telefono1.value = data.telefono1 || "";
+    telefono2.value = data.telefono2 || "";
+    indirizzo.value = data.indirizzo || "";
+    email.value = data.email || "";
+    note.value = data.note || "";
 
-    // ===== NOTE =====
-    document.getElementById("note").value = data.note || "";
+    // Allergie
+    if(data.allergie?.stato){
+      toggleAllergie(
+        document.querySelectorAll(".allergia-btn")[0],
+        true
+      );
+      boxAllergie.value =
+        data.allergie.descrizione || "";
+    }
+
+    // Documenti
+    if(data.documenti){
+
+      const cert =
+        document.querySelector('[data-key="certMedico"]');
+
+      if(cert){
+        cert.classList.toggle(
+          "green",
+          data.documenti.certMedico
+        );
+        cert.classList.toggle(
+          "red",
+          !data.documenti.certMedico
+        );
+      }
+
+      tesseraSanitariaNumero.value =
+        data.documenti.tesseraSanitariaNumero || "";
+
+      documentoIdentitaNumero.value =
+        data.documenti.documentoIdentitaNumero || "";
+    }
 
   });
-// ===== DOCUMENTI =====
-
-if(data.documenti){
-
-  const cert = document.querySelector('[data-key="certMedico"]');
-
-  cert.classList.toggle("green", data.documenti.certMedico);
-  cert.classList.toggle("red", !data.documenti.certMedico);
-
-  document.getElementById("tesseraSanitariaNumero").value =
-    data.documenti.tesseraSanitariaNumero || "";
-
-  document.getElementById("documentoIdentitaNumero").value =
-    data.documenti.documentoIdentitaNumero || "";
 
 }
 
-}
-// ================= SALVATAGGIO COMPLETO =================
+
+// ================= SALVATAGGIO =================
 
 function salvaIscrizione(){
 
-// ===== DOCUMENTI =====
+  const documenti = {
 
-const documenti = {
+    certMedico:
+      document.querySelector('[data-key="certMedico"]')
+      ?.classList.contains("green") || false,
 
-  certMedico:
-    document.querySelector('[data-key="certMedico"]')
-    .classList.contains("green"),
+    tesseraSanitariaNumero:
+      tesseraSanitariaNumero.value,
 
-  tesseraSanitariaNumero:
-    document.getElementById("tesseraSanitariaNumero").value,
+    documentoIdentitaNumero:
+      documentoIdentitaNumero.value
+  };
 
-  documentoIdentitaNumero:
-    document.getElementById("documentoIdentitaNumero").value
-
-};
-  // ===== ATLETA =====
   const atleta = {
 
-  // ===== DATI BASE =====
-  nome: document.getElementById("nome").value,
-  cognome: document.getElementById("cognome").value,
-  dataNascita: document.getElementById("dataNascita").value,
-  luogoNascita: document.getElementById("luogoNascita").value,
-  classe: document.getElementById("classe").value,
-  ruolo: document.getElementById("ruolo").value,
+    nome: nome.value,
+    cognome: cognome.value,
+    dataNascita: dataNascita.value,
+    luogoNascita: luogoNascita.value,
+    classe: classe.value,
+    ruolo: ruolo.value,
 
-  // ===== FISICI =====
-  altezza: document.getElementById("altezza").value,
-  taglia: document.getElementById("taglia").value,
-  scarpa: document.getElementById("scarpa").value,
+    altezza: altezza.value,
+    taglia: taglia.value,
+    scarpa: scarpa.value,
 
-  // ===== CONTATTI =====
-  telefono1: document.getElementById("telefono1").value,
-  telefono2: document.getElementById("telefono2").value,
-  indirizzo: document.getElementById("indirizzo").value,
-  email: document.getElementById("email").value,
+    telefono1: telefono1.value,
+    telefono2: telefono2.value,
+    indirizzo: indirizzo.value,
+    email: email.value,
+    note: note.value,
 
-  // ===== NOTE =====
-  note: document.getElementById("note").value,
+    allergie:{
+      stato:
+        document.querySelector(".allergia-btn.green")
+        ?.innerText === "SI",
+      descrizione: boxAllergie.value
+    },
 
-  // ===== ALLERGIE =====
-  allergie:{
-    stato:
-      document.querySelector(".allergia-btn.green")
-      ?.innerText === "SI",
+    documenti: documenti
+  };
 
-    descrizione:
-      document.getElementById("boxAllergie").value
-  },
+  if(atletaInModifica){
 
-  // ===== DOCUMENTI =====
-  documenti: documenti,
-
-  createdAt: new Date()
-
-};
-
-
-  // ===== SALVA ATLETA =====
-  db.collection("atleti").add(atleta)
-  .then(ref => {
-
-    // ===== ISCRIZIONI SETTIMANE =====
-    document.querySelectorAll("#settimaneToggle .green")
-    .forEach(w => {
-
-      db.collection("iscrizioni").add({
-
-        atletaId: ref.id,
-        settimanaId: w.dataset.id,
-        nome: atleta.nome,
-        cognome: atleta.cognome,
-        classe: atleta.classe,
-        rimanenza:
-          document.getElementById("restoPagamento").value,
-
-        documenti: documenti,   // 👈 ORA SALVATI
-
-        createdAt: new Date()
-
-      });
-
+    db.collection("atleti")
+    .doc(atletaInModifica)
+    .update(atleta)
+    .then(()=>{
+      alert("Atleta aggiornato");
+      closeIscrizionePopup();
     });
 
-    alert("Salvato!");
-    closeIscrizionePopup();
+  }else{
+
+    controllaDuplicato(atleta);
+
+  }
+
+}
+
+
+// ================= DUPLICATI =================
+
+function controllaDuplicato(atleta){
+
+  db.collection("atleti")
+  .where("cognome","==", atleta.cognome)
+  .get()
+  .then(snapshot=>{
+
+    let duplicato = false;
+
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+
+      if(
+        data.nome.toLowerCase() ===
+        atleta.nome.toLowerCase()
+      ){
+        duplicato = true;
+      }
+    });
+
+    if(duplicato){
+      alert("Atleta già presente!");
+    }else{
+      salvaNuovo(atleta);
+    }
 
   });
 
 }
-// ================= CONTROLLO EDIT =================
+
+function salvaNuovo(atleta){
+
+  db.collection("atleti")
+  .add(atleta)
+  .then(()=>{
+    alert("Atleta salvato");
+    closeIscrizionePopup();
+  });
+
+}
+
+
+// ================= EDIT AUTO =================
 
 window.addEventListener("load", ()=>{
 
-  const id = localStorage.getItem("atletaEditId");
+  const id =
+    localStorage.getItem("atletaEditId");
 
   if(id){
 
     atletaInModifica = id;
 
     openPopup();
+
+    setTimeout(()=>{
+      caricaDatiAtleta();
+    },300);
 
     localStorage.removeItem("atletaEditId");
 
