@@ -94,15 +94,30 @@
 <div class="section-card">
 <h3>Documenti</h3>
 
-<div class="toggle-grid">
-<div class="toggle red documento">CertMedico</div>
-<div class="toggle red documento">TesseraSanitaria</div>
-<div class="toggle red documento">DocumentoIdentita</div>
-<div class="toggle red documento">Vaccini</div>
-<div class="toggle red documento">Firme</div>
-</div>
-</div>
+<div class="documenti-wrapper">
 
+  <!-- CERTIFICATO MEDICO -->
+  <div class="toggle-grid">
+    <div class="toggle red documento" data-key="certMedico">
+      Cert. Medico
+    </div>
+  </div>
+
+  <!-- NUMERI DOCUMENTI -->
+  <div class="documenti-inputs">
+
+    <label>Tessera Sanitaria</label>
+    <input id="tesseraSanitariaNumero"
+           placeholder="Numero Tessera">
+
+    <label>Documento Identità</label>
+    <input id="documentoIdentitaNumero"
+           placeholder="Numero Documento">
+
+  </div>
+
+</div>
+</div>
 <!-- ALLERGIE -->
 <div class="section-card">
   <h3>Allergie</h3>
