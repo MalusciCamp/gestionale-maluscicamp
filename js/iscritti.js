@@ -562,3 +562,12 @@ async function aggiungiIscrizioneManuale(atletaId){
   chiudiPopupAggiungi();
   caricaIscritti();
 }
+
+document.getElementById("popupAggiungi")
+  .addEventListener("click", function(e){
+
+    if(e.target.id === "popupAggiungi"){
+      chiudiPopupAggiungi();
+    }
+
+});
