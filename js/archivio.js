@@ -8,43 +8,39 @@ fetch("components/header.html")
 
 function caricaAtlete(){
 
-  const tbody = document.getElementById("tabellaAtlete");
-
-  if(!tbody) return; // evita errore null
+  const tbody =
+    document.getElementById("tbodyAtleti");
 
   tbody.innerHTML = "";
 
   db.collection("atleti")
-  .orderBy("createdAt","desc")
+  .orderBy("cognome")
   .get()
   .then(snapshot=>{
 
     snapshot.forEach(doc=>{
 
-      const data = doc.data();
+      const d = doc.data();
 
-      const row = document.createElement("tr");
+      const tr = document.createElement("tr");
 
-      row.innerHTML = `
-        <td>${data.nome || ""}</td>
-        <td>${data.cognome || ""}</td>
-        <td>${data.classe || ""}</td>
-        <td>${data.ruolo || ""}</td>
+      tr.innerHTML = `
+        <td>${d.cognome}</td>
+        <td>${d.nome}</td>
+        <td>${d.classe || ""}</td>
 
         <td>
-          <button class="view"
-            onclick="visualizzaScheda('${doc.id}')">
-            <i class="fa-solid fa-eye"></i>
+          <button onclick="visualizzaScheda('${doc.id}')">
+            👁
           </button>
 
-          <button class="delete"
-            onclick="eliminaAtleta('${doc.id}')">
-            <i class="fa-solid fa-trash"></i>
+          <button onclick="eliminaAtleta('${doc.id}')">
+            🗑
           </button>
         </td>
       `;
 
-      tbody.appendChild(row);
+      tbody.appendChild(tr);
 
     });
 
@@ -52,6 +48,7 @@ function caricaAtlete(){
 
 }
 
+window.onload = caricaAtlete;
 
 // ================= ELIMINA =================
 
