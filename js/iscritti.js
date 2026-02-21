@@ -89,25 +89,42 @@ async function caricaIscritti(){
       const atleta = atletaDoc.data();
 
       righe.push({
-        cognome: atleta.cognome || "",
-        html: `
-          <tr>
-            <td>${atleta.cognome} ${atleta.nome}</td>
-            <td>${atleta.documenti?.certMedico ? "SI" : "NO"}</td>
-            <td>${atleta.documenti?.tesseraSanitariaNumero || "-"}</td>
-            <td>${atleta.documenti?.documentoIdentitaNumero || "-"}</td>
-            <td class="stato-${iscrizione.statoPagamento}">
-              ${iscrizione.statoPagamento}
-            </td>
-            <td>
-              <button onclick="apriPagamento('${atletaId}')">
-                <i class="fa-solid fa-euro-sign"></i>
-              </button>
-            </td>
-          </tr>
-        `
-      });
+  cognome: atleta.cognome || "",
+  html: `
+    <tr>
+      <td>${atleta.cognome} ${atleta.nome}</td>
 
+      <td>
+        <span class="cert-toggle ${atleta.documenti?.certMedico ? "green" : "red"}"
+          onclick="toggleCert(this)">
+          ${atleta.documenti?.certMedico ? "SI" : "NO"}
+        </span>
+      </td>
+
+      <td>
+        <input type="text"
+          value="${atleta.documenti?.tesseraSanitariaNumero || ""}"
+          class="input-doc tessera-${atletaId}">
+      </td>
+
+      <td>
+        <input type="text"
+          value="${atleta.documenti?.documentoIdentitaNumero || ""}"
+          class="input-doc documento-${atletaId}">
+      </td>
+
+      <td class="stato-${iscrizione.statoPagamento}">
+        ${iscrizione.statoPagamento}
+      </td>
+
+      <td>
+        <button onclick="salvaDocumentiRiga('${atletaId}', this)">
+          💾
+        </button>
+      </td>
+    </tr>
+  `
+});
     }
 
     // Ordine alfabetico per cognome
@@ -148,3 +165,42 @@ window.addEventListener("DOMContentLoaded", async () => {
   await caricaTitoloSettimana();
   await caricaIscritti();
 });
+
+function toggleCert(el){
+
+  if(el.innerText === "SI"){
+    el.innerText = "NO";
+    el.classList.remove("green");
+    el.classList.add("red");
+  }else{
+    el.innerText = "SI";
+    el.classList.remove("red");
+    el.classList.add("green");
+  }
+
+}
+
+async function salvaDocumentiRiga(atletaId, btn){
+
+  const tr = btn.closest("tr");
+
+  const cert = tr.querySelector(".cert-toggle").innerText === "SI";
+
+  const tessera = tr.querySelector(`.tessera-${atletaId}`).value;
+  const documento = tr.querySelector(`.documento-${atletaId}`).value;
+
+  await db.collection("atleti")
+    .doc(atletaId)
+    .update({
+      documenti:{
+        certMedico: cert,
+        tesseraSanitariaNumero: tessera,
+        documentoIdentitaNumero: documento
+      }
+    });
+
+  btn.innerText = "✔";
+  setTimeout(()=>{
+    btn.innerText = "💾";
+  },1000);
+}
