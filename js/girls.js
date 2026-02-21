@@ -432,9 +432,36 @@ function salvaNuovo(atleta){
 
   db.collection("atleti")
   .add(atleta)
-  .then(()=>{
-    alert("Atleta salvato");
+  .then(async (docRef)=>{
+
+    const atletaId = docRef.id;
+
+    // 🔹 CREA ISCRIZIONI PER OGNI SETTIMANA SELEZIONATA
+    if(atleta.settimane && atleta.settimane.length > 0){
+
+      for(let settimana of atleta.settimane){
+
+        await db.collection("iscrizioni").add({
+          atletaId: atletaId,
+          settimanaId: settimana.id,
+          quota: settimana.prezzo,
+          pagato: 0,
+          statoPagamento: "da_pagare",
+          anno: new Date().getFullYear(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+      }
+
+    }
+
+    alert("Atleta salvato e iscrizioni create");
     closeIscrizionePopup();
+
+  })
+  .catch(err=>{
+    console.error(err);
+    alert("Errore salvataggio");
   });
 
 }
