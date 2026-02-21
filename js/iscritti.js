@@ -462,13 +462,36 @@ function formattaData(dataISO){
 }
 
 function apriPopupAggiungi(){
-  document.getElementById("popupAggiungi")
-    .classList.add("active");
+
+  const popup = document.getElementById("popupAggiungi");
+  const input = document.getElementById("ricercaCognome");
+  const risultati = document.getElementById("risultatiRicerca");
+
+  // Mostra popup
+  popup.style.display = "flex";
+
+  // Reset campo e risultati
+  input.value = "";
+  risultati.innerHTML = "";
+
+  // Focus automatico sul campo ricerca
+  setTimeout(() => {
+    input.focus();
+  }, 100);
 }
 
+
 function chiudiPopupAggiungi(){
-  document.getElementById("popupAggiungi")
-    .classList.remove("active");
+
+  const popup = document.getElementById("popupAggiungi");
+  const input = document.getElementById("ricercaCognome");
+  const risultati = document.getElementById("risultatiRicerca");
+
+  popup.style.display = "none";
+
+  // Pulizia
+  input.value = "";
+  risultati.innerHTML = "";
 }
 async function cercaAtleta(){
 
