@@ -304,22 +304,24 @@ function controllaDuplicato(atleta){
   .get()
   .then(snapshot=>{
 
-    let duplicato = false;
+    let duplicatoIdentico = false;
 
     snapshot.forEach(doc=>{
-      const data = doc.data();
+
+      const d = doc.data();
 
       if(
-        data.nome.toLowerCase() ===
-        atleta.nome.toLowerCase()
+        d.nome === atleta.nome &&
+        d.dataNascita === atleta.dataNascita
       ){
-        duplicato = true;
+        duplicatoIdentico = true;
       }
+
     });
 
-    if(duplicato){
+    if(duplicatoIdentico){
 
-      alert("Atleta già presente, usa quello esistente.");
+      alert("Atleta già inserito identico.");
 
     }else{
 
@@ -330,7 +332,6 @@ function controllaDuplicato(atleta){
   });
 
 }
-
 // ================= EDIT AUTO =================
 window.addEventListener("load", ()=>{
 
@@ -351,29 +352,47 @@ window.addEventListener("load", ()=>{
 
 });
 
-cognome.addEventListener("blur", controllaSuggerimenti);
+nome.addEventListener("blur", controllaOmonimi);
+cognome.addEventListener("blur", controllaOmonimi);
 
-function controllaSuggerimenti(){
+function controllaOmonimi(){
 
-  const cogn = cognome.value.trim();
+  const n = nome.value.trim();
+  const c = cognome.value.trim();
 
-  if(!cogn) return;
+  if(!n || !c) return;
 
   db.collection("atleti")
-  .where("cognome","==", cogn)
+  .where("cognome","==", c)
   .get()
   .then(snapshot=>{
 
     if(snapshot.empty) return;
 
-    let lista = "Cognomi simili trovati:\n\n";
-
     snapshot.forEach(doc=>{
-      const d = doc.data();
-      lista += d.nome + " " + d.cognome + "\n";
-    });
 
-    alert(lista);
+      const d = doc.data();
+
+      if(
+        d.nome.toLowerCase() ===
+        n.toLowerCase()
+      ){
+
+        const conferma = confirm(
+          "Atleta già presente.\nVuoi caricare i dati?"
+        );
+
+        if(conferma){
+
+          atletaInModifica = doc.id;
+
+          caricaDatiAtleta();
+
+        }
+
+      }
+
+    });
 
   });
 
