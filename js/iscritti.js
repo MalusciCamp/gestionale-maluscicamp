@@ -208,3 +208,108 @@ async function salvaDocumentiRiga(atletaId, btn){
     btn.innerText = "💾";
   },1000);
 }
+
+let atletaPagamentoInCorso = null;
+let iscrizioniAtletaCache = [];
+
+async function apriPagamento(atletaId){
+
+  atletaPagamentoInCorso = atletaId;
+
+  const snapshot = await db.collection("iscrizioni")
+    .where("atletaId","==", atletaId)
+    .get();
+
+  let totale = 0;
+  let pagato = 0;
+
+  iscrizioniAtletaCache = [];
+
+  snapshot.forEach(doc=>{
+    const data = doc.data();
+    totale += data.quota;
+    pagato += data.pagato || 0;
+
+    iscrizioniAtletaCache.push({
+      id: doc.id,
+      quota: data.quota,
+      pagato: data.pagato || 0
+    });
+  });
+
+  totaleDovuto.innerText = totale;
+  totalePagato.innerText = pagato;
+  residuoPagamento.innerText = totale - pagato;
+
+  importoPagamento.value = "";
+  metodoPagamento.value = "";
+
+  document.getElementById("popupPagamento").style.display = "flex";
+}
+
+function chiudiPopupPagamento(){
+  document.getElementById("popupPagamento").style.display = "none";
+}
+
+async function registraPagamento(){
+
+  const importo = Number(importoPagamento.value);
+  const metodo = metodoPagamento.value;
+
+  if(!importo || importo <= 0){
+    alert("Inserisci importo valido");
+    return;
+  }
+
+  if(!metodo){
+    alert("Seleziona metodo pagamento");
+    return;
+  }
+
+  // 1️⃣ CREA MOVIMENTO PAGAMENTO
+  await db.collection("pagamenti").add({
+    atletaId: atletaPagamentoInCorso,
+    importo: importo,
+    metodo: metodo,
+    data: firebase.firestore.FieldValue.serverTimestamp(),
+    anno: new Date().getFullYear()
+  });
+
+  // 2️⃣ DISTRIBUZIONE AUTOMATICA
+  let residuo = importo;
+
+  for(let iscrizione of iscrizioniAtletaCache){
+
+    if(residuo <= 0) break;
+
+    const daPagare = iscrizione.quota - iscrizione.pagato;
+
+    if(daPagare <= 0) continue;
+
+    if(residuo >= daPagare){
+
+      await db.collection("iscrizioni")
+        .doc(iscrizione.id)
+        .update({
+          pagato: iscrizione.quota,
+          statoPagamento: "pagato"
+        });
+
+      residuo -= daPagare;
+
+    }else{
+
+      await db.collection("iscrizioni")
+        .doc(iscrizione.id)
+        .update({
+          pagato: iscrizione.pagato + residuo,
+          statoPagamento: "parziale"
+        });
+
+      residuo = 0;
+    }
+  }
+
+  chiudiPopupPagamento();
+  caricaIscritti();
+}
