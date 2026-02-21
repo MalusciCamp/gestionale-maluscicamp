@@ -161,8 +161,7 @@ th{
 
 /* 🔥 OVERLAY BASE (NON FORZA DISPLAY) */
 
-#popupAggiungi,
-#popupPagamento {
+#popupAggiungi{
   position: fixed;
   inset: 0;
   background: rgba(15, 20, 40, 0.75);
@@ -173,8 +172,7 @@ th{
 }
 
 /* VISIBILE SOLO SE NON HA popup-hidden */
-#popupAggiungi:not(.popup-hidden),
-#popupPagamento:not(.popup-hidden) {
+#popupAggiungi:not(.popup-hidden) {
   display: flex;
   animation: fadeIn 0.2s ease-in-out;
 }
@@ -281,4 +279,15 @@ th{
 @keyframes slideUp {
   from {transform: translateY(20px); opacity: 0;}
   to {transform: translateY(0); opacity: 1;}
+}
+
+/* ===== SFONDO OSCURATO ===== */
+#popupPagamento{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
 }
