@@ -105,26 +105,19 @@ h1{
 }
 /* ===== AZIONI ===== */
 
-/* ===== COLONNA AZIONI ===== */
+/* ===== COLONNA AZIONI FIX ===== */
+
+.archivio-table td:nth-child(5){
+  text-align:center;
+  padding:14px;
+}
 
 .archivio-actions{
-  display:flex;
-  justify-content:center;   /* centra orizzontale */
+  display:inline-flex;     /* NON flex */
+  justify-content:center;
   align-items:center;
   gap:10px;
-  width:100%;               /* usa tutta la cella */
 }
-
-/* IMPORTANTE */
-.archivio-table td{
-  text-align:center;
-}
-
-.archivio-table td:last-child{
-  padding-left:0;
-  padding-right:0;
-}
-
 /* VIEW */
 
 .view{
