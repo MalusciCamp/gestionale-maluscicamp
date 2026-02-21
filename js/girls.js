@@ -17,6 +17,14 @@ function openPopup(edit = false){
 
   modalitaArchivio = edit;
 
+  const sezioneSP = document.getElementById("sezioneSettimanePagamento");
+
+  if(edit){
+    sezioneSP.style.display = "none";
+  }else{
+    sezioneSP.style.display = "block";
+  }
+
   if(!edit){
     atletaInModifica = null;
     resetPopup();
