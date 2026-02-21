@@ -32,3 +32,40 @@
   background: #ccc !important;
   cursor: not-allowed;
 }
+
+.settimana-card {
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+  font-weight: 600;
+}
+
+.settimana-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* COLORI DIFFERENTI */
+
+.iscritti {
+  background: #1e88e5;
+}
+
+.camere {
+  background: #8e24aa;
+}
+
+.gruppi {
+  background: #43a047;
+}
+
+.kit {
+  background: #fb8c00;
+}
+
+.pagamenti {
+  background: #e53935;
+}
