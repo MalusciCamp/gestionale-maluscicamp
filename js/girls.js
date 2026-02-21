@@ -211,14 +211,7 @@ function caricaDatiAtleta(){
       );
     }
 
-    // ===== DOCUMENTI =====
-if(data.documenti){
-
-  const cert = document.querySelector('[data-key="certMedico"]');
-  const tess = document.querySelector('[data-key="tesseraSanitaria"]');
-  const docId = document.querySelector('[data-key="documentoIdentita"]');
-
-  // ===== DOCUMENTI =====
+// ===== DOCUMENTI =====
 if(data.documenti){
 
   document.querySelectorAll(".documento")
@@ -237,21 +230,6 @@ if(data.documenti){
   });
 
 }
-
-  if(tess){
-    tess.innerText = data.documenti.tesseraSanitaria ? "SI" : "NO";
-    tess.classList.toggle("green", data.documenti.tesseraSanitaria);
-    tess.classList.toggle("red", !data.documenti.tesseraSanitaria);
-  }
-
-  if(docId){
-    docId.innerText = data.documenti.documentoIdentita ? "SI" : "NO";
-    docId.classList.toggle("green", data.documenti.documentoIdentita);
-    docId.classList.toggle("red", !data.documenti.documentoIdentita);
-  }
-
-}
-
     // =========================
     // ===== SETTIMANE =====
     // =========================
