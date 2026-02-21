@@ -157,25 +157,6 @@ th{
   background-color: #f0f0f0;
 }
 
-/* 🔥 OVERLAY */
-
-/* 🔥 OVERLAY BASE (NON FORZA DISPLAY) */
-
-#popupAggiungi{
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 20, 40, 0.75);
-  backdrop-filter: blur(6px);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-/* VISIBILE SOLO SE NON HA popup-hidden */
-#popupAggiungi:not(.popup-hidden) {
-  display: flex;
-  animation: fadeIn 0.2s ease-in-out;
-}
 
 /* NASCOSTO */
 .popup-hidden {
@@ -290,4 +271,30 @@ th{
   justify-content:center;
   align-items:center;
   z-index:9999;
+}
+
+/* ===== POPUP AGGIUNGI ISCRIZIONE ===== */
+
+#popupAggiungi{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15, 20, 40, 0.75);
+  backdrop-filter: blur(6px);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+#popupAggiungi.active{
+  display:flex;
+}
+
+#popupAggiungi .popup-box{
+  background: linear-gradient(145deg, #ffffff, #f4f6fa);
+  width: 480px;
+  max-width: 92%;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
 }
