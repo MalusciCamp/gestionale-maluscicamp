@@ -1,7 +1,8 @@
-// HEADER
+// ================= HEADER =================
+
 fetch("components/header.html")
-.then(r=>r.text())
-.then(h=>document.getElementById("header").innerHTML=h);
+.then(r => r.text())
+.then(h => document.getElementById("header").innerHTML = h);
 
 
 // ================= CARICA ATLETE =================
@@ -9,6 +10,8 @@ fetch("components/header.html")
 function caricaAtlete(){
 
   const tbody = document.getElementById("tbodyAtleti");
+  if(!tbody) return;
+
   tbody.innerHTML = "";
 
   db.collection("atleti")
@@ -24,13 +27,16 @@ function caricaAtlete(){
       });
     });
 
-    // ORDINE ALFABETICO CASE INSENSITIVE
+    // ===== ORDINE ALFABETICO COGNOME =====
     atlete.sort((a,b)=>{
       return (a.cognome || "")
         .toLowerCase()
-        .localeCompare((b.cognome || "").toLowerCase());
+        .localeCompare(
+          (b.cognome || "").toLowerCase()
+        );
     });
 
+    // ===== CREAZIONE RIGHE =====
     atlete.forEach(d=>{
 
       const tr = document.createElement("tr");
@@ -41,17 +47,21 @@ function caricaAtlete(){
         <td>${d.classe || ""}</td>
         <td>${d.ruolo || "-"}</td>
 
-    <td>
-  <div class="archivio-actions">
-    <button class="view" onclick="visualizzaScheda('${doc.id}')">
-      <i class="fa-solid fa-eye"></i>
-    </button>
+        <td>
+          <div class="archivio-actions">
 
-    <button class="delete" onclick="eliminaAtleta('${doc.id}')">
-      <i class="fa-solid fa-trash"></i>
-    </button>
-  </div>
-</td>
+            <button class="view"
+              onclick="visualizzaScheda('${d.id}')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+
+            <button class="delete"
+              onclick="eliminaAtleta('${d.id}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+
+          </div>
+        </td>
       `;
 
       tbody.appendChild(tr);
@@ -61,7 +71,7 @@ function caricaAtlete(){
   });
 
 }
-window.onload = caricaAtlete;
+
 
 // ================= ELIMINA =================
 
@@ -69,7 +79,9 @@ function eliminaAtleta(id){
 
   if(!confirm("Eliminare atleta?")) return;
 
-  db.collection("atleti").doc(id).delete()
+  db.collection("atleti")
+  .doc(id)
+  .delete()
   .then(()=>{
     alert("Eliminata");
     caricaAtlete();
@@ -78,7 +90,7 @@ function eliminaAtleta(id){
 }
 
 
-// ================= SCHEDA =================
+// ================= VISUALIZZA =================
 
 function visualizzaScheda(id){
 
@@ -88,5 +100,7 @@ function visualizzaScheda(id){
 
 }
 
-// AVVIO
+
+// ================= AVVIO =================
+
 window.onload = caricaAtlete;
