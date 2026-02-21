@@ -12,16 +12,17 @@ let atletaInModifica = null;
 
 // ================= POPUP =================
 
-function openPopup(){
+function openPopup(edit = false){
 
-  atletaInModifica = null;
+  if(!edit){
+    atletaInModifica = null;
+    resetPopup();
+  }
 
-  resetPopup();
-
-  document.getElementById("iscrizioneModal").style.display = "flex";
+  document.getElementById("iscrizioneModal")
+  .style.display = "flex";
 
   caricaSettimane();
-
 }
 
 function closeIscrizionePopup(){
@@ -317,46 +318,63 @@ function controllaDuplicato(atleta){
     });
 
     if(duplicato){
-      alert("Atleta già presente!");
+
+      alert("Atleta già presente, usa quello esistente.");
+
     }else{
+
       salvaNuovo(atleta);
+
     }
 
   });
 
 }
 
-function salvaNuovo(atleta){
-
-  db.collection("atleti")
-  .add(atleta)
-  .then(()=>{
-    alert("Atleta salvato");
-    closeIscrizionePopup();
-  });
-
-}
-
-
 // ================= EDIT AUTO =================
-
 window.addEventListener("load", ()=>{
 
-  const id =
-    localStorage.getItem("atletaEditId");
+  const id = localStorage.getItem("atletaEditId");
 
   if(id){
 
     atletaInModifica = id;
 
-    openPopup();
+    openPopup(true);
 
     setTimeout(()=>{
       caricaDatiAtleta();
     },300);
 
     localStorage.removeItem("atletaEditId");
-
   }
 
 });
+
+cognome.addEventListener("blur", controllaSuggerimenti);
+
+function controllaSuggerimenti(){
+
+  const cogn = cognome.value.trim();
+
+  if(!cogn) return;
+
+  db.collection("atleti")
+  .where("cognome","==", cogn)
+  .get()
+  .then(snapshot=>{
+
+    if(snapshot.empty) return;
+
+    let lista = "Cognomi simili trovati:\n\n";
+
+    snapshot.forEach(doc=>{
+      const d = doc.data();
+      lista += d.nome + " " + d.cognome + "\n";
+    });
+
+    alert(lista);
+
+  });
+
+}
