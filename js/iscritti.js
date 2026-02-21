@@ -166,12 +166,6 @@ function apriPagamento(atletaId){
 }
 
 
-// ================= AGGIUNTA MANUALE (placeholder) =================
-
-function apriPopupAggiungi(){
-  alert("Prossimo step: ricerca cognome e aggiunta manuale.");
-}
-
 
 // ================= AVVIO =================
 
@@ -468,13 +462,13 @@ function formattaData(dataISO){
 }
 
 function apriPopupAggiungi(){
-  document.getElementById("popupAggiungi").classList.remove("popup-hidden");
-  document.getElementById("ricercaCognome").value = "";
-  document.getElementById("risultatiRicerca").innerHTML = "";
+  document.getElementById("popupAggiungi")
+    .classList.add("active");
 }
 
 function chiudiPopupAggiungi(){
-  document.getElementById("popupAggiungi").classList.add("popup-hidden");
+  document.getElementById("popupAggiungi")
+    .classList.remove("active");
 }
 async function cercaAtleta(){
 
