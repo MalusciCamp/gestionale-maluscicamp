@@ -166,35 +166,119 @@ th{
   background-color: #f0f0f0;
 }
 
-/* 🔵 POPUP GENERICO */
-
-.popup-hidden {
-  display: none;
-}
+/* 🔥 OVERLAY */
 
 #popupAggiungi,
 #popupPagamento {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
+  inset: 0;
+  background: rgba(15, 20, 40, 0.75);
+  backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
 .popup-hidden {
   display: none !important;
 }
 
+/* 🔥 BOX MODERNO */
+
 .popup-box {
-  background: white;
-  width: 400px;
-  max-width: 90%;
-  padding: 25px;
+  background: linear-gradient(145deg, #ffffff, #f4f6fa);
+  width: 480px;
+  max-width: 92%;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  position: relative;
+  animation: slideUp 0.25s ease;
+}
+
+/* 🔥 TITOLO */
+
+.popup-box h3 {
+  margin: 0 0 20px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e2a45;
+  text-align: center;
+}
+
+/* 🔥 INPUT RICERCA */
+
+#ricercaCognome {
+  width: 100%;
+  padding: 12px 15px;
   border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  border: 2px solid #d9e1f0;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+#ricercaCognome:focus {
+  outline: none;
+  border-color: #3b6df6;
+  box-shadow: 0 0 0 3px rgba(59,109,246,0.2);
+}
+
+/* 🔥 LISTA RISULTATI */
+
+.lista-risultati {
+  margin-top: 15px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* 🔥 RISULTATO CARD */
+
+.riga-risultato {
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: white;
+  border: 1px solid #e4e9f2;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.riga-risultato:hover {
+  background: #3b6df6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59,109,246,0.4);
+}
+
+/* 🔥 BOTTONE CHIUDI */
+
+.popup-box button {
+  margin-top: 15px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #1e2a45;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.popup-box button:hover {
+  background: #3b6df6;
+}
+
+/* 🔥 ANIMAZIONI */
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes slideUp {
+  from {transform: translateY(20px); opacity: 0;}
+  to {transform: translateY(0); opacity: 1;}
 }
