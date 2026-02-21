@@ -150,3 +150,18 @@ th{
 #popupPagamento button:hover{
   opacity:0.85;
 }
+.lista-risultati {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+.riga-risultato {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.riga-risultato:hover {
+  background-color: #f0f0f0;
+}
