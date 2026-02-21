@@ -374,15 +374,20 @@ settimane: settimaneSelezionate,
 pagamento: pagamento
   };
 
-  if(modalitaArchivio){
+ if(modalitaArchivio){
 
-    db.collection("atleti")
+  // 🔥 Rimuovo settimane e pagamento dall’oggetto
+  delete atleta.settimane;
+  delete atleta.pagamento;
+
+  db.collection("atleti")
     .doc(atletaInModifica)
     .update(atleta)
     .then(()=>{
       alert("Atleta aggiornato");
       closeIscrizionePopup();
     });
+
 
   }else{
 
