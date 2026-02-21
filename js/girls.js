@@ -236,56 +236,6 @@ function caricaDatiAtleta(){
         data.documenti.documentoIdentitaNumero || "";
     }
 
-    // ===== SETTIMANE =====
-    if(data.settimane){
-
-      setTimeout(()=>{
-
-        document
-        .querySelectorAll("#settimaneToggle .toggle")
-        .forEach(box=>{
-
-          const trovata =
-            data.settimane.find(
-              s => s.id === box.dataset.id
-            );
-
-          if(trovata){
-            box.classList.remove("red");
-            box.classList.add("green");
-          }
-
-        });
-
-        calcolaTotale();
-
-      },300);
-    }
-
-    // ===== PAGAMENTO =====
-    if(data.pagamento){
-
-      totalePagamento.value =
-        data.pagamento.totale || 0;
-
-      scontoPagamento.value =
-        data.pagamento.sconto || 0;
-
-      totaleScontato.value =
-        data.pagamento.totaleScontato || 0;
-
-      accontoPagamento.value =
-        data.pagamento.acconto || 0;
-
-      restoPagamento.value =
-        data.pagamento.saldo || 0;
-
-      metodoAcconto.value =
-        data.pagamento.metodoAcconto || "";
-
-      metodoSaldo.value =
-        data.pagamento.metodoSaldo || "";
-    }
 
   });
 
