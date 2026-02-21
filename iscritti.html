@@ -86,6 +86,21 @@ function goBack() {
   window.history.back();
 }
 </script>
+<div id="popupAggiungi" class="popup-hidden">
+  <div class="popup-box">
 
+    <h3>Aggiungi Iscrizione</h3>
+
+    <input type="text"
+           id="ricercaCognome"
+           placeholder="Scrivi cognome..."
+           oninput="cercaAtleta()">
+
+    <div id="risultatiRicerca" class="lista-risultati"></div>
+
+    <button onclick="chiudiPopupAggiungi()">Chiudi</button>
+
+  </div>
+</div>
 </body>
 </html>
