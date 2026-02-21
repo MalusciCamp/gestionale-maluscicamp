@@ -335,12 +335,17 @@ caricaIscritti();
 document.getElementById("btnStampaRicevuta").style.display = "block";
 }
 
-async function stampaRicevutaDiretta(atletaId){
+async function stampaRicevuta(){
+
+  if(!ultimoPagamentoRegistrato){
+    alert("Nessun pagamento registrato.");
+    return;
+  }
 
   const { jsPDF } = window.jspdf;
 
   const atletaDoc = await db.collection("atleti")
-    .doc(atletaId)
+    .doc(ultimoPagamentoRegistrato.atletaId)
     .get();
 
   if(!atletaDoc.exists) return;
@@ -348,7 +353,7 @@ async function stampaRicevutaDiretta(atletaId){
   const atleta = atletaDoc.data();
 
   const iscrizioniSnap = await db.collection("iscrizioni")
-    .where("atletaId","==", atletaId)
+    .where("atletaId","==", ultimoPagamentoRegistrato.atletaId)
     .get();
 
   let totalePagato = 0;
@@ -365,7 +370,6 @@ async function stampaRicevutaDiretta(atletaId){
 
     if(settimanaDoc.exists){
       const settimana = settimanaDoc.data();
-
       if(settimana.dal && settimana.al){
         periodi.push(
           `${formattaData(settimana.dal)} - ${formattaData(settimana.al)}`
@@ -375,8 +379,23 @@ async function stampaRicevutaDiretta(atletaId){
   }
 
   const periodoTesto = periodi.join("  |  ");
-  const anno = new Date().getFullYear();
-  const dataOggi = new Date().toLocaleDateString("it-IT");
+
+  const configRef = db.collection("config").doc("ricevute");
+  let numeroRicevuta = 1;
+
+  await db.runTransaction(async (transaction) => {
+    const doc = await transaction.get(configRef);
+
+    if(!doc.exists){
+      transaction.set(configRef, { numeroProgressivo: 2 });
+      numeroRicevuta = 1;
+    } else {
+      numeroRicevuta = doc.data().numeroProgressivo;
+      transaction.update(configRef, {
+        numeroProgressivo: numeroRicevuta + 1
+      });
+    }
+  });
 
   const pdf = new jsPDF({
     orientation: "landscape",
@@ -384,60 +403,104 @@ async function stampaRicevutaDiretta(atletaId){
     format: "a5"
   });
 
-  // 🔵 STILE MODERNO ASSOCIAZIONE SPORTIVA
+  const anno = new Date().getFullYear();
+  const dataOggi = new Date().toLocaleDateString("it-IT");
 
-  pdf.setFillColor(20, 60, 120);
-  pdf.rect(0, 0, 210, 25, "F");
+  // 🔹 LOGO
+  try{
+    pdf.addImage("img/logo.png", "PNG", 10, 8, 35, 12);
+  }catch(e){}
 
-  pdf.setTextColor(255,255,255);
-  pdf.setFontSize(14);
-  pdf.text("A.S.D. MALUSCI CAMP", 15, 15);
+  // 🔹 INTESTAZIONE
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("A.S.D. MALUSCI CAMP", 55, 12);
+  pdf.setFont("helvetica", "normal");
+  pdf.text("Via Montalbano N°98 51039 QUARRATA (PT)", 55, 17);
+  pdf.text("P.IVA 01963540479", 55, 22);
 
-  pdf.setTextColor(0,0,0);
+  // 🔹 LINEA SEPARATRICE
+  pdf.setDrawColor(0);
+  pdf.line(10, 28, 200, 28);
 
-  pdf.setFontSize(9);
-  pdf.text("Via Montalbano N°98 51039 QUARRATA (PT) - P.IVA 01963540479", 15, 32);
-
+  // 🔹 TITOLO
   pdf.setFontSize(12);
-  pdf.setFont("helvetica","bold");
-  pdf.text("RICEVUTA DI PAGAMENTO", 15, 45);
+  pdf.setFont("helvetica", "bold");
+  pdf.text(
+    `RICEVUTA DI PAGAMENTO N° ${numeroRicevuta}   -   ANNO ${anno}`,
+    15,
+    38
+  );
 
-  pdf.setFont("helvetica","normal");
+  pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
 
-  let y = 55;
+  // 🔹 CORPO COMPATTO
+  let y = 48;
 
   pdf.text(
-    `Ha versato la somma di € ${totalePagato.toFixed(2)}`,
+    `Il sottoscritto dichiara di aver ricevuto la somma di € ${totalePagato.toFixed(2)}`,
     15,
     y
   );
 
   y += 6;
-  pdf.text("Partecipazione Camp Estivo Malusci Camp", 15, y);
-
-  y += 6;
-  pdf.text(`Periodo: ${periodoTesto}`, 15, y);
-
-  y += 8;
-  pdf.text(`Atleta: ${atleta.cognome} ${atleta.nome}`, 15, y);
-
-  y += 6;
   pdf.text(
-    `Nato/a a ${atleta.luogoNascita || ""} il ${formattaData(atleta.dataNascita) || ""}`,
+    "a titolo di partecipazione al Camp Estivo Malusci Camp",
     15,
     y
   );
 
   y += 6;
-  pdf.text(`Residente in ${atleta.indirizzo || ""}`, 15, y);
+  pdf.text(
+    `Periodo di svolgimento: ${periodoTesto}`,
+    15,
+    y
+  );
 
-  y += 15;
+  y += 6;
+  pdf.text(
+    "Con pernottamento in Lizzano Belvedere (BO)",
+    15,
+    y
+  );
 
-  pdf.line(120, 80, 200, 80);
-  pdf.text("Timbro e Firma", 140, 85);
+  y += 10;
 
-  pdf.save(`Ricevuta_${atleta.cognome}.pdf`);
+  pdf.text(
+    `Atleta: ${atleta.cognome || ""} ${atleta.nome || ""}`,
+    15,
+    y
+  );
+
+  y += 6;
+  pdf.text(
+    `Nato/a a ${atleta.luogoNascita || "________"} il ${formattaData(atleta.dataNascita) || "________"}`,
+    15,
+    y
+  );
+
+  y += 6;
+  pdf.text(
+    `Residente in ${atleta.indirizzo || "______________________________"}`,
+    15,
+    y
+  );
+
+  y += 6;
+  pdf.text("Codice Fiscale ________________________________", 15, y);
+
+  y += 10;
+  pdf.text(`Luogo ____________________    Data ${dataOggi}`, 15, y);
+
+  // 🔹 BOX TIMBRO E FIRMA GRANDE E PULITO
+  pdf.setDrawColor(0);
+  pdf.rect(120, 90, 65, 35);
+  pdf.setFontSize(8);
+  pdf.text("Per Associazione Sportiva Dilettantistica", 122, 96);
+  pdf.text("Timbro e Firma", 122, 102);
+
+  pdf.save(`Ricevuta_${atleta.cognome}_${numeroRicevuta}.pdf`);
 }
 
 function formattaData(dataISO){
