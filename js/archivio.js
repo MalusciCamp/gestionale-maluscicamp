@@ -41,17 +41,17 @@ function caricaAtlete(){
         <td>${d.classe || ""}</td>
         <td>${d.ruolo || "-"}</td>
 
-        <td class="archivio-actions">
-          <button class="view"
-            onclick="visualizzaScheda('${d.id}')">
-            <i class="fa-solid fa-eye"></i>
-          </button>
+    <td>
+  <div class="archivio-actions">
+    <button class="view" onclick="visualizzaScheda('${doc.id}')">
+      <i class="fa-solid fa-eye"></i>
+    </button>
 
-          <button class="delete"
-            onclick="eliminaAtleta('${d.id}')">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </td>
+    <button class="delete" onclick="eliminaAtleta('${doc.id}')">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </div>
+</td>
       `;
 
       tbody.appendChild(tr);
