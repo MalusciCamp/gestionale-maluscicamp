@@ -8,11 +8,14 @@ fetch("components/header.html")
 // ================= MODALITÀ =================
 
 let atletaInModifica = null;
+let modalitaArchivio = false;
 
 
 // ================= POPUP =================
 
 function openPopup(edit = false){
+
+  modalitaArchivio = edit;
 
   if(!edit){
     atletaInModifica = null;
@@ -151,7 +154,7 @@ function calcolaRimanenza(){
 }
 
 
-// Listener
+// Listener pagamenti
 window.addEventListener("DOMContentLoaded", () => {
 
   scontoPagamento?.addEventListener("input", calcolaSconto);
@@ -276,7 +279,7 @@ function salvaIscrizione(){
     documenti: documenti
   };
 
-  if(atletaInModifica){
+  if(modalitaArchivio){
 
     db.collection("atleti")
     .doc(atletaInModifica)
@@ -300,39 +303,96 @@ function salvaIscrizione(){
 function controllaDuplicato(atleta){
 
   db.collection("atleti")
-  .where("cognome","==", atleta.cognome)
   .get()
   .then(snapshot=>{
 
-    let duplicatoIdentico = false;
+    let identico = false;
 
     snapshot.forEach(doc=>{
 
       const d = doc.data();
 
       if(
-        d.nome === atleta.nome &&
+        d.nome?.toLowerCase() === atleta.nome.toLowerCase() &&
+        d.cognome?.toLowerCase() === atleta.cognome.toLowerCase() &&
         d.dataNascita === atleta.dataNascita
       ){
-        duplicatoIdentico = true;
+        identico = true;
       }
 
     });
 
-    if(duplicatoIdentico){
-
+    if(identico){
       alert("Atleta già inserito identico.");
-
     }else{
-
       salvaNuovo(atleta);
-
     }
 
   });
 
 }
+
+function salvaNuovo(atleta){
+
+  db.collection("atleti")
+  .add(atleta)
+  .then(()=>{
+    alert("Atleta salvato");
+    closeIscrizionePopup();
+  });
+
+}
+
+
+// ================= AUTOCOMPILA =================
+
+nome.addEventListener("blur", controllaOmonimi);
+cognome.addEventListener("blur", controllaOmonimi);
+
+function controllaOmonimi(){
+
+  const n = nome.value.trim().toLowerCase();
+  const c = cognome.value.trim().toLowerCase();
+
+  if(!n || !c) return;
+
+  db.collection("atleti")
+  .get()
+  .then(snapshot=>{
+
+    snapshot.forEach(doc=>{
+
+      const d = doc.data();
+
+      if(
+        d.nome?.toLowerCase() === n &&
+        d.cognome?.toLowerCase() === c
+      ){
+
+        const conferma = confirm(
+          "Atleta già presente.\nCaricare i dati?"
+        );
+
+        if(conferma){
+
+          atletaInModifica = doc.id;
+
+          caricaDatiAtleta();
+
+          modalitaArchivio = false;
+        }
+
+      }
+
+    });
+
+  });
+
+}
+
+
 // ================= EDIT AUTO =================
+
 window.addEventListener("load", ()=>{
 
   const id = localStorage.getItem("atletaEditId");
@@ -351,49 +411,3 @@ window.addEventListener("load", ()=>{
   }
 
 });
-
-nome.addEventListener("blur", controllaOmonimi);
-cognome.addEventListener("blur", controllaOmonimi);
-
-function controllaOmonimi(){
-
-  const n = nome.value.trim();
-  const c = cognome.value.trim();
-
-  if(!n || !c) return;
-
-  db.collection("atleti")
-  .where("cognome","==", c)
-  .get()
-  .then(snapshot=>{
-
-    if(snapshot.empty) return;
-
-    snapshot.forEach(doc=>{
-
-      const d = doc.data();
-
-      if(
-        d.nome.toLowerCase() ===
-        n.toLowerCase()
-      ){
-
-        const conferma = confirm(
-          "Atleta già presente.\nVuoi caricare i dati?"
-        );
-
-        if(conferma){
-
-          atletaInModifica = doc.id;
-
-          caricaDatiAtleta();
-
-        }
-
-      }
-
-    });
-
-  });
-
-}
