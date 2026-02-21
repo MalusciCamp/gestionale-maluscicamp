@@ -1,0 +1,44 @@
+.page-container{
+  padding: 40px;
+}
+
+.btn-aggiungi{
+  background: #1e88e5;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+table{
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th, td{
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+th{
+  background: #f5f5f5;
+}
+
+.stato-da_pagare{
+  color: #e53935;
+  font-weight: bold;
+}
+
+.stato-parziale{
+  color: #fb8c00;
+  font-weight: bold;
+}
+
+.stato-pagato{
+  color: #43a047;
+  font-weight: bold;
+}
