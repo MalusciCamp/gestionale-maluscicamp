@@ -358,17 +358,18 @@ async function stampaRicevuta(){
     const iscr = doc.data();
     totalePagato += iscr.pagato || 0;
 
-    // Recupero settimana
     const settimanaDoc = await db.collection("settimane")
       .doc(iscr.settimanaId)
       .get();
 
     if(settimanaDoc.exists){
+
       const settimana = settimanaDoc.data();
 
-      if(settimana.dataInizio && settimana.dataFine){
+      // 🔹 USA I TUOI CAMPI REALI
+      if(settimana.dal && settimana.al){
         periodi.push(
-          `${formattaData(settimana.dataInizio)} - ${formattaData(settimana.dataFine)}`
+          `${formattaData(settimana.dal)} - ${formattaData(settimana.al)}`
         );
       }
     }
@@ -394,7 +395,6 @@ async function stampaRicevuta(){
     }
   });
 
-  // 🔹 PDF A5 orizzontale
   const pdf = new jsPDF({
     orientation: "landscape",
     unit: "mm",
@@ -415,7 +415,11 @@ async function stampaRicevuta(){
   pdf.text("P.IVA 01963540479", 60, 25);
 
   pdf.setFontSize(14);
-  pdf.text(`RICEVUTA DI PAGAMENTO N° ${numeroRicevuta}   ANNO ${anno}`, 20, 40);
+  pdf.text(
+    `RICEVUTA DI PAGAMENTO N° ${numeroRicevuta}   ANNO ${anno}`,
+    20,
+    40
+  );
 
   pdf.setFontSize(11);
 
