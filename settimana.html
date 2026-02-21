@@ -26,10 +26,10 @@
   <div class="settimana-grid">
 
     <!-- 1️⃣ ISCRITTI -->
-    <div class="settimana-card iscritti">
-      <i class="fa-solid fa-users"></i>
-      <h2>Iscritti</h2>
-    </div>
+   <div class="settimana-card iscritti" onclick="apriIscritti()">
+  <i class="fa-solid fa-users"></i>
+  <h2>Iscritti</h2>
+</div>
 
     <!-- 2️⃣ COMPOSIZIONE CAMERE -->
     <div class="settimana-card camere">
@@ -108,6 +108,10 @@ function goBack() {
   window.history.back();
 }
 </script>
-
+<script>
+function apriIscritti(){
+  window.location.href = "iscritti.html?id=" + settimanaID;
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iscritti Settimana</title>
+
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/iscritti.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<div class="page-container">
+
+  <h1 id="titoloSettimana">Iscritti</h1>
+
+  <button class="btn-aggiungi" onclick="apriPopupAggiungi()">
+    <i class="fa-solid fa-plus"></i> Aggiungi Iscrizione
+  </button>
+
+  <div class="tabella-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Cognome Nome</th>
+          <th>Cert.</th>
+          <th>Tessera</th>
+          <th>Documento</th>
+          <th>Stato</th>
+          <th>Azione</th>
+        </tr>
+      </thead>
+      <tbody id="listaIscritti"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="js/iscritti.js"></script>
+</body>
+</html>
