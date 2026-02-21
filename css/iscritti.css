@@ -74,16 +74,7 @@ th{
 .azioni-box button:hover{
   opacity: 0.8;
 }
-/* ===== SFONDO OSCURATO ===== */
-#popupPagamento{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
+
 
 /* ===== BOX CENTRALE ===== */
 #popupPagamento .popup-box{
