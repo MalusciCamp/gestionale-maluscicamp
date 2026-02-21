@@ -25,21 +25,25 @@ function caricaAtlete(){
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-            <td>${d.cognome}</td>
-            <td>${d.nome}</td>
-            <td>${d.classe || ""}</td>
-            <td>${d.ruolo || "-"}</td>
+  <td>${d.cognome || ""}</td>   
+  <td>${d.nome || ""}</td>
+  <td>${d.classe || ""}</td>
+  <td>${d.ruolo || "-"}</td>
 
-        <td>
-          <button onclick="visualizzaScheda('${doc.id}')">
-            👁
-          </button>
+  <td class="archivio-actions">
 
-          <button onclick="eliminaAtleta('${doc.id}')">
-            🗑
-          </button>
-        </td>
-      `;
+    <button class="view"
+      onclick="visualizzaScheda('${doc.id}')">
+      <i class="fa-solid fa-eye"></i>
+    </button>
+
+    <button class="delete"
+      onclick="eliminaAtleta('${doc.id}')">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+
+  </td>
+`;
 
       tbody.appendChild(tr);
 
