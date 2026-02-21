@@ -19,10 +19,13 @@ function openPopup(edit = false){
 
   const sezioneSP = document.querySelector(".settimane-pagamento-wrapper");
 
-  if(edit){
-    sezioneSP.style.display = "none";
-  }else{
-    sezioneSP.style.display = "block";
+  if(sezioneSP){
+    if(edit){
+      sezioneSP.style.display = "none";
+    }else{
+      sezioneSP.style.display = ""; 
+      // 🔥 Rimuove inline style e ripristina CSS originale
+    }
   }
 
   if(!edit){
@@ -31,7 +34,7 @@ function openPopup(edit = false){
   }
 
   document.getElementById("iscrizioneModal")
-  .style.display = "flex";
+    .style.display = "flex";
 
   caricaSettimane();
 }
