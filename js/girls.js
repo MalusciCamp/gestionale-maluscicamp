@@ -197,38 +197,43 @@ function caricaDatiAtleta(){
     document.getElementById("note").value = data.note || "";
 
   });
+// ===== DOCUMENTI =====
+
+if(data.documenti){
+
+  const cert = document.querySelector('[data-key="certMedico"]');
+
+  cert.classList.toggle("green", data.documenti.certMedico);
+  cert.classList.toggle("red", !data.documenti.certMedico);
+
+  document.getElementById("tesseraSanitariaNumero").value =
+    data.documenti.tesseraSanitariaNumero || "";
+
+  document.getElementById("documentoIdentitaNumero").value =
+    data.documenti.documentoIdentitaNumero || "";
+
+}
 
 }
 // ================= SALVATAGGIO COMPLETO =================
 
 function salvaIscrizione(){
 
-  // ===== DOCUMENTI =====
-  const documenti = {
+// ===== DOCUMENTI =====
 
-    certMedico:
-      document.querySelectorAll(".documento")[0]
-      .classList.contains("green"),
+const documenti = {
 
-    tesseraSanitaria:
-      document.querySelectorAll(".documento")[1]
-      .classList.contains("green"),
+  certMedico:
+    document.querySelector('[data-key="certMedico"]')
+    .classList.contains("green"),
 
-    documentoIdentita:
-      document.querySelectorAll(".documento")[2]
-      .classList.contains("green"),
+  tesseraSanitariaNumero:
+    document.getElementById("tesseraSanitariaNumero").value,
 
-    vaccini:
-      document.querySelectorAll(".documento")[3]
-      .classList.contains("green"),
+  documentoIdentitaNumero:
+    document.getElementById("documentoIdentitaNumero").value
 
-    firme:
-      document.querySelectorAll(".documento")[4]
-      .classList.contains("green")
-
-  };
-
-
+};
   // ===== ATLETA =====
   const atleta = {
 
