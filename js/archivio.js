@@ -25,9 +25,10 @@ function caricaAtlete(){
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-        <td>${d.cognome}</td>
-        <td>${d.nome}</td>
-        <td>${d.classe || ""}</td>
+            <td>${d.cognome}</td>
+            <td>${d.nome}</td>
+            <td>${d.classe || ""}</td>
+            <td>${d.ruolo || "-"}</td>
 
         <td>
           <button onclick="visualizzaScheda('${doc.id}')">
