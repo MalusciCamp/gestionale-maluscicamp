@@ -42,3 +42,23 @@ th{
   color: #43a047;
   font-weight: bold;
 }
+.cert-toggle{
+  cursor:pointer;
+  padding:4px 8px;
+  border-radius:6px;
+  font-weight:bold;
+  color:white;
+}
+
+.cert-toggle.green{
+  background:#43a047;
+}
+
+.cert-toggle.red{
+  background:#e53935;
+}
+
+.input-doc{
+  width:120px;
+  padding:4px;
+}
