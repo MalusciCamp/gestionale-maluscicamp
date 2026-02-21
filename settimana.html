@@ -25,26 +25,34 @@
 
   <div class="settimana-grid">
 
-    <!-- ISCRITTI -->
-    <div class="settimana-card interno">
+    <!-- 1️⃣ ISCRITTI -->
+    <div class="settimana-card iscritti">
       <i class="fa-solid fa-users"></i>
       <h2>Iscritti</h2>
     </div>
 
-    <!-- FUTURE -->
-    <div class="settimana-card interno disabled">
+    <!-- 2️⃣ COMPOSIZIONE CAMERE -->
+    <div class="settimana-card camere">
+      <i class="fa-solid fa-bed"></i>
+      <h2>Composizione Camere</h2>
+    </div>
+
+    <!-- 3️⃣ GRUPPI -->
+    <div class="settimana-card gruppi">
       <i class="fa-solid fa-layer-group"></i>
       <h2>Gruppi</h2>
     </div>
 
-    <div class="settimana-card interno disabled">
-      <i class="fa-solid fa-bed"></i>
-      <h2>Camere</h2>
+    <!-- 4️⃣ RIEPILOGO KIT -->
+    <div class="settimana-card kit">
+      <i class="fa-solid fa-shirt"></i>
+      <h2>Riepilogo Kit</h2>
     </div>
 
-    <div class="settimana-card interno disabled">
+    <!-- 5️⃣ RIEPILOGO PAGAMENTI -->
+    <div class="settimana-card pagamenti">
       <i class="fa-solid fa-euro-sign"></i>
-      <h2>Pagamenti</h2>
+      <h2>Riepilogo Pagamenti</h2>
     </div>
 
   </div>
@@ -82,14 +90,16 @@
     .get()
     .then((doc) => {
 
-      const data = doc.data();
-      document.getElementById("titoloSettimana").textContent = data.nome;
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById("titoloSettimana").textContent = data.nome;
+      }
 
     });
 
 </script>
-<script>
 
+<script>
 function goDashboard() {
   window.location.href = "dashboard.html";
 }
@@ -97,7 +107,7 @@ function goDashboard() {
 function goBack() {
   window.history.back();
 }
-
 </script>
+
 </body>
 </html>
