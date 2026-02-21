@@ -93,23 +93,25 @@ async function caricaIscritti(){
             <td>${atleta.cognome} ${atleta.nome}</td>
 
             <td>
-              <span class="cert-toggle ${atleta.documenti?.certMedico ? "green" : "red"}">
-                ${atleta.documenti?.certMedico ? "SI" : "NO"}
-              </span>
-            </td>
+  <span class="cert-toggle ${atleta.documenti?.certMedico ? "green" : "red"}"
+        onclick="toggleCert(this)">
+    ${atleta.documenti?.certMedico ? "SI" : "NO"}
+  </span>
+</td>
 
-            <td>
-              <span class="cert-toggle ${atleta.documenti?.tesseraSanitaria ? "green" : "red"}">
-                ${atleta.documenti?.tesseraSanitaria ? "SI" : "NO"}
-              </span>
-            </td>
+<td>
+  <span class="cert-toggle ${atleta.documenti?.tesseraSanitaria ? "green" : "red"}"
+        onclick="toggleCert(this)">
+    ${atleta.documenti?.tesseraSanitaria ? "SI" : "NO"}
+  </span>
+</td>
 
-            <td>
-              <span class="cert-toggle ${atleta.documenti?.documentoIdentita ? "green" : "red"}">
-                ${atleta.documenti?.documentoIdentita ? "SI" : "NO"}
-              </span>
-            </td>
-
+<td>
+  <span class="cert-toggle ${atleta.documenti?.documentoIdentita ? "green" : "red"}"
+        onclick="toggleCert(this)">
+    ${atleta.documenti?.documentoIdentita ? "SI" : "NO"}
+  </span>
+</td>
             <td class="stato-${iscrizione.statoPagamento}">
               ${iscrizione.statoPagamento}
             </td>
@@ -186,25 +188,24 @@ async function salvaDocumentiRiga(atletaId, btn){
 
   const tr = btn.closest("tr");
 
-  const cert = tr.querySelector(".cert-toggle").innerText === "SI";
+  const toggles = tr.querySelectorAll(".cert-toggle");
 
-  const tessera = tr.querySelector(`.tessera-${atletaId}`).value;
-  const documento = tr.querySelector(`.documento-${atletaId}`).value;
+  const documenti = {
+    certMedico: toggles[0].innerText === "SI",
+    tesseraSanitaria: toggles[1].innerText === "SI",
+    documentoIdentita: toggles[2].innerText === "SI"
+  };
 
   await db.collection("atleti")
     .doc(atletaId)
     .update({
-      documenti:{
-        certMedico: cert,
-        tesseraSanitariaNumero: tessera,
-        documentoIdentitaNumero: documento
-      }
+      documenti: documenti
     });
 
   btn.innerText = "✔";
   setTimeout(()=>{
     btn.innerText = "💾";
-  },1000);
+  },800);
 }
 
 let atletaPagamentoInCorso = null;
