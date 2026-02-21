@@ -8,42 +8,51 @@ fetch("components/header.html")
 
 function caricaAtlete(){
 
-  const tbody =
-    document.getElementById("tbodyAtleti");
-
+  const tbody = document.getElementById("tbodyAtleti");
   tbody.innerHTML = "";
 
   db.collection("atleti")
-.orderBy("cognomeLower")
-.get()
+  .get()
   .then(snapshot=>{
 
-    snapshot.forEach(doc=>{
+    const atlete = [];
 
-      const d = doc.data();
+    snapshot.forEach(doc=>{
+      atlete.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    // ORDINE ALFABETICO CASE INSENSITIVE
+    atlete.sort((a,b)=>{
+      return (a.cognome || "")
+        .toLowerCase()
+        .localeCompare((b.cognome || "").toLowerCase());
+    });
+
+    atlete.forEach(d=>{
 
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-  <td>${d.cognome || ""}</td>   
-  <td>${d.nome || ""}</td>
-  <td>${d.classe || ""}</td>
-  <td>${d.ruolo || "-"}</td>
+        <td>${d.cognome || ""}</td>
+        <td>${d.nome || ""}</td>
+        <td>${d.classe || ""}</td>
+        <td>${d.ruolo || "-"}</td>
 
-  <td class="archivio-actions">
+        <td class="archivio-actions">
+          <button class="view"
+            onclick="visualizzaScheda('${d.id}')">
+            <i class="fa-solid fa-eye"></i>
+          </button>
 
-    <button class="view"
-      onclick="visualizzaScheda('${doc.id}')">
-      <i class="fa-solid fa-eye"></i>
-    </button>
-
-    <button class="delete"
-      onclick="eliminaAtleta('${doc.id}')">
-      <i class="fa-solid fa-trash"></i>
-    </button>
-
-  </td>
-`;
+          <button class="delete"
+            onclick="eliminaAtleta('${d.id}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>
+      `;
 
       tbody.appendChild(tr);
 
@@ -52,7 +61,6 @@ function caricaAtlete(){
   });
 
 }
-
 window.onload = caricaAtlete;
 
 // ================= ELIMINA =================
