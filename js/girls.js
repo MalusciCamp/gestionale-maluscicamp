@@ -54,11 +54,38 @@ function resetPopup(){
     t.classList.remove("green");
     t.classList.add("red");
   });
-
+const file = document.getElementById("fileImport");
+if(file) file.value = "";
 }
 
 function openArchivio(){
   window.location.href = "archivio.html";
+}
+
+// ================= TAB SWITCH =================
+
+function showImport(){
+
+  document.querySelectorAll(".tab-btn")
+    .forEach(b=>b.classList.remove("active"));
+
+  document.querySelectorAll(".tab-btn")[1]
+    .classList.add("active");
+
+  document.getElementById("manualeContent").style.display = "none";
+  document.getElementById("importContent").style.display = "block";
+}
+
+function showManuale(){
+
+  document.querySelectorAll(".tab-btn")
+    .forEach(b=>b.classList.remove("active"));
+
+  document.querySelectorAll(".tab-btn")[0]
+    .classList.add("active");
+
+  document.getElementById("manualeContent").style.display = "block";
+  document.getElementById("importContent").style.display = "none";
 }
 
 
@@ -303,6 +330,11 @@ if(data.documenti){
 
 function salvaIscrizione(){
 
+  if(!nome.value.trim() || !cognome.value.trim()){
+  alert("Nome e Cognome sono obbligatori");
+  return;
+}
+
   // ===== SETTIMANE SELEZIONATE =====
 const settimaneSelezionate = [];
 
@@ -404,35 +436,26 @@ document.querySelectorAll(".documento")
 function controllaDuplicato(atleta){
 
   db.collection("atleti")
-  .get()
-  .then(snapshot=>{
+    .where("nomeLower","==", atleta.nome.toLowerCase())
+    .where("cognomeLower","==", atleta.cognome.toLowerCase())
+    .where("dataNascita","==", atleta.dataNascita)
+    .get()
+    .then(snapshot => {
 
-    let identico = false;
-
-    snapshot.forEach(doc=>{
-
-      const d = doc.data();
-
-      if(
-        d.nome?.toLowerCase() === atleta.nome.toLowerCase() &&
-        d.cognome?.toLowerCase() === atleta.cognome.toLowerCase() &&
-        d.dataNascita === atleta.dataNascita
-      ){
-        identico = true;
+      if(!snapshot.empty){
+        alert("Atleta già inserito identico.");
+        return;
       }
 
+      salvaNuovo(atleta);
+
+    })
+    .catch(error=>{
+      console.error("Errore controllo duplicato:", error);
+      alert("Errore durante il controllo duplicati");
     });
 
-    if(identico){
-      alert("Atleta già inserito identico.");
-    }else{
-      salvaNuovo(atleta);
-    }
-
-  });
-
 }
-
 function salvaNuovo(atleta){
 
   db.collection("atleti")
