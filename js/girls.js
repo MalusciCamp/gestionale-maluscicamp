@@ -445,7 +445,11 @@ function salvaNuovo(atleta){
 
       for(let settimana of atleta.settimane){
 
-        await db.collection("iscrizioni").add({
+       const idIscrizione = atletaId + "_" + settimana.id;
+
+await db.collection("iscrizioni")
+  .doc(idIscrizione)
+  .set({
           atletaId: atletaId,
           settimanaId: settimana.id,
           quota: settimana.prezzo,
