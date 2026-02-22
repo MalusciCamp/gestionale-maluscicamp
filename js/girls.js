@@ -441,38 +441,40 @@ function salvaNuovo(atleta){
     const atletaId = docRef.id;
 
     // 🔹 CREA ISCRIZIONI PER OGNI SETTIMANA SELEZIONATA
-    if(atleta.settimane && atleta.settimane.length > 0){
+   // 🔹 CREA ISCRIZIONI PER OGNI SETTIMANA SELEZIONATA
+if(atleta.settimane && atleta.settimane.length > 0){
 
-      for(let settimana of atleta.settimane){
+  for(let settimana of atleta.settimane){
 
-       const idIscrizione = atletaId + "_" + settimana.id;
+    const idIscrizione = atletaId + "_" + settimana.id;
 
-await db.collection("iscrizioni")
-  .doc(idIscrizione)
-  .set({
-          atletaId: atletaId,
-          settimanaId: settimana.id,
-          quota: settimana.prezzo,
-          pagato: 0,
-          statoPagamento: "da_pagare",
-          anno: new Date().getFullYear(),
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    await db.collection("iscrizioni")
+      .doc(idIscrizione)
+      .set({
+        atletaId: atletaId,
+        settimanaId: settimana.id,
+        quota: Number(settimana.prezzo),
+        anno: new Date().getFullYear(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
 
-      }
-if(pagamento.acconto > 0){
+    // 🔥 SE C'È ACCONTO → CREA MOVIMENTO PAGAMENTO
+    if(pagamento && Number(pagamento.acconto) > 0){
 
-  await db.collection("pagamenti").add({
-    atletaId: atletaId,
-    settimanaId: settimana.id,
-    importo: pagamento.acconto,
-    metodo: pagamento.metodoAcconto || "Non specificato",
-    data: firebase.firestore.FieldValue.serverTimestamp(),
-    anno: new Date().getFullYear()
-  });
+      await db.collection("pagamenti").add({
+        atletaId: atletaId,
+        settimanaId: settimana.id,
+        importo: Number(pagamento.acconto),
+        metodo: pagamento.metodoAcconto || "Non specificato",
+        data: firebase.firestore.FieldValue.serverTimestamp(),
+        anno: new Date().getFullYear()
+      });
+
+    }
+
+  }
 
 }
-    }
 
     alert("Atleta salvato e iscrizioni create");
     closeIscrizionePopup();

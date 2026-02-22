@@ -88,6 +88,27 @@ async function caricaIscritti(){
 
       const atleta = atletaDoc.data();
 
+      // 🔹 Calcolo pagamenti reali
+const pagamentiSnap = await db.collection("pagamenti")
+  .where("atletaId","==", atletaId)
+  .where("settimanaId","==", settimanaID)
+  .get();
+
+let pagato = 0;
+pagamentiSnap.forEach(p=>{
+  pagato += Number(p.data().importo || 0);
+});
+
+const quota = Number(iscrizione.quota || 0);
+
+let stato = "da_pagare";
+
+if(pagato >= quota && quota > 0){
+  stato = "pagato";
+}else if(pagato > 0){
+  stato = "parziale";
+}
+
       righe.push({
         cognome: atleta.cognome || "",
         html: `
@@ -114,9 +135,9 @@ async function caricaIscritti(){
     ${atleta.documenti?.documentoIdentita ? "SI" : "NO"}
   </span>
 </td>
-            <td class="stato-${iscrizione.statoPagamento}">
-              ${iscrizione.statoPagamento}
-            </td>
+            <td class="stato-${stato}">
+  ${stato}
+</td>
 
     <td class="azioni-box">
 
@@ -128,7 +149,7 @@ async function caricaIscritti(){
     💰
   </button>
 
-  ${iscrizione.statoPagamento === "pagato" ? `
+  ${stato === "pagato" ? `
     <button onclick="stampaRicevutaDiretta('${atletaId}')">
       🖨️
     </button>
@@ -223,30 +244,30 @@ async function apriPagamento(atletaId){
 
   atletaPagamentoInCorso = atletaId;
 
-  const snapshot = await db.collection("iscrizioni")
+  const iscrizioniSnap = await db.collection("iscrizioni")
     .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
     .get();
 
-  let totale = 0;
+  if(iscrizioniSnap.empty) return;
+
+  const iscrizione = iscrizioniSnap.docs[0].data();
+
+  const quota = Number(iscrizione.quota || 0);
+
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
+    .get();
+
   let pagato = 0;
-
-  iscrizioniAtletaCache = [];
-
-  snapshot.forEach(doc=>{
-    const data = doc.data();
-    totale += data.quota;
-    pagato += data.pagato || 0;
-
-    iscrizioniAtletaCache.push({
-      id: doc.id,
-      quota: data.quota,
-      pagato: data.pagato || 0
-    });
+  pagamentiSnap.forEach(p=>{
+    pagato += Number(p.data().importo || 0);
   });
 
-  totaleDovuto.innerText = totale;
+  totaleDovuto.innerText = quota;
   totalePagato.innerText = pagato;
-  residuoPagamento.innerText = totale - pagato;
+  residuoPagamento.innerText = quota - pagato;
 
   importoPagamento.value = "";
   metodoPagamento.value = "";
@@ -273,71 +294,36 @@ async function registraPagamento(){
     return;
   }
 
-  // 1️⃣ CREA MOVIMENTO PAGAMENTO
-const pagamentoRef = await db.collection("pagamenti").add({
-  atletaId: atletaPagamentoInCorso,
-  settimanaId: settimanaID,   // 🔴 QUESTO È FONDAMENTALE
-  importo: importo,
-  metodo: metodo,
-  data: firebase.firestore.FieldValue.serverTimestamp(),
-  anno: new Date().getFullYear()
-});
+  await db.collection("pagamenti").add({
+    atletaId: atletaPagamentoInCorso,
+    settimanaId: settimanaID,
+    importo: importo,
+    metodo: metodo,
+    data: firebase.firestore.FieldValue.serverTimestamp(),
+    anno: new Date().getFullYear()
+  });
 
-ultimoPagamentoRegistrato = {
-  id: pagamentoRef.id,
-  atletaId: atletaPagamentoInCorso,
-  importo: importo,
-  metodo: metodo,
-  data: new Date()
-};
-
-  // 2️⃣ DISTRIBUZIONE AUTOMATICA
-  let residuo = importo;
-
-  for(let iscrizione of iscrizioniAtletaCache){
-
-    if(residuo <= 0) break;
-
-    const daPagare = iscrizione.quota - iscrizione.pagato;
-
-    if(daPagare <= 0) continue;
-
-    if(residuo >= daPagare){
-
-      await db.collection("iscrizioni")
-        .doc(iscrizione.id)
-        .update({
-          pagato: iscrizione.quota,
-          statoPagamento: "pagato"
-        });
-
-      residuo -= daPagare;
-
-    }else{
-
-      await db.collection("iscrizioni")
-        .doc(iscrizione.id)
-        .update({
-          pagato: iscrizione.pagato + residuo,
-          statoPagamento: "parziale"
-        });
-
-      residuo = 0;
-    }
-  }
-
-  // DOPO distribuzione pagamento
-
-caricaIscritti();
+  chiudiPopupPagamento();
+  caricaIscritti();
 
 // Mostra pulsante stampa
 document.getElementById("btnStampaRicevuta").style.display = "block";
 }
+// Dopo aver salvato pagamento
 
+// Mostra pulsante stampa
+const btn = document.getElementById("btnStampaRicevuta");
+btn.style.display = "block";
+
+// Collega stampa diretta all'atleta corrente
+btn.onclick = function(){
+  stampaRicevutaDiretta(atletaPagamentoInCorso);
+}; 
 async function stampaRicevutaDiretta(atletaId){
 
   const { jsPDF } = window.jspdf;
 
+  // 🔹 Recupero atleta
   const atletaDoc = await db.collection("atleti")
     .doc(atletaId)
     .get();
@@ -346,34 +332,43 @@ async function stampaRicevutaDiretta(atletaId){
 
   const atleta = atletaDoc.data();
 
+  // 🔹 Recupero iscrizione della settimana corrente
   const iscrizioniSnap = await db.collection("iscrizioni")
     .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
+    .get();
+
+  if(iscrizioniSnap.empty) return;
+
+  const iscrizione = iscrizioniSnap.docs[0].data();
+
+  // 🔹 Recupero pagamenti reali
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
     .get();
 
   let totalePagato = 0;
-  let periodi = [];
+  pagamentiSnap.forEach(p=>{
+    totalePagato += Number(p.data().importo || 0);
+  });
 
-  for(const doc of iscrizioniSnap.docs){
+  // 🔹 Recupero periodo settimana
+  let periodoTesto = "";
 
-    const iscr = doc.data();
-    totalePagato += iscr.pagato || 0;
+  const settimanaDoc = await db.collection("settimane")
+    .doc(settimanaID)
+    .get();
 
-    const settimanaDoc = await db.collection("settimane")
-      .doc(iscr.settimanaId)
-      .get();
+  if(settimanaDoc.exists){
+    const settimana = settimanaDoc.data();
 
-    if(settimanaDoc.exists){
-      const settimana = settimanaDoc.data();
-
-      if(settimana.dal && settimana.al){
-        periodi.push(
-          `${formattaData(settimana.dal)} - ${formattaData(settimana.al)}`
-        );
-      }
+    if(settimana.dal && settimana.al){
+      periodoTesto =
+        `${formattaData(settimana.dal)} - ${formattaData(settimana.al)}`;
     }
   }
 
-  const periodoTesto = periodi.join("  |  ");
   const anno = new Date().getFullYear();
   const dataOggi = new Date().toLocaleDateString("it-IT");
 
