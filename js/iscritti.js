@@ -583,13 +583,40 @@ window.addEventListener("DOMContentLoaded", () => {
 
 async function eliminaIscrizione(idIscrizione){
 
-  const conferma = confirm("Sei sicuro di eliminare questa iscrizione?");
+  const conferma = confirm(
+    "Eliminando l'iscrizione verranno eliminati anche i pagamenti registrati per questa settimana.\nContinuare?"
+  );
 
   if(!conferma) return;
 
+  // 🔹 Recupero iscrizione
+  const doc = await db.collection("iscrizioni")
+    .doc(idIscrizione)
+    .get();
+
+  if(!doc.exists) return;
+
+  const iscr = doc.data();
+  const atletaId = iscr.atletaId;
+
+  // 🔹 Elimina iscrizione
   await db.collection("iscrizioni")
     .doc(idIscrizione)
     .delete();
+
+  // 🔹 Elimina pagamenti collegati a quella settimana
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
+    .get();
+
+  const batch = db.batch();
+
+  pagamentiSnap.forEach(p => {
+    batch.delete(p.ref);
+  });
+
+  await batch.commit();
 
   caricaIscritti();
 }
