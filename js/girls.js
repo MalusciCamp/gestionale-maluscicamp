@@ -611,32 +611,65 @@ async function importaExcel(){
       if(!riga["GIOCATORE"]) continue;
 
       // 🔹 DIVIDE COGNOME NOME
-      const parts = riga["GIOCATORE"].toString().trim().split(" ");
-      const cognome = parts[0];
-      const nome = parts.slice(1).join(" ");
+const parts = riga["GIOCATORE"].toString().trim().split(" ");
+const cognome = parts[0] || "";
+const nome = parts.slice(1).join(" ") || "";
 
-      const atleta = {
+// 🔹 DATA NASCITA (gestione numero Excel)
+let dataNascita = "";
 
-        nome: nome.toUpperCase(),
-        cognome: cognome.toUpperCase(),
-        nomeLower: nome.toLowerCase(),
-        cognomeLower: cognome.toLowerCase(),
+if(riga["Data di Nascita"]){
+  const valore = riga["Data di Nascita"];
 
-        dataNascita: riga["Data di Nascita"] || "",
-        luogoNascita: riga["Luogo di Nascita"] || "",
-        classe: riga["Classe"] || "",
-        ruolo: riga["Ruolo"] || "",
+  if(typeof valore === "number"){
+    const dataExcel = XLSX.SSF.parse_date_code(valore);
+    dataNascita = `${dataExcel.y}-${String(dataExcel.m).padStart(2,"0")}-${String(dataExcel.d).padStart(2,"0")}`;
+  } else {
+    dataNascita = valore;
+  }
+}
 
-        altezza: riga["ALTEZZA (in cm.)"] || "",
-        taglia: riga["TAGLIA"] || "",
-        scarpa: riga["Numero Scarpa"] || "",
+// 🔹 RUOLO (rimuove "A - ")
+let ruolo = riga["Ruolo"] || "";
 
-        telefono1: riga["RECAPITO TELEFONICO 1"] || "",
-        telefono2: riga["RECAPITO TELEFONICO 2"] || "",
-        indirizzo: riga["INDIRIZZO"] || "",
-        email: riga["E - MAIL"] || "",
-        note: riga["NOTE"] || "",
+if(ruolo.includes("-")){
+  ruolo = ruolo.split("-")[1].trim();
+}
 
+if(ruolo){
+  ruolo = ruolo.charAt(0).toUpperCase() + ruolo.slice(1).toLowerCase();
+}
+
+// 🔹 EMAIL robusta (anche con spazi)
+let email = "";
+
+Object.keys(riga).forEach(key=>{
+  if(key.trim().toUpperCase() === "E - MAIL"){
+    email = riga[key];
+  }
+});
+
+const atleta = {
+
+  nome: nome.trim().toUpperCase(),
+  cognome: cognome.trim().toUpperCase(),
+  nomeLower: nome.trim().toLowerCase(),
+  cognomeLower: cognome.trim().toLowerCase(),
+
+  dataNascita: dataNascita,
+  luogoNascita: (riga["Luogo di Nascita"] || "").trim(),
+  classe: (riga["Classe"] || "").trim(),
+  ruolo: ruolo,
+
+  altezza: riga["ALTEZZA (in cm.)"] || "",
+  taglia: (riga["TAGLIA"] || "").trim(),
+  scarpa: riga["Numero Scarpa"] || "",
+
+  telefono1: (riga["RECAPITO TELEFONICO 1"] || "").trim(),
+  telefono2: (riga["RECAPITO TELEFONICO 2"] || "").trim(),
+  indirizzo: (riga["INDIRIZZO"] || "").trim(),
+  email: (email || "").trim(),
+  note: (riga["NOTE"] || "").trim(),
         allergie: {
           stato: (riga["Allergie e Intolleranze"] || "").toString().toUpperCase() === "SI",
           descrizione: riga["DESCRIZIONE ALLERGIE E INTOLLERANZE"] || ""
