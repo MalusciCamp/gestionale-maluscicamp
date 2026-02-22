@@ -314,13 +314,15 @@ async function registraPagamento(){
   // 🔹 Mostra pulsante stampa
   const btn = document.getElementById("btnStampaRicevuta");
 
-  if(btn){
-    btn.style.display = "block";
+ if(btn){
+  btn.style.display = "block";
 
-    btn.onclick = function(){
-      stampaRicevutaDiretta(atletaPagamentoInCorso);
-    };
-  }
+  btn.onclick = function(){
+    stampaRicevutaDiretta(atletaPagamentoInCorso);
+  };
+}
+
+} // 🔥 CHIUSURA CORRETTA DI registraPagamento
 
 async function stampaRicevutaDiretta(atletaId){
 
@@ -653,7 +655,6 @@ document.getElementById("popupPagamento")
 
 });
 
-}
 
 // Rendi le funzioni globali
 window.stampaRicevutaDiretta = stampaRicevutaDiretta;
