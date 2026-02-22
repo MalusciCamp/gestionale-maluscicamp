@@ -201,13 +201,34 @@ Salva Iscrizione
 
 </div>
 
-<!-- IMPORT -->
-<div id="importContent" class="modal-body hidden">
-<h3>Importa da Excel</h3>
-<input type="file" accept=".xlsx,.xls">
-</div>
+<!-- ================= IMPORT ================= -->
 
-</div>
+<div id="importContent" class="modal-body" style="display:none;">
+
+  <div class="section-card">
+    <h3>Importa Archivio Atlete (CSV)</h3>
+
+    <p style="font-size:13px;color:#666;margin-bottom:15px;">
+      Il file deve essere formato CSV con intestazioni:<br>
+      nome;cognome;datanascita;luogonascita;altezza;taglia;scarpa;telefono1;telefono2;email;indirizzo
+    </p>
+
+    <input 
+      type="file" 
+      id="fileImport" 
+      accept=".csv"
+      style="margin-bottom:15px;"
+    >
+
+    <button 
+      onclick="importaCSV()" 
+      class="save-btn"
+      style="background:#2e7d32;">
+      Importa Archivio
+    </button>
+
+  </div>
+
 </div>
 
 <!-- ================= JS ESTERNI ================= -->
