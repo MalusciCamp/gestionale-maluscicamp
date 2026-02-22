@@ -206,22 +206,21 @@ Salva Iscrizione
 <div id="importContent" class="modal-body" style="display:none;">
 
   <div class="section-card">
-    <h3>Importa Archivio Atlete (CSV)</h3>
+    <h3>Importa Archivio Atlete (Excel)</h3>
 
     <p style="font-size:13px;color:#666;margin-bottom:15px;">
-      Il file deve essere formato CSV con intestazioni:<br>
-      nome;cognome;datanascita;luogonascita;altezza;taglia;scarpa;telefono1;telefono2;email;indirizzo
+      Verrà letto SOLO il foglio: <strong>1 - RAGAZZI</strong>
     </p>
 
     <input 
       type="file" 
       id="fileImport" 
-      accept=".csv"
+      accept=".xlsx,.xls"
       style="margin-bottom:15px;"
     >
 
     <button 
-      onclick="importaCSV()" 
+      onclick="importaExcel()" 
       class="save-btn"
       style="background:#2e7d32;">
       Importa Archivio
@@ -246,6 +245,6 @@ function goBack() {
   window.history.back();
 }
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
