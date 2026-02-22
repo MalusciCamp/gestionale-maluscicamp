@@ -67,7 +67,8 @@ async function caricaRiepilogo(){
     const atleta = atletaDoc.data();
 
     const pagamentiSnap = await db.collection("pagamenti")
-      .where("atletaId","==", iscr.atletaId)
+  .where("atletaId","==", iscr.atletaId)
+  .where("settimanaId","==", settimanaID)
       .get();
 
     let movimenti = [];

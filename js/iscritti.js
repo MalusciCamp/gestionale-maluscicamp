@@ -276,6 +276,7 @@ async function registraPagamento(){
   // 1️⃣ CREA MOVIMENTO PAGAMENTO
 const pagamentoRef = await db.collection("pagamenti").add({
   atletaId: atletaPagamentoInCorso,
+  settimanaId: settimanaID,   // 🔴 QUESTO È FONDAMENTALE
   importo: importo,
   metodo: metodo,
   data: firebase.firestore.FieldValue.serverTimestamp(),
