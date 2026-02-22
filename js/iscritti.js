@@ -118,7 +118,7 @@ async function caricaIscritti(){
               ${iscrizione.statoPagamento}
             </td>
 
-            <td class="azioni-box">
+    <td class="azioni-box">
 
   <button onclick="salvaDocumentiRiga('${atletaId}', this)">
     💾
@@ -133,6 +133,10 @@ async function caricaIscritti(){
       🖨️
     </button>
   ` : ""}
+
+  <button onclick="eliminaIscrizione('${docIscr.id}')">
+    🗑️
+  </button>
 
 </td>
           </tr>
@@ -527,18 +531,16 @@ async function cercaAtleta(){
 }
 async function aggiungiIscrizioneManuale(atletaId){
 
-  // 🔹 controllo se già iscritto
-  const giaIscritto = await db.collection("iscrizioni")
-    .where("atletaId","==", atletaId)
-    .where("settimanaId","==", settimanaID)
-    .get();
+  const idIscrizione = atletaId + "_" + settimanaID;
 
-  if(!giaIscritto.empty){
+  const docRef = db.collection("iscrizioni").doc(idIscrizione);
+  const doc = await docRef.get();
+
+  if(doc.exists){
     alert("Atleta già iscritto a questa settimana.");
     return;
   }
 
-  // 🔹 recupero prezzo settimana
   const settimanaDoc = await db.collection("settimane")
     .doc(settimanaID)
     .get();
@@ -547,7 +549,7 @@ async function aggiungiIscrizioneManuale(atletaId){
 
   const settimana = settimanaDoc.data();
 
-  await db.collection("iscrizioni").add({
+  await docRef.set({
     atletaId: atletaId,
     settimanaId: settimanaID,
     quota: Number(settimana.prezzo),
@@ -562,7 +564,6 @@ async function aggiungiIscrizioneManuale(atletaId){
   chiudiPopupAggiungi();
   caricaIscritti();
 }
-
 window.addEventListener("DOMContentLoaded", () => {
 
   const popup = document.getElementById("popupAggiungi");
@@ -578,3 +579,16 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
+async function eliminaIscrizione(idIscrizione){
+
+  const conferma = confirm("Sei sicuro di eliminare questa iscrizione?");
+
+  if(!conferma) return;
+
+  await db.collection("iscrizioni")
+    .doc(idIscrizione)
+    .delete();
+
+  caricaIscritti();
+}
