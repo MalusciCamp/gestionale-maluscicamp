@@ -376,9 +376,10 @@ document.querySelectorAll(".documento")
 });
  const atleta = {
 
-  nome: nome.value,
-  cognome: cognome.value,
-  cognomeLower: cognome.value.toLowerCase(),
+  nome: nome.value.trim().toUpperCase(),
+cognome: cognome.value.trim().toUpperCase(),
+nomeLower: nome.value.trim().toLowerCase(),
+cognomeLower: cognome.value.trim().toLowerCase(),
   dataNascita: dataNascita.value,
   luogoNascita: luogoNascita.value,
   classe: classe.value,
@@ -517,6 +518,16 @@ if(atleta.pagamento && Number(atleta.pagamento.acconto) > 0){
 
 nome.addEventListener("blur", controllaOmonimi);
 cognome.addEventListener("blur", controllaOmonimi);
+
+// ================= MAIUSCOLO AUTOMATICO =================
+
+nome.addEventListener("input", ()=>{
+  nome.value = nome.value.toUpperCase();
+});
+
+cognome.addEventListener("input", ()=>{
+  cognome.value = cognome.value.toUpperCase();
+});
 
 function controllaOmonimi(){
 
