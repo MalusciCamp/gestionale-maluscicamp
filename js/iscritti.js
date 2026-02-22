@@ -563,11 +563,18 @@ async function aggiungiIscrizioneManuale(atletaId){
   caricaIscritti();
 }
 
-document.getElementById("popupAggiungi")
-  .addEventListener("click", function(e){
+window.addEventListener("DOMContentLoaded", () => {
 
-    if(e.target.id === "popupAggiungi"){
-      chiudiPopupAggiungi();
-    }
+  const popup = document.getElementById("popupAggiungi");
+
+  if(popup){
+    popup.addEventListener("click", function(e){
+
+      if(e.target === popup){
+        chiudiPopupAggiungi();
+      }
+
+    });
+  }
 
 });
