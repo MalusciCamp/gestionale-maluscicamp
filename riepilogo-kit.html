@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riepilogo Kit</title>
+
+  <link rel="stylesheet" href="css/header.css">
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#f4f6f9;
+    }
+
+    .container{
+      padding:40px;
+      max-width:1200px;
+      margin:auto;
+    }
+
+    h1{
+      margin-bottom:10px;
+    }
+
+    .totale-box{
+      background:#1e88e5;
+      color:white;
+      padding:20px;
+      border-radius:10px;
+      font-size:20px;
+      font-weight:bold;
+      margin-bottom:30px;
+      text-align:center;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+      border-radius:10px;
+      overflow:hidden;
+    }
+
+    th{
+      background:#2c3e50;
+      color:white;
+      padding:12px;
+      text-align:left;
+    }
+
+    td{
+      padding:10px;
+      border-bottom:1px solid #eee;
+    }
+
+    tr:hover{
+      background:#f1f1f1;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header"></div>
+
+<div class="container">
+
+  <h1 id="titoloSettimana">Riepilogo Kit</h1>
+
+  <div class="totale-box">
+    Totale Atleti Iscritti: <span id="totaleAtleti">0</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Cognome Nome</th>
+        <th>Altezza</th>
+        <th>Taglia</th>
+        <th>Numero Scarpa</th>
+      </tr>
+    </thead>
+    <tbody id="tabellaKit"></tbody>
+  </table>
+
+</div>
+
+<script src="js/riepilogo-kit.js"></script>
+
+</body>
+</html>
