@@ -44,7 +44,7 @@
     </div>
 
     <!-- 4️⃣ RIEPILOGO KIT -->
-    <div class="settimana-card kit">
+    <div class="settimana-card kit" onclick="apriRiepilogoKit()">
       <i class="fa-solid fa-shirt"></i>
       <h2>Riepilogo Kit</h2>
     </div>
@@ -116,6 +116,11 @@ function apriIscritti(){
 function apriRiepilogoPagamenti(){
   window.location.href = "riepilogo-pagamenti.html?id=" + settimanaID;
 }
+
+function apriRiepilogoKit(){
+  window.location.href = "riepilogo-kit.html?id=" + settimanaID;
+}
+
 </script>
 </body>
 </html>
