@@ -570,7 +570,108 @@ function controllaOmonimi(){
 
 }
 
+// ================= IMPORT EXCEL FOGLIO "1 - RAGAZZI" =================
 
+async function importaExcel(){
+
+  const input = document.getElementById("fileImport");
+
+  if(!input.files.length){
+    alert("Seleziona un file Excel");
+    return;
+  }
+
+  const file = input.files[0];
+  const reader = new FileReader();
+
+  reader.onload = async function(e){
+
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+
+    // 🔴 PRENDE SOLO IL FOGLIO SPECIFICO
+    const worksheet = workbook.Sheets["1 - RAGAZZI"];
+
+    if(!worksheet){
+      alert("Foglio '1 - RAGAZZI' non trovato nel file.");
+      return;
+    }
+
+    const json = XLSX.utils.sheet_to_json(worksheet);
+
+    if(json.length === 0){
+      alert("Il foglio è vuoto.");
+      return;
+    }
+
+    let importati = 0;
+
+    for(const riga of json){
+
+      if(!riga["GIOCATORE"]) continue;
+
+      // 🔹 DIVIDE COGNOME NOME
+      const parts = riga["GIOCATORE"].toString().trim().split(" ");
+      const cognome = parts[0];
+      const nome = parts.slice(1).join(" ");
+
+      const atleta = {
+
+        nome: nome.toUpperCase(),
+        cognome: cognome.toUpperCase(),
+        nomeLower: nome.toLowerCase(),
+        cognomeLower: cognome.toLowerCase(),
+
+        dataNascita: riga["Data di Nascita"] || "",
+        luogoNascita: riga["Luogo di Nascita"] || "",
+        classe: riga["Classe"] || "",
+        ruolo: riga["Ruolo"] || "",
+
+        altezza: riga["ALTEZZA (in cm.)"] || "",
+        taglia: riga["TAGLIA"] || "",
+        scarpa: riga["Numero Scarpa"] || "",
+
+        telefono1: riga["RECAPITO TELEFONICO 1"] || "",
+        telefono2: riga["RECAPITO TELEFONICO 2"] || "",
+        indirizzo: riga["INDIRIZZO"] || "",
+        email: riga["E - MAIL"] || "",
+        note: riga["NOTE"] || "",
+
+        allergie: {
+          stato: (riga["Allergie e Intolleranze"] || "").toString().toUpperCase() === "SI",
+          descrizione: riga["DESCRIZIONE ALLERGIE E INTOLLERANZE"] || ""
+        },
+
+        documenti: {
+          certMedico: (riga["Certificato Medico"] || "").toString().toUpperCase() === "SI",
+          tesseraSanitaria: (riga["Tessera Sanitaria"] || "").toString().toUpperCase() === "SI",
+          documentoIdentita: (riga["Documento Identità"] || "").toString().toUpperCase() === "SI"
+        },
+
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      // 🔎 CONTROLLO DUPLICATO
+      const dup = await db.collection("atleti")
+        .where("nomeLower","==", atleta.nomeLower)
+        .where("cognomeLower","==", atleta.cognomeLower)
+        .where("dataNascita","==", atleta.dataNascita)
+        .get();
+
+      if(dup.empty){
+        await db.collection("atleti").add(atleta);
+        importati++;
+      }
+
+    }
+
+    alert("Import completato. Atlete importate: " + importati);
+
+    input.value = "";
+  };
+
+  reader.readAsArrayBuffer(file);
+}
 // ================= EDIT AUTO =================
 
 window.addEventListener("load", ()=>{
