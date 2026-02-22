@@ -342,36 +342,38 @@ document.querySelectorAll(".documento")
   documenti[box.dataset.key] =
     box.classList.contains("green");
 });
-  const atleta = {
+ const atleta = {
 
-    nome: nome.value,
-    cognome: cognome.value,
-    cognomeLower: cognome.value.toLowerCase(),
-    dataNascita: dataNascita.value,
-    luogoNascita: luogoNascita.value,
-    classe: classe.value,
-    ruolo: ruolo.value,
+  nome: nome.value,
+  cognome: cognome.value,
+  cognomeLower: cognome.value.toLowerCase(),
+  dataNascita: dataNascita.value,
+  luogoNascita: luogoNascita.value,
+  classe: classe.value,
+  ruolo: ruolo.value,
 
-    altezza: altezza.value,
-    taglia: taglia.value,
-    scarpa: scarpa.value,
+  altezza: altezza.value,
+  taglia: taglia.value,
+  scarpa: scarpa.value,
 
-    telefono1: telefono1.value,
-    telefono2: telefono2.value,
-    indirizzo: indirizzo.value,
-    email: email.value,
-    note: note.value,
+  telefono1: telefono1.value,
+  telefono2: telefono2.value,
+  indirizzo: indirizzo.value,
+  email: email.value,
+  note: note.value,
 
-    allergie:{
-      stato:
-        document.querySelector(".allergia-btn.green")
-        ?.innerText === "SI",
-      descrizione: boxAllergie.value
-    },
+  allergie:{
+    stato:
+      document.querySelector(".allergia-btn.green")
+      ?.innerText === "SI",
+    descrizione: boxAllergie.value
+  },
 
-    documenti: documenti,
-settimane: settimaneSelezionate,
-  };
+  documenti: documenti,
+  settimane: settimaneSelezionate,
+
+  pagamento: pagamento   // 🔥 QUESTA RIGA MANCAVA
+};
 
  if(modalitaArchivio){
 
