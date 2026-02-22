@@ -294,26 +294,7 @@ async function registraPagamento(){
     return;
   }
 
-  await db.collection("pagamenti").add({
-    atletaId: atletaPagamentoInCorso,
-    settimanaId: settimanaID,
-    importo: importo,
-    metodo: metodo,
-    data: firebase.firestore.FieldValue.serverTimestamp(),
-    anno: new Date().getFullYear()
-  });
-
-  chiudiPopupPagamento();
-  caricaIscritti();
-
-// Mostra pulsante stampa
-document.getElementById("btnStampaRicevuta").style.display = "block";
-}
-// Dopo aver salvato pagamento
-
-// Mostra pulsante stampa
-const btn = document.getElementById("btnStampaRicevuta");
-btn.style.display = "block";
+const pagamentoRef = db.collection("pagamenti").doc();
 
 // Collega stampa diretta all'atleta corrente
 btn.onclick = function(){
@@ -321,7 +302,54 @@ btn.onclick = function(){
 }; 
 async function stampaRicevutaDiretta(atletaId){
 
-  const { jsPDF } = window.jspdf;
+  const anno = new Date().getFullYear();
+
+  // 🔹 Recupero pagamenti della settimana
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
+    .orderBy("data")
+    .get();
+
+  if(pagamentiSnap.empty) return;
+
+  let numeroRicevuta = null;
+  let totalePagato = 0;
+
+  pagamentiSnap.forEach(doc=>{
+    const data = doc.data();
+    totalePagato += Number(data.importo || 0);
+
+    if(data.numeroRicevuta){
+      numeroRicevuta = data.numeroRicevuta;
+    }
+  });
+
+  // 🔥 SE NON ESISTE → ASSEGNA PROGRESSIVO
+  if(!numeroRicevuta){
+
+    const configRef = db.collection("config").doc("contatori");
+    const configDoc = await configRef.get();
+
+    let progressivo = 1;
+
+    if(configDoc.exists){
+      progressivo = configDoc.data().numeroRicevute || 1;
+    }
+
+    numeroRicevuta = progressivo;
+
+    // aggiorna contatore globale
+    await configRef.set({
+      numeroRicevute: progressivo + 1
+    }, { merge:true });
+
+    // salva numero nel PRIMO pagamento
+    const primoPagamento = pagamentiSnap.docs[0];
+    await primoPagamento.ref.update({
+      numeroRicevuta: numeroRicevuta
+    });
+  }
 
   // 🔹 Recupero atleta
   const atletaDoc = await db.collection("atleti")
@@ -332,27 +360,6 @@ async function stampaRicevutaDiretta(atletaId){
 
   const atleta = atletaDoc.data();
 
-  // 🔹 Recupero iscrizione della settimana corrente
-  const iscrizioniSnap = await db.collection("iscrizioni")
-    .where("atletaId","==", atletaId)
-    .where("settimanaId","==", settimanaID)
-    .get();
-
-  if(iscrizioniSnap.empty) return;
-
-  const iscrizione = iscrizioniSnap.docs[0].data();
-
-  // 🔹 Recupero pagamenti reali
-  const pagamentiSnap = await db.collection("pagamenti")
-    .where("atletaId","==", atletaId)
-    .where("settimanaId","==", settimanaID)
-    .get();
-
-  let totalePagato = 0;
-  pagamentiSnap.forEach(p=>{
-    totalePagato += Number(p.data().importo || 0);
-  });
-
   // 🔹 Recupero periodo settimana
   let periodoTesto = "";
 
@@ -362,21 +369,15 @@ async function stampaRicevutaDiretta(atletaId){
 
   if(settimanaDoc.exists){
     const settimana = settimanaDoc.data();
-
     if(settimana.dal && settimana.al){
       periodoTesto =
         `${formattaData(settimana.dal)} - ${formattaData(settimana.al)}`;
     }
   }
 
-  const anno = new Date().getFullYear();
-  // 🔹 Calcolo numero progressivo ricevuta per anno
-const ricevuteAnnoSnap = await db.collection("pagamenti")
-  .where("anno","==", anno)
-  .get();
-
-const numeroProgressivo = ricevuteAnnoSnap.size;
   const dataOggi = new Date().toLocaleDateString("it-IT");
+
+  const { jsPDF } = window.jspdf;
 
   const pdf = new jsPDF({
     orientation: "landscape",
@@ -397,16 +398,16 @@ const numeroProgressivo = ricevuteAnnoSnap.size;
   pdf.text("Via Montalbano N°98 51039 QUARRATA (PT)", 55, 17);
   pdf.text("P.IVA 01963540479", 55, 22);
 
-  pdf.setDrawColor(0);
   pdf.line(10, 28, 200, 28);
 
   pdf.setFontSize(12);
   pdf.setFont("helvetica", "bold");
   pdf.text(
-  `RICEVUTA DI PAGAMENTO N° ${numeroProgressivo} / ${anno}`,
-  15,
-  38
-);
+    `RICEVUTA DI PAGAMENTO N° ${numeroRicevuta} / ${anno}`,
+    15,
+    38
+  );
+
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
 
@@ -445,19 +446,15 @@ const numeroProgressivo = ricevuteAnnoSnap.size;
     y
   );
 
-  y += 6;
-  pdf.text("Codice Fiscale ________________________________", 15, y);
-
   y += 12;
   pdf.text(`Luogo ____________________    Data ${dataOggi}`, 15, y);
 
-  // 🔹 BOX TIMBRO E FIRMA
   pdf.rect(120, 85, 65, 35);
   pdf.setFontSize(8);
   pdf.text("Per Associazione Sportiva Dilettantistica", 122, 92);
   pdf.text("Timbro e Firma", 122, 98);
 
-  pdf.save(`Ricevuta_${atleta.cognome}.pdf`);
+  pdf.save(`Ricevuta_${numeroRicevuta}_${atleta.cognome}.pdf`);
 }
 
 function formattaData(dataISO){
@@ -623,4 +620,15 @@ async function eliminaIscrizione(idIscrizione){
   await batch.commit();
 
   caricaIscritti();
+}
+
+document.getElementById("popupPagamento")
+  .addEventListener("click", function(e){
+
+    if(e.target.id === "popupPagamento"){
+      chiudiPopupPagamento();
+    }
+
+});
+
 }
