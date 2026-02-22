@@ -654,3 +654,7 @@ document.getElementById("popupPagamento")
 });
 
 }
+
+// Rendi le funzioni globali
+window.stampaRicevutaDiretta = stampaRicevutaDiretta;
+window.eliminaIscrizione = eliminaIscrizione;
