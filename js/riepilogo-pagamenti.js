@@ -54,64 +54,84 @@ async function caricaRiepilogo(){
 
   for(const doc of iscrizioniSnap.docs){
 
-    const iscr = doc.data();
-    totaleIncassare += iscr.quota || 0;
-    totaleIncassato += iscr.pagato || 0;
+  const iscr = doc.data();
 
-    const atletaDoc = await db.collection("atleti")
-      .doc(iscr.atletaId)
-      .get();
+  // 🔹 Totale da incassare
+  totaleIncassare += Number(iscr.quota || 0);
 
-    if(!atletaDoc.exists) continue;
+  // 🔹 Recupero atleta
+  const atletaDoc = await db.collection("atleti")
+    .doc(iscr.atletaId)
+    .get();
 
-    const atleta = atletaDoc.data();
+  if(!atletaDoc.exists) continue;
 
-    const pagamentiSnap = await db.collection("pagamenti")
-  .where("atletaId","==", iscr.atletaId)
-  .where("settimanaId","==", settimanaID)
-      .get();
+  const atleta = atletaDoc.data();
 
-    let movimenti = [];
-    let totaleAtleta = 0;
+  // 🔹 Recupero pagamenti REALI
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", iscr.atletaId)
+    .where("settimanaId","==", settimanaID)
+    .get();
 
-    pagamentiSnap.forEach(p => {
+  let movimenti = [];
+  let totaleAtleta = 0;
 
-      const data = p.data();
+  pagamentiSnap.forEach(p => {
 
-      totaleAtleta += data.importo;
+    const data = p.data();
+    const importo = Number(data.importo || 0);
 
-      if(data.metodo === "Contanti") contanti += data.importo;
-      if(data.metodo === "Bonifico") bonifico += data.importo;
-      if(data.metodo === "Carta") carta += data.importo;
+    totaleAtleta += importo;
 
-      movimenti.push(
-        formattaData(data.data?.toDate()) +
-        " - €" + data.importo +
-        " " + data.metodo
-      );
+    // Totali globali per metodo
+    if(data.metodo === "Contanti") contanti += importo;
+    if(data.metodo === "Bonifico") bonifico += importo;
+    if(data.metodo === "Carta") carta += importo;
 
-    });
+    movimenti.push(
+      formattaData(data.data?.toDate()) +
+      " - €" + importo +
+      " " + data.metodo
+    );
 
-    const tr = document.createElement("tr");
+  });
 
-    tr.innerHTML = `
-      <td>${atleta.cognome} ${atleta.nome}</td>
-      <td>${iscr.quota} €</td>
-      <td>${totaleAtleta} €</td>
-      <td>${iscr.statoPagamento}</td>
-      <td style="text-align:left">${movimenti.join("<br>")}</td>
-    `;
+  // 🔥 Totale incassato globale
+  totaleIncassato += totaleAtleta;
 
-    tbody.appendChild(tr);
+  // 🔹 Calcolo stato dinamico
+  let stato = "da_pagare";
 
-    datiReport.push({
-      atleta: atleta.cognome + " " + atleta.nome,
-      quota: iscr.quota,
-      pagato: totaleAtleta,
-      stato: iscr.statoPagamento,
-      movimenti: movimenti
-    });
+  if(totaleAtleta >= Number(iscr.quota || 0)){
+    stato = "pagato";
+  }else if(totaleAtleta > 0){
+    stato = "parziale";
   }
+
+  // 🔹 Creazione riga tabella
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td>${atleta.cognome} ${atleta.nome}</td>
+    <td>${Number(iscr.quota || 0)} €</td>
+    <td>${totaleAtleta} €</td>
+    <td>${stato}</td>
+    <td style="text-align:left">${movimenti.join("<br>")}</td>
+  `;
+
+  tbody.appendChild(tr);
+
+  // 🔹 Salvataggio per PDF
+  datiReport.push({
+    atleta: atleta.cognome + " " + atleta.nome,
+    quota: Number(iscr.quota || 0),
+    pagato: totaleAtleta,
+    stato: stato,
+    movimenti: movimenti
+  });
+
+}
 
   document.getElementById("totaleIncassare").innerText = totaleIncassare + " €";
   document.getElementById("totaleIncassato").innerText = totaleIncassato + " €";
