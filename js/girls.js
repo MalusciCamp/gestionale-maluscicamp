@@ -651,25 +651,26 @@ Object.keys(riga).forEach(key=>{
 
 const atleta = {
 
-  nome: nome.trim().toUpperCase(),
-  cognome: cognome.trim().toUpperCase(),
-  nomeLower: nome.trim().toLowerCase(),
-  cognomeLower: cognome.trim().toLowerCase(),
+  nome: String(nome || "").trim().toUpperCase(),
+  cognome: String(cognome || "").trim().toUpperCase(),
+  nomeLower: String(nome || "").trim().toLowerCase(),
+  cognomeLower: String(cognome || "").trim().toLowerCase(),
 
   dataNascita: dataNascita,
-  luogoNascita: (riga["Luogo di Nascita"] || "").trim(),
-  classe: (riga["Classe"] || "").trim(),
-  ruolo: ruolo,
+
+  luogoNascita: String(riga["Luogo di Nascita"] || "").trim(),
+  classe: String(riga["Classe"] || "").trim(),
+  ruolo: String(ruolo || "").trim(),
 
   altezza: riga["ALTEZZA (in cm.)"] || "",
-  taglia: (riga["TAGLIA"] || "").trim(),
+  taglia: String(riga["TAGLIA"] || "").trim(),
   scarpa: riga["Numero Scarpa"] || "",
 
-  telefono1: (riga["RECAPITO TELEFONICO 1"] || "").trim(),
-  telefono2: (riga["RECAPITO TELEFONICO 2"] || "").trim(),
-  indirizzo: (riga["INDIRIZZO"] || "").trim(),
-  email: (email || "").trim(),
-  note: (riga["NOTE"] || "").trim(),
+  telefono1: String(riga["RECAPITO TELEFONICO 1"] || "").trim(),
+  telefono2: String(riga["RECAPITO TELEFONICO 2"] || "").trim(),
+  indirizzo: String(riga["INDIRIZZO"] || "").trim(),
+  email: String(email || "").trim(),
+  note: String(riga["NOTE"] || "").trim(),
         allergie: {
           stato: (riga["Allergie e Intolleranze"] || "").toString().toUpperCase() === "SI",
           descrizione: riga["DESCRIZIONE ALLERGIE E INTOLLERANZE"] || ""
