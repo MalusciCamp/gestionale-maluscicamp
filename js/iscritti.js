@@ -370,6 +370,12 @@ async function stampaRicevutaDiretta(atletaId){
   }
 
   const anno = new Date().getFullYear();
+  // 🔹 Calcolo numero progressivo ricevuta per anno
+const ricevuteAnnoSnap = await db.collection("pagamenti")
+  .where("anno","==", anno)
+  .get();
+
+const numeroProgressivo = ricevuteAnnoSnap.size;
   const dataOggi = new Date().toLocaleDateString("it-IT");
 
   const pdf = new jsPDF({
@@ -397,11 +403,10 @@ async function stampaRicevutaDiretta(atletaId){
   pdf.setFontSize(12);
   pdf.setFont("helvetica", "bold");
   pdf.text(
-    `RICEVUTA DI PAGAMENTO - ANNO ${anno}`,
-    15,
-    38
-  );
-
+  `RICEVUTA DI PAGAMENTO N° ${numeroProgressivo} / ${anno}`,
+  15,
+  38
+);
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(9);
 
