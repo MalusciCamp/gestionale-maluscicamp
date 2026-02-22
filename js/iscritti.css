@@ -1,0 +1,235 @@
+/* ================== LAYOUT GENERALE ================== */
+
+.page-container{
+  padding: 40px;
+}
+
+.btn-aggiungi{
+  background: #1e88e5;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+table{
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th, td{
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+th{
+  background: #f5f5f5;
+}
+
+.stato-da_pagare{
+  color: #e53935;
+  font-weight: bold;
+}
+
+.stato-parziale{
+  color: #fb8c00;
+  font-weight: bold;
+}
+
+.stato-pagato{
+  color: #43a047;
+  font-weight: bold;
+}
+
+/* ================== TOGGLE DOCUMENTI ================== */
+
+.cert-toggle{
+  cursor:pointer;
+  padding:4px 8px;
+  border-radius:6px;
+  font-weight:bold;
+  color:white;
+}
+
+.cert-toggle.green{
+  background:#43a047;
+}
+
+.cert-toggle.red{
+  background:#e53935;
+}
+
+.input-doc{
+  width:120px;
+  padding:4px;
+}
+
+.azioni-box button{
+  margin: 0 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+}
+
+.azioni-box button:hover{
+  opacity: 0.8;
+}
+
+
+/* ================== POPUP PAGAMENTO ================== */
+
+#popupPagamento{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+#popupPagamento .popup-box{
+  background:white;
+  width:420px;
+  max-width:90%;
+  padding:35px;
+  border-radius:15px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.3);
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+#popupPagamento h3{
+  font-size:22px;
+  font-weight:bold;
+  color:#1e88e5;
+  margin-bottom:10px;
+}
+
+#popupPagamento p{
+  font-size:18px;
+  font-weight:600;
+}
+
+#popupPagamento strong{
+  font-size:20px;
+  color:#e53935;
+}
+
+#popupPagamento input,
+#popupPagamento select{
+  padding:10px;
+  font-size:16px;
+  border:2px solid #ddd;
+  border-radius:8px;
+}
+
+#popupPagamento button{
+  padding:10px;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+#popupPagamento button:first-of-type{
+  background:#43a047;
+  color:white;
+}
+
+#popupPagamento button:last-of-type{
+  background:#e53935;
+  color:white;
+}
+
+#popupPagamento button:hover{
+  opacity:0.85;
+}
+
+
+/* ================== POPUP AGGIUNGI ISCRIZIONE ================== */
+
+#popupAggiungi{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15, 20, 40, 0.75);
+  backdrop-filter: blur(6px);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+#popupAggiungi .popup-box{
+  background:white;
+  width:480px;
+  max-width:92%;
+  padding:30px;
+  border-radius:15px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.35);
+}
+
+#popupAggiungi h3{
+  margin:0 0 20px 0;
+  font-size:20px;
+  font-weight:700;
+  text-align:center;
+}
+
+#ricercaCognome{
+  width:100%;
+  padding:12px 15px;
+  border-radius:10px;
+  border:2px solid #d9e1f0;
+  font-size:15px;
+  box-sizing:border-box;
+}
+
+#ricercaCognome:focus{
+  outline:none;
+  border-color:#3b6df6;
+  box-shadow:0 0 0 3px rgba(59,109,246,0.2);
+}
+
+.lista-risultati{
+  margin-top:15px;
+  max-height:220px;
+  overflow-y:auto;
+}
+
+.riga-risultato{
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:6px;
+  background:#f8f9fc;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.riga-risultato:hover{
+  background:#3b6df6;
+  color:white;
+}
+
+.stato-da_pagare {
+  color:#e53935;
+  font-weight:bold;
+}
+
+.stato-parziale {
+  color:#fb8c00;
+  font-weight:bold;
+}
+
+.stato-pagato {
+  color:#43a047;
+  font-weight:bold;
+}
