@@ -589,7 +589,6 @@ async function eliminaIscrizione(idIscrizione){
 
   if(!conferma) return;
 
-  // 🔹 Recupero iscrizione
   const doc = await db.collection("iscrizioni")
     .doc(idIscrizione)
     .get();
@@ -604,16 +603,21 @@ async function eliminaIscrizione(idIscrizione){
     .doc(idIscrizione)
     .delete();
 
-  // 🔹 Elimina pagamenti collegati a quella settimana
+  // 🔹 Trova pagamenti collegati
   const pagamentiSnap = await db.collection("pagamenti")
     .where("atletaId","==", atletaId)
-    .where("settimanaId","==", settimanaID)
     .get();
 
   const batch = db.batch();
 
   pagamentiSnap.forEach(p => {
-    batch.delete(p.ref);
+
+    const data = p.data();
+
+    if(data.settimanaId === settimanaID){
+      batch.delete(p.ref);
+    }
+
   });
 
   await batch.commit();

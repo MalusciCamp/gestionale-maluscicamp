@@ -460,7 +460,18 @@ await db.collection("iscrizioni")
         });
 
       }
+if(pagamento.acconto > 0){
 
+  await db.collection("pagamenti").add({
+    atletaId: atletaId,
+    settimanaId: settimana.id,
+    importo: pagamento.acconto,
+    metodo: pagamento.metodoAcconto || "Non specificato",
+    data: firebase.firestore.FieldValue.serverTimestamp(),
+    anno: new Date().getFullYear()
+  });
+
+}
     }
 
     alert("Atleta salvato e iscrizioni create");
