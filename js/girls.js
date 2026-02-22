@@ -371,7 +371,6 @@ document.querySelectorAll(".documento")
 
     documenti: documenti,
 settimane: settimaneSelezionate,
-pagamento: pagamento
   };
 
  if(modalitaArchivio){
@@ -459,18 +458,19 @@ if(atleta.settimane && atleta.settimane.length > 0){
       });
 
     // 🔥 SE C'È ACCONTO → CREA MOVIMENTO PAGAMENTO
-    if(pagamento && Number(pagamento.acconto) > 0){
+   // 🔥 SE C'È ACCONTO → CREA MOVIMENTO PAGAMENTO
+if(atleta.pagamento && Number(atleta.pagamento.acconto) > 0){
 
-      await db.collection("pagamenti").add({
-        atletaId: atletaId,
-        settimanaId: settimana.id,
-        importo: Number(pagamento.acconto),
-        metodo: pagamento.metodoAcconto || "Non specificato",
-        data: firebase.firestore.FieldValue.serverTimestamp(),
-        anno: new Date().getFullYear()
-      });
+  await db.collection("pagamenti").add({
+    atletaId: atletaId,
+    settimanaId: settimana.id,
+    importo: Number(atleta.pagamento.acconto),
+    metodo: atleta.pagamento.metodoAcconto || "Non specificato",
+    data: firebase.firestore.FieldValue.serverTimestamp(),
+    anno: new Date().getFullYear()
+  });
 
-    }
+}
 
   }
 
