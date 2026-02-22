@@ -50,7 +50,7 @@
     </div>
 
     <!-- 5️⃣ RIEPILOGO PAGAMENTI -->
-    <div class="settimana-card pagamenti">
+    <div class="settimana-card pagamenti" onclick="apriRiepilogoPagamenti()">
       <i class="fa-solid fa-euro-sign"></i>
       <h2>Riepilogo Pagamenti</h2>
     </div>
@@ -111,6 +111,10 @@ function goBack() {
 <script>
 function apriIscritti(){
   window.location.href = "iscritti.html?id=" + settimanaID;
+}
+
+function apriRiepilogoPagamenti(){
+  window.location.href = "riepilogo-pagamenti.html?id=" + settimanaID;
 }
 </script>
 </body>

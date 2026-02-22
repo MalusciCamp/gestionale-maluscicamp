@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riepilogo Pagamenti</title>
+
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/riepilogo-pagamenti.css">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<div class="page-container">
+
+<h1 id="titoloSettimana">Riepilogo Pagamenti</h1>
+
+<div class="riepilogo-container">
+
+  <div class="box totale">
+    <span>Totale da Incassare</span>
+    <h2 id="totaleIncassare">0 €</h2>
+  </div>
+
+  <div class="box incassato">
+    <span>Totale Incassato</span>
+    <h2 id="totaleIncassato">0 €</h2>
+  </div>
+
+  <div class="box contanti">
+    <span>Contanti</span>
+    <h2 id="totaleContanti">0 €</h2>
+  </div>
+
+  <div class="box bonifico">
+    <span>Bonifico</span>
+    <h2 id="totaleBonifico">0 €</h2>
+  </div>
+
+  <div class="box carta">
+    <span>Carta</span>
+    <h2 id="totaleCarta">0 €</h2>
+  </div>
+
+  <div class="box residuo">
+    <span>Rimanenza</span>
+    <h2 id="totaleResiduo">0 €</h2>
+  </div>
+
+</div>
+
+<button onclick="stampaReportPagamenti()" class="btn-stampa">
+🖨️ Stampa Report
+</button>
+
+<h2>Dettaglio Pagamenti</h2>
+
+<table>
+<thead>
+<tr>
+<th>Atleta</th>
+<th>Quota</th>
+<th>Pagato</th>
+<th>Stato</th>
+<th>Dettaglio Movimenti</th>
+</tr>
+</thead>
+<tbody id="tabellaPagamenti"></tbody>
+</table>
+
+</div>
+
+<script src="js/riepilogo-pagamenti.js"></script>
+
+</body>
+</html>
