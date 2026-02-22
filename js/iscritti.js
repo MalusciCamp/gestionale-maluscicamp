@@ -294,12 +294,34 @@ async function registraPagamento(){
     return;
   }
 
-const pagamentoRef = db.collection("pagamenti").doc();
+  // 🔹 CREA PAGAMENTO
+  const pagamentoRef = db.collection("pagamenti").doc();
 
-// Collega stampa diretta all'atleta corrente
-btn.onclick = function(){
-  stampaRicevutaDiretta(atletaPagamentoInCorso);
-}; 
+  await pagamentoRef.set({
+    atletaId: atletaPagamentoInCorso,
+    settimanaId: settimanaID,
+    importo: importo,
+    metodo: metodo,
+    numeroRicevuta: null,
+    data: firebase.firestore.FieldValue.serverTimestamp(),
+    anno: new Date().getFullYear()
+  });
+
+  // 🔹 NON chiudere popup
+  await caricaIscritti();
+  await apriPagamento(atletaPagamentoInCorso);
+
+  // 🔹 Mostra pulsante stampa
+  const btn = document.getElementById("btnStampaRicevuta");
+
+  if(btn){
+    btn.style.display = "block";
+
+    btn.onclick = function(){
+      stampaRicevutaDiretta(atletaPagamentoInCorso);
+    };
+  }
+
 async function stampaRicevutaDiretta(atletaId){
 
   const anno = new Date().getFullYear();
