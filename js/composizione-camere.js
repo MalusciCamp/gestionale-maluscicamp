@@ -324,14 +324,36 @@ async function salvaComposizione() {
 
 // ================= STAMPA =================
 
-async function stampaCamere() {
+async function stampaCamere(){
 
-  if (camere.length === 0) {
+  if(!camere || camere.length === 0){
     alert("Nessuna camera da stampare");
     return;
   }
 
-  // Recupero dati settimana
+  const { jsPDF } = window.jspdf;
+
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  // ================= HEADER UFFICIALE =================
+
+  try{
+    pdf.addImage("img/logo.png", "PNG", 15, 10, 30, 12);
+  }catch(e){}
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(14);
+  pdf.text("A.S.D. MALUSCI CAMP", 55, 15);
+
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(9);
+  pdf.text("Via Montalbano N°98 - 51039 Quarrata (PT)", 55, 20);
+  pdf.text("P.IVA 01963540479", 55, 24);
+
+  pdf.line(15, 30, 195, 30);
+
+  // ================= DATI SETTIMANA =================
+
   const settimanaDoc = await db.collection("settimane")
     .doc(settimanaID)
     .get();
@@ -339,69 +361,65 @@ async function stampaCamere() {
   let nomeSettimana = "";
   let periodo = "";
 
-  if (settimanaDoc.exists) {
+  if(settimanaDoc.exists){
     const data = settimanaDoc.data();
     nomeSettimana = data.nome || "";
 
-    if (data.dal && data.al) {
-      periodo = `${formattaData(data.dal)} - ${formattaData(data.al)}`;
+    if(data.dal && data.al){
+      periodo = formattaData(data.dal) + " - " + formattaData(data.al);
     }
   }
 
-  // Ordina camere per numero
-  const camereOrdinate = [...camere].sort((a,b) => a.numero - b.numero);
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica","bold");
+  pdf.text("Composizione Camere", 15, 40);
 
-  let html = `
-  <html>
-  <head>
-    <title>Stampa Camere</title>
-    <style>
-      body { font-family: Arial; padding: 30px; }
-      .intestazione { text-align: center; margin-bottom: 30px; }
-      .intestazione h2 { margin: 5px 0; }
-      .camera { margin-bottom: 25px; page-break-inside: avoid; }
-      .camera h3 { margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-      ul { list-style: none; padding: 0; }
-      li { padding: 3px 0; }
-    </style>
-  </head>
-  <body>
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(10);
+  pdf.text(nomeSettimana, 15, 46);
+  pdf.text(periodo, 15, 52);
 
-  <div class="intestazione">
-    <h2>A.S.D. MALUSCI CAMP</h2>
-    <div>${nomeSettimana}</div>
-    <div>${periodo}</div>
-  </div>
-  `;
+  let y = 65;
+
+  const camereOrdinate = [...camere].sort((a,b)=>a.numero - b.numero);
 
   camereOrdinate.forEach(camera => {
 
-    html += `
-      <div class="camera">
-        <h3>Camera ${camera.numero}</h3>
-        <ul>
-    `;
+    if(y > 270){
+      pdf.addPage();
+      y = 20;
+    }
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(11);
+    pdf.text(`Camera ${camera.numero}`, 15, y);
+
+    y += 6;
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(10);
 
     camera.atlete.forEach(id => {
+
       const atleta = tutteIscritte.find(a => a.id === id);
-      if (atleta) {
-        html += `<li>${atleta.cognome} ${atleta.nome}</li>`;
+
+      if(atleta){
+        pdf.text(`- ${atleta.cognome} ${atleta.nome}`, 20, y);
+        y += 5;
       }
+
     });
 
-    html += `
-        </ul>
-      </div>
-    `;
+    y += 6;
+
   });
 
-  html += `
-  </body>
-  </html>
-  `;
+  pdf.save(`Camere_${nomeSettimana}.pdf`);
+}
 
-  const win = window.open("", "", "width=900,height=700");
-  win.document.write(html);
-  win.document.close();
-  win.print();
+function formattaData(dataISO){
+  if(!dataISO) return "";
+
+  const d = new Date(dataISO);
+  return d.toLocaleDateString("it-IT");
 }
