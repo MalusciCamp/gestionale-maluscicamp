@@ -366,8 +366,12 @@ async function stampaCamere(){
     nomeSettimana = data.nome || "";
 
     if(data.dal && data.al){
-      periodo = formattaData(data.dal) + " - " + formattaData(data.al);
-    }
+
+  const dal = new Date(data.dal).toLocaleDateString("it-IT");
+  const al = new Date(data.al).toLocaleDateString("it-IT");
+
+  periodo = dal + " - " + al;
+}
   }
 
   pdf.setFontSize(12);
