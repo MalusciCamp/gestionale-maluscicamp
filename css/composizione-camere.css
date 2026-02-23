@@ -94,3 +94,13 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+.camera-box.attiva {
+  border: 2px solid #2ecc71;
+  background-color: #eafaf1;
+}
+
+.camera-box.piena {
+  border: 2px solid #e74c3c;
+  background-color: #fdecea;
+}
