@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boys Soccer Camp</title>
+
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/girlcamp.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+</head>
+
+<!-- 🔥 QUI CAMBIA TUTTO -->
+<body data-camp="boys">
+
+<div id="header"></div>
+
+<div class="page-container">
+
+<h1>Boys Soccer Camp</h1>
+
+<div class="girls-cards">
+
+<div class="girls-card new" onclick="openPopup()">
+<i class="fa-solid fa-user-plus"></i>
+<h2>Nuovo Iscritto</h2>
+</div>
+
+<div class="girls-card archive" onclick="openArchivio()">
+<i class="fa-solid fa-folder-open"></i>
+<h2>Archivio Atleti</h2>
+</div>
+
+</div>
+</div>
+
+<!-- ================= POPUP ================= -->
+
+<div id="iscrizioneModal" class="modal">
+<div class="modal-large">
+
+<div class="modal-header">
+<h2>Nuova Iscrizione</h2>
+
+<div class="modal-tabs">
+<button class="tab-btn active" onclick="showManuale()">Manuale</button>
+<button class="tab-btn" onclick="showImport()">Import</button>
+</div>
+
+<span class="close-x" onclick="closeIscrizionePopup()">✖</span>
+</div>
+
+<!-- ================= MANUALE ================= -->
+
+<div id="manualeContent" class="modal-body">
+
+<!-- DATI -->
+<div class="section-card">
+<h3>Dati Giocatore</h3>
+
+<div class="form-grid">
+<input id="nome" placeholder="Nome"> 
+<input id="cognome" placeholder="Cognome">
+<input id="dataNascita" type="date">
+<input id="luogoNascita" placeholder="Luogo di Nascita">
+<input id="classe" placeholder="Classe">
+
+<select id="ruolo">
+<option value="">Ruolo</option>
+<option>Portiere</option>
+<option>Difensore</option>
+<option>Centrocampista</option>
+<option>Attaccante</option>
+</select>
+</div>
+</div>
+
+<!-- FISICI -->
+<div class="section-card">
+<h3>Dati Fisici</h3>
+
+<div class="fisici-grid">
+<input id="altezza" placeholder="Altezza">
+<input id="taglia" placeholder="Taglia">
+<input id="scarpa" placeholder="Scarpa">
+</div>
+</div>
+
+<!-- DOCUMENTI -->
+<div class="section-card">
+<h3>Documenti</h3>
+
+<div class="toggle-grid">
+  <div class="toggle red documento" data-key="certMedico">
+    Cert. Medico
+  </div>
+
+  <div class="toggle red documento" data-key="tesseraSanitaria">
+    Tessera Sanitaria
+  </div>
+
+  <div class="toggle red documento" data-key="documentoIdentita">
+    Documento Identità
+  </div>
+</div>
+</div>
+
+<!-- ALLERGIE -->
+<div class="section-card">
+<h3>Allergie</h3>
+
+<div class="toggle-grid">
+<div class="toggle red allergia-btn"
+     onclick="toggleAllergie(this,true)">SI</div>
+
+<div class="toggle red allergia-btn"
+     onclick="toggleAllergie(this,false)">NO</div>
+</div>
+
+<textarea id="boxAllergie"
+          class="hidden"
+          placeholder="Descrizione Allergie..."></textarea>
+</div>
+
+<!-- CONTATTI -->
+<div class="section-card">
+<h3>Contatti</h3>
+
+<div class="form-grid">
+<input id="telefono1" placeholder="Telefono 1">
+<input id="telefono2" placeholder="Telefono 2">
+<input id="indirizzo" placeholder="Indirizzo">
+<input id="email" placeholder="Email">
+</div>
+</div>
+
+<!-- NOTE -->
+<div class="section-card">
+<h3>Note</h3>
+<textarea id="note"></textarea>
+</div>
+
+<!-- SETTIMANE + PAGAMENTO -->
+<div class="section-card">
+
+<h3>Settimane & Pagamento</h3>
+
+<div class="settimane-pagamento-wrapper">
+
+<div id="settimaneToggle" class="toggle-grid"></div>
+
+<div class="pagamento-box">
+
+<label>Totale da Pagare</label>
+<input type="text" id="totalePagamento" readonly>
+
+<label>Sconto</label>
+<input type="number" id="scontoPagamento" value="0">
+
+<label>Totale Scontato</label>
+<input type="text" id="totaleScontato" readonly>
+
+<label>Acconto Versato</label>
+<input type="number" id="accontoPagamento" value="0">
+
+<label>Metodo Acconto</label>
+<select id="metodoAcconto">
+<option value="">Seleziona</option>
+<option>Contanti</option>
+<option>Carta di Credito</option>
+<option>Bonifico</option>
+</select>
+
+<label>Rimanenza</label>
+<input type="text" id="restoPagamento" readonly>
+
+<label>Metodo Saldo</label>
+<select id="metodoSaldo">
+<option value="">Seleziona</option>
+<option>Contanti</option>
+<option>Carta di Credito</option>
+<option>Bonifico</option>
+</select>
+
+</div>
+
+</div>
+</div>
+
+<button onclick="salvaIscrizione()" class="save-btn">
+Salva Iscrizione
+</button>
+
+</div>
+
+<!-- ================= IMPORT ================= -->
+
+<div id="importContent" class="modal-body" style="display:none;">
+
+<div class="section-card">
+<h3>Importa Archivio Atleti (Excel)</h3>
+
+<p style="font-size:13px;color:#666;margin-bottom:15px;">
+Verrà letto SOLO il foglio: <strong>1 - RAGAZZI</strong>
+</p>
+
+<input type="file" 
+       id="fileImport" 
+       accept=".xlsx,.xls"
+       style="margin-bottom:15px;">
+
+<button onclick="importaExcel()" 
+        class="save-btn"
+        style="background:#2e7d32;">
+Importa Archivio
+</button>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- ================= JS ================= -->
+
+<script src="js/firebase-config.js"></script>
+<script src="js/girls.js"></script>
+
+<script>
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+
+function goBack() {
+  window.history.back();
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</body>
+</html>
