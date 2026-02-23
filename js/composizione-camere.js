@@ -218,13 +218,27 @@ function renderCamere() {
       posto.className = "posto";
 
       if (camera.atlete[i]) {
-        const atleta = tutteIscritte.find(a => a.id === camera.atlete[i]);
-        posto.innerText = atleta
-          ? atleta.cognome + " " + atleta.nome
-          : "—";
-      } else {
-        posto.innerText = "Posto libero";
-      }
+
+  const atletaId = camera.atlete[i];
+  const atleta = tutteIscritte.find(a => a.id === atletaId);
+
+  posto.innerText = atleta
+    ? atleta.cognome + " " + atleta.nome
+    : "";
+
+  posto.style.cursor = "pointer";
+
+  posto.onclick = (e) => {
+    e.stopPropagation();
+    rimuoviAtleta(camera.numero, atletaId);
+  };
+
+} else {
+
+  posto.innerText = "Posto libero";
+  posto.style.cursor = "default";
+
+}
 
       postiGrid.appendChild(posto);
     }
@@ -310,8 +324,84 @@ async function salvaComposizione() {
 
 // ================= STAMPA =================
 
-function stampaCamere() {
+async function stampaCamere() {
 
-  window.print();
+  if (camere.length === 0) {
+    alert("Nessuna camera da stampare");
+    return;
+  }
 
+  // Recupero dati settimana
+  const settimanaDoc = await db.collection("settimane")
+    .doc(settimanaID)
+    .get();
+
+  let nomeSettimana = "";
+  let periodo = "";
+
+  if (settimanaDoc.exists) {
+    const data = settimanaDoc.data();
+    nomeSettimana = data.nome || "";
+
+    if (data.dal && data.al) {
+      periodo = `${formattaData(data.dal)} - ${formattaData(data.al)}`;
+    }
+  }
+
+  // Ordina camere per numero
+  const camereOrdinate = [...camere].sort((a,b) => a.numero - b.numero);
+
+  let html = `
+  <html>
+  <head>
+    <title>Stampa Camere</title>
+    <style>
+      body { font-family: Arial; padding: 30px; }
+      .intestazione { text-align: center; margin-bottom: 30px; }
+      .intestazione h2 { margin: 5px 0; }
+      .camera { margin-bottom: 25px; page-break-inside: avoid; }
+      .camera h3 { margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+      ul { list-style: none; padding: 0; }
+      li { padding: 3px 0; }
+    </style>
+  </head>
+  <body>
+
+  <div class="intestazione">
+    <h2>A.S.D. MALUSCI CAMP</h2>
+    <div>${nomeSettimana}</div>
+    <div>${periodo}</div>
+  </div>
+  `;
+
+  camereOrdinate.forEach(camera => {
+
+    html += `
+      <div class="camera">
+        <h3>Camera ${camera.numero}</h3>
+        <ul>
+    `;
+
+    camera.atlete.forEach(id => {
+      const atleta = tutteIscritte.find(a => a.id === id);
+      if (atleta) {
+        html += `<li>${atleta.cognome} ${atleta.nome}</li>`;
+      }
+    });
+
+    html += `
+        </ul>
+      </div>
+    `;
+  });
+
+  html += `
+  </body>
+  </html>
+  `;
+
+  const win = window.open("", "", "width=900,height=700");
+  win.document.write(html);
+  win.document.close();
+  win.print();
 }
