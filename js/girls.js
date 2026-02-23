@@ -1,3 +1,5 @@
+const CAMP = document.body.dataset.camp;
+
 // ================= HEADER LOAD =================
 
 fetch("components/header.html")
@@ -129,6 +131,7 @@ function caricaSettimane(){
   c.innerHTML = "";
 
   db.collection("settimane")
+   .where("camp","==",CAMP)
   .orderBy("createdAt")
   .get()
   .then(s => {
@@ -212,7 +215,7 @@ function caricaDatiAtleta(){
   .then(doc=>{
 
     const data = doc.data();
-    if(!data) return;
+    if(data.camp !== CAMP) return;
 
     // ===== DATI BASE =====
     nome.value = data.nome || "";
@@ -376,6 +379,8 @@ document.querySelectorAll(".documento")
 });
  const atleta = {
 
+  camp: CAMP,
+
   nome: nome.value.trim().toUpperCase(),
 cognome: cognome.value.trim().toUpperCase(),
 nomeLower: nome.value.trim().toLowerCase(),
@@ -437,6 +442,7 @@ cognomeLower: cognome.value.trim().toLowerCase(),
 function controllaDuplicato(atleta){
 
   db.collection("atleti")
+  .where("camp","==",CAMP)
     .where("nomeLower","==", atleta.nome.toLowerCase())
     .where("cognomeLower","==", atleta.cognome.toLowerCase())
     .where("dataNascita","==", atleta.dataNascita)
@@ -537,6 +543,7 @@ function controllaOmonimi(){
   if(!n || !c) return;
 
   db.collection("atleti")
+  .where("camp","==",CAMP)
   .get()
   .then(snapshot=>{
 
@@ -651,6 +658,8 @@ Object.keys(riga).forEach(key=>{
 
 const atleta = {
 
+  camp: CAMP,
+
   nome: String(nome || "").trim().toUpperCase(),
   cognome: String(cognome || "").trim().toUpperCase(),
   nomeLower: String(nome || "").trim().toLowerCase(),
@@ -687,6 +696,7 @@ const atleta = {
 
       // 🔎 CONTROLLO DUPLICATO
       const dup = await db.collection("atleti")
+      .where("camp","==",CAMP)
         .where("nomeLower","==", atleta.nomeLower)
         .where("cognomeLower","==", atleta.cognomeLower)
         .where("dataNascita","==", atleta.dataNascita)
