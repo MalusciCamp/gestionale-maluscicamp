@@ -221,3 +221,36 @@ body {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
+
+/* GIRLS */
+.card-girls {
+  background: linear-gradient(135deg,#f06292,#ad1457);
+  color:white;
+}
+
+/* BOYS COLORI */
+.card-rossa {
+  background: linear-gradient(135deg,#e53935,#b71c1c);
+  color:white;
+}
+
+.card-bianca {
+  background:#ffffff;
+  color:#333;
+  border:2px solid #ddd;
+}
+
+.card-azzurra {
+  background: linear-gradient(135deg,#42a5f5,#1565c0);
+  color:white;
+}
+
+.card-verde {
+  background: linear-gradient(135deg,#43a047,#1b5e20);
+  color:white;
+}
+
+.card-boys-default {
+  background: linear-gradient(135deg,#1976d2,#0d47a1);
+  color:white;
+}
