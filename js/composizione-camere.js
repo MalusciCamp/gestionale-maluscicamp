@@ -1,78 +1,104 @@
-// ================= FIREBASE CONFIG =================
-
-const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "gestionale-maluscicamp.firebaseapp.com",
-  projectId: "gestionale-maluscicamp",
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
 // ================= PARAMETRI =================
 
 const params = new URLSearchParams(window.location.search);
 const settimanaID = params.get("id");
 
+if (!settimanaID) {
+  alert("Settimana non trovata");
+}
+
+// Usa Firebase già inizializzato
+const db = firebase.firestore();
+
+// ================= VARIABILI GLOBALI =================
+
 let camere = [];
 let tutteIscritte = [];
 let cameraSelezionata = null;
 
-// ================= CARICAMENTO INIZIALE =================
+// ================= AVVIO =================
 
 window.addEventListener("DOMContentLoaded", async () => {
+
   await caricaTitolo();
   await caricaIscritte();
   await caricaCamereSalvate();
   renderizza();
+
 });
 
+// ================= CARICAMENTI =================
+
 async function caricaTitolo() {
+
   const doc = await db.collection("settimane").doc(settimanaID).get();
+
   if (doc.exists) {
     document.getElementById("titoloPagina").innerText =
       "Composizione Camere - " + doc.data().nome;
   }
+
 }
 
 async function caricaIscritte() {
+
   const snap = await db.collection("iscrizioni")
     .where("settimanaId", "==", settimanaID)
     .get();
 
   tutteIscritte = [];
 
-  for (const doc of snap.docs) {
-    const atletaId = doc.data().atletaId;
-    const atletaDoc = await db.collection("atleti").doc(atletaId).get();
+  for (const docIscr of snap.docs) {
+
+    const atletaId = docIscr.data().atletaId;
+
+    const atletaDoc = await db.collection("atleti")
+      .doc(atletaId)
+      .get();
+
     if (atletaDoc.exists) {
+
       tutteIscritte.push({
         id: atletaId,
         ...atletaDoc.data()
       });
+
     }
   }
+
+  // Ordine alfabetico
+  tutteIscritte.sort((a, b) =>
+    (a.cognome || "").localeCompare(b.cognome || "")
+  );
+
 }
 
 async function caricaCamereSalvate() {
-  const doc = await db.collection("settimane").doc(settimanaID).get();
+
+  const doc = await db.collection("settimane")
+    .doc(settimanaID)
+    .get();
+
   if (doc.exists && doc.data().camere) {
     camere = doc.data().camere;
   }
+
 }
 
 // ================= CREAZIONE CAMERA =================
 
 function creaCamera() {
 
-  const numeroInput = document.getElementById("numeroCamera");
-  const maxPostiInput = document.getElementById("maxPosti");
-
-  const numeroVal = parseInt(numeroInput.value);
-  const maxPostiVal = parseInt(maxPostiInput.value);
+  const numeroVal = parseInt(document.getElementById("numeroCamera").value);
+  const maxPostiVal = parseInt(document.getElementById("maxPosti").value);
 
   if (!numeroVal || !maxPostiVal) {
     alert("Compila tutti i campi");
+    return;
+  }
+
+  if (maxPostiVal !== 4 && maxPostiVal !== 5) {
+    alert("I posti devono essere 4 o 5");
     return;
   }
 
@@ -87,18 +113,22 @@ function creaCamera() {
     atlete: []
   });
 
-  numeroInput.value = "";
-  maxPostiInput.value = "";
+  document.getElementById("numeroCamera").value = "";
+  document.getElementById("maxPosti").value = "";
 
   renderizza();
 }
-// ================= RENDER =================
+
+// ================= RENDER GENERALE =================
 
 function renderizza() {
 
   renderLista();
   renderCamere();
+
 }
+
+// ================= LISTA ATLETE =================
 
 function renderLista() {
 
@@ -113,12 +143,17 @@ function renderLista() {
 
       const li = document.createElement("li");
       li.innerText = atleta.cognome + " " + atleta.nome;
+
       li.onclick = () => assegnaAtleta(atleta.id);
 
       lista.appendChild(li);
     }
+
   });
+
 }
+
+// ================= CAMERE =================
 
 function renderCamere() {
 
@@ -128,62 +163,114 @@ function renderCamere() {
   camere.forEach(camera => {
 
     const div = document.createElement("div");
-    div.className = "camera";
+    div.className = "camera-box";
+
+    // Evidenzia selezionata
+    if (cameraSelezionata === camera.numero) {
+      div.classList.add("attiva");
+    }
+
+    // Evidenzia piena
+    if (camera.atlete.length >= camera.maxPosti) {
+      div.classList.add("piena");
+    }
+
+    div.onclick = () => {
+      cameraSelezionata = camera.numero;
+      renderizza();
+    };
 
     div.innerHTML = `
-      <h4>Camera ${camera.numero} (${camera.atlete.length}/${camera.maxPosti})</h4>
+      <div class="camera-header">
+        <strong>Camera ${camera.numero}</strong>
+        <span>${camera.atlete.length}/${camera.maxPosti}</span>
+      </div>
       <ul></ul>
-      <button onclick="eliminaCamera(${camera.numero})">🗑️ Elimina</button>
+      <button class="btn-elimina">🗑️ Elimina</button>
     `;
+
+    // Bottone elimina camera
+    div.querySelector(".btn-elimina").onclick = (e) => {
+      e.stopPropagation();
+      eliminaCamera(camera.numero);
+    };
 
     const ul = div.querySelector("ul");
 
     camera.atlete.forEach(id => {
+
       const atleta = tutteIscritte.find(a => a.id === id);
       if (!atleta) return;
 
       const li = document.createElement("li");
       li.innerHTML = `
         ${atleta.cognome} ${atleta.nome}
-        <span onclick="rimuoviAtleta(${camera.numero}, '${id}')">❌</span>
+        <span class="remove">❌</span>
       `;
+
+      li.querySelector(".remove").onclick = (e) => {
+        e.stopPropagation();
+        rimuoviAtleta(camera.numero, id);
+      };
+
       ul.appendChild(li);
+
     });
 
     container.appendChild(div);
+
   });
+
 }
 
 // ================= ASSEGNAZIONE =================
 
 function assegnaAtleta(atletaId) {
 
-  const numero = prompt("Inserisci numero camera");
-  const camera = camere.find(c => c.numero == numero);
+  if (!cameraSelezionata) {
+    alert("Seleziona prima una camera");
+    return;
+  }
 
-  if (!camera) return alert("Camera non trovata");
+  const camera = camere.find(c => c.numero === cameraSelezionata);
 
-  if (camera.atlete.length >= camera.maxPosti)
-    return alert("Camera piena");
+  if (!camera) return;
+
+  if (camera.atlete.length >= camera.maxPosti) {
+    alert("Camera piena");
+    return;
+  }
 
   camera.atlete.push(atletaId);
+
   renderizza();
+
 }
+
+// ================= MODIFICHE =================
 
 function rimuoviAtleta(numero, atletaId) {
 
-  const camera = camere.find(c => c.numero == numero);
+  const camera = camere.find(c => c.numero === numero);
+  if (!camera) return;
+
   camera.atlete = camera.atlete.filter(id => id !== atletaId);
+
   renderizza();
 }
 
 function eliminaCamera(numero) {
 
   camere = camere.filter(c => c.numero !== numero);
+
+  if (cameraSelezionata === numero) {
+    cameraSelezionata = null;
+  }
+
   renderizza();
 }
 
-// ================= SALVA =================
+// ================= SALVATAGGIO =================
 
 async function salvaComposizione() {
 
@@ -193,11 +280,14 @@ async function salvaComposizione() {
       camere: camere
     });
 
-  alert("Composizione salvata!");
+  alert("Composizione salvata correttamente!");
+
 }
 
 // ================= STAMPA =================
 
 function stampaCamere() {
+
   window.print();
+
 }
