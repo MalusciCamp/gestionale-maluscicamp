@@ -1,0 +1,60 @@
+.layout {
+  display: flex;
+  gap: 40px;
+}
+
+.lista-atlete {
+  width: 30%;
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.lista-atlete li {
+  cursor: pointer;
+  padding: 6px;
+}
+
+.camere-container {
+  width: 70%;
+}
+
+.camera {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.camera.attiva {
+  border: 2px solid green;
+}
+
+.camera h4 {
+  margin: 0 0 8px 0;
+}
+
+.camera ul {
+  list-style: none;
+  padding: 0;
+}
+
+.camera li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.top-controls {
+  margin-bottom: 20px;
+}
+
+.btn-salva {
+  background: green;
+  color: white;
+}
+
+.btn-stampa {
+  background: #444;
+  color: white;
+}
