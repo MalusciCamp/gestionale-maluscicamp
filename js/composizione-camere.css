@@ -1,0 +1,164 @@
+/* ================= HEADER ================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-buttons button {
+  margin-left: 10px;
+}
+
+/* ================= CREA CAMERA ================= */
+
+.crea-camera-section {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.crea-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+.crea-inputs input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.btn-crea {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+/* ================= LAYOUT PRINCIPALE ================= */
+
+.layout-camere {
+  display: flex;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.colonna {
+  flex: 1;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ================= LISTA ATLETE ================= */
+
+#listaAtlete {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+#listaAtlete li {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: 0.2s;
+}
+
+#listaAtlete li:hover {
+  background: #f0f8ff;
+}
+
+/* ================= GRIGLIA CAMERE ================= */
+
+.camere-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* ================= BOX CAMERA ================= */
+
+.camera-box {
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* Header camera */
+.camera-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+/* ================= POSTI LETTO ================= */
+
+.posti-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.posto {
+  border: 1px dashed #ccc;
+  padding: 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  text-align: center;
+  min-height: 32px;
+  background: #fafafa;
+}
+
+/* ================= CAMERA SELEZIONATA ================= */
+
+.camera-box.attiva {
+  border: 2px solid #2ecc71;
+  background-color: #eafaf1;
+}
+
+/* ================= CAMERA PIENA ================= */
+
+.camera-box.piena {
+  border: 2px solid #e74c3c;
+  background-color: #fdecea;
+}
+
+/* ================= BOTTONI ================= */
+
+.btn-salva {
+  background: green;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-stampa {
+  background: #444;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.posto:hover {
+  background-color: #f8f8f8;
+}
