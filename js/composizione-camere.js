@@ -65,23 +65,33 @@ async function caricaCamereSalvate() {
 
 function creaCamera() {
 
-  const numero = parseInt(numeroCamera.value);
-  const maxPosti = parseInt(maxPosti.value);
+  const numeroInput = document.getElementById("numeroCamera");
+  const maxPostiInput = document.getElementById("maxPosti");
 
-  if (!numero || !maxPosti) return alert("Compila i campi");
+  const numeroVal = parseInt(numeroInput.value);
+  const maxPostiVal = parseInt(maxPostiInput.value);
 
-  if (camere.find(c => c.numero === numero))
-    return alert("Numero camera già esistente");
+  if (!numeroVal || !maxPostiVal) {
+    alert("Compila tutti i campi");
+    return;
+  }
+
+  if (camere.find(c => c.numero === numeroVal)) {
+    alert("Numero camera già esistente");
+    return;
+  }
 
   camere.push({
-    numero,
-    maxPosti,
+    numero: numeroVal,
+    maxPosti: maxPostiVal,
     atlete: []
   });
 
+  numeroInput.value = "";
+  maxPostiInput.value = "";
+
   renderizza();
 }
-
 // ================= RENDER =================
 
 function renderizza() {
