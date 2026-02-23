@@ -63,6 +63,11 @@
   <div class="modal-content">
     <h2>Crea Settimana Camp</h2>
 
+    <select id="campSettimana">
+  <option value="girls">Girls Camp</option>
+  <option value="boys">Boys Camp</option>
+</select>
+
     <input type="text" id="nomeSettimana" placeholder="Nome settimana">
 
     <label>Dal:</label>
@@ -94,7 +99,10 @@
     appId: "1:615282026849:web:bf46adfca227570d7d7d20"
   };
 
-  firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
   const db = firebase.firestore();
 
 
@@ -145,10 +153,11 @@
   // ===============================
   function salvaSettimana() {
 
-    const nome = document.getElementById("nomeSettimana").value;
+    const camp = document.getElementById("campSettimana").value;
+    const nome = document.getElementById("nomeSettimana").value.trim();
     const dal = document.getElementById("dataDal").value;
     const al = document.getElementById("dataAl").value;
-    const prezzo = document.getElementById("prezzo").value;
+    const prezzo = Number(document.getElementById("prezzo").value);
 
     if (!nome || !dal || !al || !prezzo) {
       alert("Compila tutti i campi");
@@ -160,12 +169,18 @@
       dal: dal,
       al: al,
       prezzo: prezzo,
-      createdAt: new Date()
+      camp: camp,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then((docRef) => {
 
-      // CREA CARD SENZA PREZZO VISIBILE
-      creaCardSettimana(nome, dal, al, docRef.id);
+      creaCardSettimana({
+        id: docRef.id,
+        nome,
+        dal,
+        al,
+        camp
+      });
 
       closeSettimanaPopup();
 
@@ -185,20 +200,48 @@
   // ===============================
   // CREA CARD SETTIMANA
   // ===============================
-  function creaCardSettimana(nome, dal, al, id) {
+  function creaCardSettimana(data) {
 
     const container = document.getElementById("settimaneContainer");
 
     const card = document.createElement("div");
     card.className = "settimana-card";
 
+    // 🔥 COLORI DINAMICI
+
+    if(data.camp === "girls"){
+      card.classList.add("card-girls");
+    }
+
+    if(data.camp === "boys"){
+
+      const nome = data.nome.toLowerCase();
+
+      if(nome.includes("rossa")){
+        card.classList.add("card-rossa");
+      }
+      else if(nome.includes("bianca")){
+        card.classList.add("card-bianca");
+      }
+      else if(nome.includes("azzurra")){
+        card.classList.add("card-azzurra");
+      }
+      else if(nome.includes("verde")){
+        card.classList.add("card-verde");
+      }
+      else{
+        card.classList.add("card-boys-default");
+      }
+    }
+
     card.onclick = function() {
-      window.location.href = "settimana.html?id=" + id;
+      window.location.href = "settimana.html?id=" + data.id;
     };
 
     card.innerHTML = `
-      <h3>${nome}</h3>
-      <p><strong>Periodo:</strong> ${dal} - ${al}</p>
+      <h3>${data.nome}</h3>
+      <p><strong>Periodo:</strong> ${data.dal} - ${data.al}</p>
+      <small>${data.camp.toUpperCase()}</small>
     `;
 
     container.appendChild(card);
@@ -219,12 +262,13 @@
 
           const data = doc.data();
 
-          creaCardSettimana(
-            data.nome,
-            data.dal,
-            data.al,
-            doc.id
-          );
+          creaCardSettimana({
+            id: doc.id,
+            nome: data.nome,
+            dal: data.dal,
+            al: data.al,
+            camp: data.camp
+          });
 
         });
 
