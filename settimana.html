@@ -32,10 +32,10 @@
 </div>
 
     <!-- 2️⃣ COMPOSIZIONE CAMERE -->
-    <div class="settimana-card camere">
-      <i class="fa-solid fa-bed"></i>
-      <h2>Composizione Camere</h2>
-    </div>
+    <div class="settimana-card camere" onclick="apriCamere()">
+  <i class="fa-solid fa-bed"></i>
+  <h2>Composizione Camere</h2>
+</div>
 
     <!-- 3️⃣ GRUPPI -->
     <div class="settimana-card gruppi">
@@ -119,6 +119,10 @@ function apriRiepilogoPagamenti(){
 
 function apriRiepilogoKit(){
   window.location.href = "riepilogo-kit.html?id=" + settimanaID;
+}
+
+function apriCamere(){
+  window.location.href = "composizione-camere.html?id=" + settimanaID;
 }
 
 </script>
