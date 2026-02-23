@@ -336,3 +336,9 @@ textarea {
   }
 
 }
+
+/* ===== BOYS CAMP COLORI ===== */
+
+body[data-camp="boys"] .girls-card.new {
+  background: linear-gradient(135deg, #2196f3, #0d47a1);
+}
