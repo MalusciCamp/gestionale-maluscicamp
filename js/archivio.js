@@ -1,12 +1,19 @@
-// ================= CAMP =================
+// ================= CAMP DA URL =================
 
-const CAMP = document.body.getAttribute("data-camp");
+const params = new URLSearchParams(window.location.search);
+const CAMP = params.get("camp");
 
 if(!CAMP){
-  console.error("CAMP non definito nel body!");
+  alert("Camp non specificato");
 }
 
+// ================= TITOLO DINAMICO =================
 
+if(CAMP === "girls"){
+  document.getElementById("titoloArchivio").innerText = "Archivio Atlete - Girls Camp";
+} else if(CAMP === "boys"){
+  document.getElementById("titoloArchivio").innerText = "Archivio Atleti - Boys Camp";
+}
 // ================= HEADER =================
 
 fetch("components/header.html")
