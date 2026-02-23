@@ -1,3 +1,12 @@
+// ================= CAMP =================
+
+const CAMP = document.body.getAttribute("data-camp");
+
+if(!CAMP){
+  console.error("CAMP non definito nel body!");
+}
+
+
 // ================= HEADER =================
 
 fetch("components/header.html")
@@ -15,60 +24,64 @@ function caricaAtlete(){
   tbody.innerHTML = "";
 
   db.collection("atleti")
-  .get()
-  .then(snapshot=>{
+    .where("camp","==",CAMP)
+    .get()
+    .then(snapshot=>{
 
-    const atlete = [];
+      const atlete = [];
 
-    snapshot.forEach(doc=>{
-      atlete.push({
-        id: doc.id,
-        ...doc.data()
+      snapshot.forEach(doc=>{
+        atlete.push({
+          id: doc.id,
+          ...doc.data()
+        });
       });
+
+      // ===== ORDINE ALFABETICO COGNOME =====
+      atlete.sort((a,b)=>{
+        return (a.cognome || "")
+          .toLowerCase()
+          .localeCompare(
+            (b.cognome || "").toLowerCase()
+          );
+      });
+
+      // ===== CREAZIONE RIGHE =====
+      atlete.forEach(d=>{
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${d.cognome || ""}</td>
+          <td>${d.nome || ""}</td>
+          <td>${d.classe || ""}</td>
+          <td>${d.ruolo || "-"}</td>
+
+          <td>
+            <div class="archivio-actions">
+
+              <button class="view"
+                onclick="visualizzaScheda('${d.id}')">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+
+              <button class="delete"
+                onclick="eliminaAtleta('${d.id}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+
+      });
+
+    })
+    .catch(err=>{
+      console.error("Errore caricamento archivio:", err);
     });
-
-    // ===== ORDINE ALFABETICO COGNOME =====
-    atlete.sort((a,b)=>{
-      return (a.cognome || "")
-        .toLowerCase()
-        .localeCompare(
-          (b.cognome || "").toLowerCase()
-        );
-    });
-
-    // ===== CREAZIONE RIGHE =====
-    atlete.forEach(d=>{
-
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>${d.cognome || ""}</td>
-        <td>${d.nome || ""}</td>
-        <td>${d.classe || ""}</td>
-        <td>${d.ruolo || "-"}</td>
-
-        <td>
-          <div class="archivio-actions">
-
-            <button class="view"
-              onclick="visualizzaScheda('${d.id}')">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-
-            <button class="delete"
-              onclick="eliminaAtleta('${d.id}')">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-
-          </div>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-
-    });
-
-  });
 
 }
 
@@ -80,12 +93,12 @@ function eliminaAtleta(id){
   if(!confirm("Eliminare atleta?")) return;
 
   db.collection("atleti")
-  .doc(id)
-  .delete()
-  .then(()=>{
-    alert("Eliminata");
-    caricaAtlete();
-  });
+    .doc(id)
+    .delete()
+    .then(()=>{
+      alert("Eliminata");
+      caricaAtlete();
+    });
 
 }
 
@@ -96,7 +109,11 @@ function visualizzaScheda(id){
 
   localStorage.setItem("atletaEditId", id);
 
-  window.location.href = "girlcamp.html";
+  if(CAMP === "girls"){
+    window.location.href = "girlcamp.html";
+  } else if(CAMP === "boys"){
+    window.location.href = "boys-camp.html";
+  }
 
 }
 
