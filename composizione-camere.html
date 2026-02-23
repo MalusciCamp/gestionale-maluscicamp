@@ -17,47 +17,86 @@
 
 <body>
 
+<!-- HEADER DINAMICO -->
 <div id="header"></div>
 
 <div class="page-container">
 
-  <h1 id="titoloPagina">Composizione Camere</h1>
+  <!-- TITOLO -->
+  <div class="page-header">
+    <h1 id="titoloPagina">
+      <i class="fa-solid fa-bed"></i>
+      Composizione Camere
+    </h1>
 
-  <div class="top-controls">
-    <input type="number" id="numeroCamera" placeholder="Numero camera">
-    <input type="number" id="maxPosti" placeholder="Max posti (4 o 5)">
-    <button onclick="creaCamera()">➕ Crea Camera</button>
+    <div class="azioni-header">
+      <button class="btn-salva" onclick="salvaComposizione()">
+        <i class="fa-solid fa-floppy-disk"></i> Salva
+      </button>
 
-    <button class="btn-salva" onclick="salvaComposizione()">💾 Salva</button>
-    <button class="btn-stampa" onclick="stampaCamere()">🖨️ Stampa</button>
+      <button class="btn-stampa" onclick="stampaCamere()">
+        <i class="fa-solid fa-print"></i> Stampa
+      </button>
+    </div>
   </div>
 
-  <div class="layout">
+  <!-- CREAZIONE CAMERA -->
+  <div class="crea-camera-box">
+    <h3><i class="fa-solid fa-plus"></i> Crea Nuova Camera</h3>
+
+    <div class="crea-camera-form">
+      <input type="number" id="numeroCamera" placeholder="Numero camera">
+      <input type="number" id="maxPosti" placeholder="Max posti (4 o 5)">
+      <button onclick="creaCamera()">
+        <i class="fa-solid fa-plus"></i> Aggiungi
+      </button>
+    </div>
+  </div>
+
+  <!-- LAYOUT PRINCIPALE -->
+  <div class="composizione-layout">
 
     <!-- LISTA ATLETE -->
-    <div class="lista-atlete">
-      <h3>Atlete disponibili</h3>
-      <ul id="listaAtlete"></ul>
+    <div class="box lista-atlete">
+      <div class="box-header">
+        <h3><i class="fa-solid fa-users"></i> Atlete disponibili</h3>
+      </div>
+
+      <ul id="listaAtlete" class="lista-scroll"></ul>
     </div>
 
     <!-- CAMERE -->
-    <div class="camere-container" id="camereContainer"></div>
+    <div class="box camere-box">
+      <div class="box-header">
+        <h3><i class="fa-solid fa-bed"></i> Camere create</h3>
+      </div>
+
+      <div id="camereContainer" class="camere-grid"></div>
+    </div>
 
   </div>
 
 </div>
 
+<!-- JS PRINCIPALE -->
 <script src="js/composizione-camere.js"></script>
-</script>
 
 <script>
-function goDashboard() {
-  window.location.href = "dashboard.html";
-}
+  // HEADER
+  fetch("components/header.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("header").innerHTML = data;
+    });
 
-function goBack() {
-  window.history.back();
-}
+  function goDashboard() {
+    window.location.href = "dashboard.html";
+  }
+
+  function goBack() {
+    window.history.back();
+  }
 </script>
+
 </body>
 </html>
