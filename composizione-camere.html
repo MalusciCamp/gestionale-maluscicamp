@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Composizione Camere</title>
+
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/composizione-camere.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<div class="page-container">
+
+  <h1 id="titoloPagina">Composizione Camere</h1>
+
+  <div class="top-controls">
+    <input type="number" id="numeroCamera" placeholder="Numero camera">
+    <input type="number" id="maxPosti" placeholder="Max posti (4 o 5)">
+    <button onclick="creaCamera()">➕ Crea Camera</button>
+
+    <button class="btn-salva" onclick="salvaComposizione()">💾 Salva</button>
+    <button class="btn-stampa" onclick="stampaCamere()">🖨️ Stampa</button>
+  </div>
+
+  <div class="layout">
+
+    <!-- LISTA ATLETE -->
+    <div class="lista-atlete">
+      <h3>Atlete disponibili</h3>
+      <ul id="listaAtlete"></ul>
+    </div>
+
+    <!-- CAMERE -->
+    <div class="camere-container" id="camereContainer"></div>
+
+  </div>
+
+</div>
+
+<script src="js/composizione-camere.js"></script>
+</script>
+
+<script>
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+
+function goBack() {
+  window.history.back();
+}
+</script>
+</body>
+</html>
