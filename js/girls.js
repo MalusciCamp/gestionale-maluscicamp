@@ -61,7 +61,7 @@ if(file) file.value = "";
 }
 
 function openArchivio(){
-  window.location.href = "archivio.html";
+  window.location.href = "archivio.html?camp=" + CAMP;
 }
 
 // ================= TAB SWITCH =================
