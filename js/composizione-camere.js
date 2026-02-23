@@ -198,42 +198,48 @@ function renderCamere() {
       renderizza();
     };
 
-    div.innerHTML = `
-      <div class="camera-header">
-        <strong>Camera ${camera.numero}</strong>
-        <span>${camera.atlete.length}/${camera.maxPosti}</span>
-      </div>
-      <ul></ul>
-      <button class="btn-elimina">🗑️ Elimina</button>
+    // HEADER CAMERA
+    const header = document.createElement("div");
+    header.className = "camera-header";
+    header.innerHTML = `
+      <span>Camera ${camera.numero}</span>
+      <span>${camera.atlete.length}/${camera.maxPosti}</span>
     `;
 
-    // Bottone elimina camera
-    div.querySelector(".btn-elimina").onclick = (e) => {
+    div.appendChild(header);
+
+    // GRIGLIA POSTI
+    const postiGrid = document.createElement("div");
+    postiGrid.className = "posti-grid";
+
+    for (let i = 0; i < camera.maxPosti; i++) {
+
+      const posto = document.createElement("div");
+      posto.className = "posto";
+
+      if (camera.atlete[i]) {
+        const atleta = tutteIscritte.find(a => a.id === camera.atlete[i]);
+        posto.innerText = atleta
+          ? atleta.cognome + " " + atleta.nome
+          : "—";
+      } else {
+        posto.innerText = "Posto libero";
+      }
+
+      postiGrid.appendChild(posto);
+    }
+
+    div.appendChild(postiGrid);
+
+    // BOTTONE ELIMINA
+    const btnElimina = document.createElement("button");
+    btnElimina.innerText = "🗑️ Elimina";
+    btnElimina.onclick = (e) => {
       e.stopPropagation();
       eliminaCamera(camera.numero);
     };
 
-    const ul = div.querySelector("ul");
-
-    camera.atlete.forEach(id => {
-
-      const atleta = tutteIscritte.find(a => a.id === id);
-      if (!atleta) return;
-
-      const li = document.createElement("li");
-      li.innerHTML = `
-        ${atleta.cognome} ${atleta.nome}
-        <span class="remove">❌</span>
-      `;
-
-      li.querySelector(".remove").onclick = (e) => {
-        e.stopPropagation();
-        rimuoviAtleta(camera.numero, id);
-      };
-
-      ul.appendChild(li);
-
-    });
+    div.appendChild(btnElimina);
 
     container.appendChild(div);
 
