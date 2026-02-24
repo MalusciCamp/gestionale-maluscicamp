@@ -1,19 +1,3 @@
-document.getElementById("loginBtn").addEventListener("click", () => {
-
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  // LOGIN ADMIN FISSO DI TEST
-  if (username === "admin" && password === "admin123") {
-
-    // Vai alla dashboard
-    window.location.href = "dashboard.html";
-
-  } else {
-    alert("Credenziali errate");
-  }
-
-});
 // ===============================
 // FIREBASE INIT
 // ===============================
@@ -36,9 +20,7 @@ const db = firebase.firestore();
 // ===============================
 // SE GIÀ LOGGATO → DASHBOARD
 // ===============================
-const utenteLoggato = sessionStorage.getItem("utenteLoggato");
-
-if (utenteLoggato) {
+if (sessionStorage.getItem("utenteLoggato")) {
   window.location.href = "dashboard.html";
 }
 
@@ -66,10 +48,10 @@ function login() {
 
       if (snapshot.empty) {
         alert("Credenziali non valide");
-        return;
+        return; // 🔴 BLOCCA QUI
       }
 
-      // 🔥 SALVA SESSIONE
+      // ✅ LOGIN CORRETTO
       sessionStorage.setItem("utenteLoggato", username);
 
       window.location.href = "dashboard.html";
