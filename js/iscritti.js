@@ -279,7 +279,7 @@ if(scontoIscrizione > 0){
 const totaleNetto = quota - scontoIscrizione;
 residuoPagamento.innerText = totaleNetto - pagato;
 
-document.getElementById("scontoExtra").value = 0;
+document.getElementById("scontoPagamento").value = 0;
 
   importoPagamento.value = "";
   metodoPagamento.value = "";
@@ -315,7 +315,7 @@ await pagamentoRef.set({
   metodo: metodo,
 
   // 🔥 NUOVO CAMPO SCONTO EXTRA
-  scontoExtra: Number(document.getElementById("scontoExtra")?.value) || 0,
+  scontoExtra: Number(document.getElementById("scontoPagamento")?.value) || 0,
 
   numeroRicevuta: null,
   data: firebase.firestore.FieldValue.serverTimestamp(),
@@ -669,7 +669,7 @@ document.getElementById("popupPagamento")
     }
 
 });
-document.getElementById("scontoExtra")
+document.getElementById("scontoPagamento")
   ?.addEventListener("input", function(){
 
     const quota = Number(totaleDovuto.innerText) || 0;
