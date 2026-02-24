@@ -108,7 +108,9 @@
 </div>
 
 <script>
-
+if (!sessionStorage.getItem("utenteLoggato")) {
+  window.location.href = "index.html";
+}
   // ===============================
   // FIREBASE CONFIG
   // ===============================
@@ -135,9 +137,10 @@
     window.location.href = page;
   }
 
-  function logout() {
-    window.location.href = "index.html";
-  }
+function logout() {
+  sessionStorage.removeItem("utenteLoggato");
+  window.location.href = "index.html";
+}
 
   function goDashboard() {
     window.location.href = "dashboard.html";
