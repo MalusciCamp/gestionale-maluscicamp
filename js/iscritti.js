@@ -254,12 +254,21 @@ async function apriPagamento(atletaId){
 
   const iscrizione = iscrizioniSnap.docs[0].data();
 
-  const quota = Number(iscrizione.quota || 0);
+const quota = Number(iscrizione.quota || 0);
 
-  const pagamentiSnap = await db.collection("pagamenti")
-    .where("atletaId","==", atletaId)
-    .where("settimanaId","==", settimanaID)
-    .get();
+// 🔥 AGGIUNGI QUESTO BLOCCO QUI
+const atletaDoc = await db.collection("atleti")
+  .doc(atletaId)
+  .get();
+
+const atletaData = atletaDoc.data();
+const scontoIscrizione = Number(atletaData?.pagamento?.sconto || 0);
+
+// 🔹 Calcolo pagato
+const pagamentiSnap = await db.collection("pagamenti")
+  .where("atletaId","==", atletaId)
+  .where("settimanaId","==", settimanaID)
+  .get();
 
   let pagato = 0;
   pagamentiSnap.forEach(p=>{
