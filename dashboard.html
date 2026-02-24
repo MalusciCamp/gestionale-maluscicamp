@@ -27,7 +27,7 @@
 
   <div class="dashboard-grid">
 
-    <div class="card utenti" onclick="goTo('utenti.html')">
+    <div class="card utenti" onclick="openUtentiPopup()">
       <i class="fa-solid fa-users"></i>
       <h2>Crea Utenti</h2>
     </div>
@@ -82,6 +82,28 @@
       <button onclick="salvaSettimana()">Salva</button>
       <button class="close-btn" onclick="closeSettimanaPopup()">Chiudi</button>
     </div>
+  </div>
+</div>
+
+<!-- POPUP CREA UTENTI -->
+<div id="utentiModal" class="modal">
+  <div class="modal-content" style="max-width:600px;">
+
+    <h2>Gestione Utenti</h2>
+
+    <input type="text" id="newNickname" placeholder="Nickname">
+    <input type="password" id="newPassword" placeholder="Password">
+
+    <button onclick="creaUtente()">Salva Utente</button>
+
+    <hr style="margin:20px 0;">
+
+    <div id="listaUtenti"></div>
+
+    <div class="modal-buttons">
+      <button class="close-btn" onclick="closeUtentiPopup()">Chiudi</button>
+    </div>
+
   </div>
 </div>
 
@@ -285,7 +307,139 @@ if(data.camp === "boys"){
       });
 
   };
+// ===============================
+// POPUP UTENTI
+// ===============================
+function openUtentiPopup() {
+  document.getElementById("utentiModal").style.display = "flex";
+  caricaUtenti();
+}
 
+function closeUtentiPopup() {
+  document.getElementById("utentiModal").style.display = "none";
+}
+
+
+// ===============================
+// CREA UTENTE
+// ===============================
+function creaUtente() {
+
+ const nick = document.getElementById("newNickname").value.trim();
+const pass = document.getElementById("newPassword").value.trim();
+
+  if (!nick || !pass) {
+    alert("Compila tutti i campi");
+    return;
+  }
+
+  db.collection("utenti")
+    .where("nickname", "==", nick)
+    .get()
+    .then(snapshot => {
+
+      if (!snapshot.empty) {
+        alert("Nickname già esistente");
+        return;
+      }
+
+      db.collection("utenti")
+        .add({
+          nickname: nick,
+          password: pass,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+       .then(() => {
+
+  document.getElementById("newNickname").value = "";
+  document.getElementById("newPassword").value = "";
+
+  caricaUtenti();
+
+});
+    });
+
+}
+
+
+// ===============================
+// CARICA UTENTI
+// ===============================
+function caricaUtenti() {
+
+  const container = document.getElementById("listaUtenti");
+  container.innerHTML = "";
+
+  db.collection("utenti")
+    .get()
+    .then(snapshot => {
+
+      snapshot.forEach(doc => {
+
+        const data = doc.data();
+
+        const div = document.createElement("div");
+        div.style = "padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px;";
+
+        div.innerHTML = `
+          <strong>${data.nickname}</strong>
+
+          <button style="float:right;background:#dc3545;color:white;border:none;padding:5px 10px;border-radius:6px;"
+            onclick="eliminaUtente('${doc.id}')">
+            Elimina
+          </button>
+
+          <button style="float:right;margin-right:10px;background:#0d6efd;color:white;border:none;padding:5px 10px;border-radius:6px;"
+            onclick="modificaUtente('${doc.id}','${data.nickname}')">
+            Modifica
+          </button>
+        `;
+
+        container.appendChild(div);
+
+      });
+
+    });
+
+}
+
+
+// ===============================
+// ELIMINA
+// ===============================
+function eliminaUtente(id) {
+
+  if (!confirm("Eliminare utente?")) return;
+
+  db.collection("utenti")
+    .doc(id)
+    .delete()
+    .then(() => {
+      caricaUtenti();
+    });
+
+}
+
+
+// ===============================
+// MODIFICA PASSWORD
+// ===============================
+function modificaUtente(id, nickname) {
+
+  const nuovaPassword = prompt("Nuova password per " + nickname);
+
+  if (!nuovaPassword) return;
+
+  db.collection("utenti")
+    .doc(id)
+    .update({
+      password: nuovaPassword
+    })
+    .then(() => {
+  alert("Password aggiornata");
+  caricaUtenti();
+});
+}
 </script>
 
 </body>
