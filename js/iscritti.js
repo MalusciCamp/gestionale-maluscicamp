@@ -100,16 +100,17 @@ pagamentiSnap.forEach(p=>{
 });
 
 const quota = Number(iscrizione.quota || 0);
-const scontoIscrizione = Number(iscrizione.sconto || 0);
+const scontoIscrizione = Number(atleta.pagamento?.sconto || 0);
+
+const quotaNetta = quota - scontoIscrizione;
 
 let stato = "da_pagare";
 
-if(pagato >= quota && quota > 0){
+if(pagato >= quotaNetta && quotaNetta > 0){
   stato = "pagato";
 }else if(pagato > 0){
   stato = "parziale";
 }
-
       righe.push({
         cognome: atleta.cognome || "",
         html: `
@@ -253,45 +254,47 @@ async function apriPagamento(atletaId){
   if(iscrizioniSnap.empty) return;
 
   const iscrizione = iscrizioniSnap.docs[0].data();
+  const quota = Number(iscrizione.quota || 0);
 
-const quota = Number(iscrizione.quota || 0);
+  // 🔹 Recupero sconto da atleta
+  const atletaDoc = await db.collection("atleti")
+    .doc(atletaId)
+    .get();
 
-// 🔥 AGGIUNGI QUESTO BLOCCO QUI
-const atletaDoc = await db.collection("atleti")
-  .doc(atletaId)
-  .get();
+  const atletaData = atletaDoc.data() || {};
+  const scontoIscrizione = Number(atletaData?.pagamento?.sconto || 0);
 
-const atletaData = atletaDoc.data();
-const scontoIscrizione = Number(atletaData?.pagamento?.sconto || 0);
-
-// 🔹 Calcolo pagato
-const pagamentiSnap = await db.collection("pagamenti")
-  .where("atletaId","==", atletaId)
-  .where("settimanaId","==", settimanaID)
-  .get();
+  // 🔹 Calcolo pagato
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
+    .get();
 
   let pagato = 0;
   pagamentiSnap.forEach(p=>{
     pagato += Number(p.data().importo || 0);
   });
 
-  totaleDovuto.innerText = quota;
-  totalePagato.innerText = pagato;
-  // 🔹 Mostra sconto iscrizione se presente
-if(scontoIscrizione > 0){
-  document.getElementById("scontoIscrizione").innerText = scontoIscrizione;
-  document.getElementById("rigaScontoIscrizione").style.display = "block";
-}else{
-  document.getElementById("rigaScontoIscrizione").style.display = "none";
-}
+  // 🔹 Aggiorno campi
+  document.getElementById("totaleDovuto").innerText = quota;
+  document.getElementById("totalePagato").innerText = pagato;
 
-const totaleNetto = quota - scontoIscrizione;
-residuoPagamento.innerText = totaleNetto - pagato;
+  // 🔹 Mostra sconto
+  if(scontoIscrizione > 0){
+    document.getElementById("scontoIscrizione").innerText = scontoIscrizione;
+    document.getElementById("rigaScontoIscrizione").style.display = "block";
+  }else{
+    document.getElementById("rigaScontoIscrizione").style.display = "none";
+  }
 
-document.getElementById("scontoPagamento").value = 0;
+  // 🔥 RESIDUO CORRETTO
+  const residuo = quota - scontoIscrizione - pagato;
+  document.getElementById("residuoPagamento").innerText = residuo;
 
-  importoPagamento.value = "";
-  metodoPagamento.value = "";
+  // reset campi
+  document.getElementById("scontoPagamento").value = 0;
+  document.getElementById("importoPagamento").value = "";
+  document.getElementById("metodoPagamento").value = "";
 
   document.getElementById("popupPagamento").style.display = "flex";
 }
@@ -686,9 +689,19 @@ document.getElementById("scontoPagamento")
     const scontoExtra = Number(this.value) || 0;
     const pagato = Number(totalePagato.innerText) || 0;
 
+ document.getElementById("scontoPagamento")
+  ?.addEventListener("input", function(){
+
+    const quota = Number(totaleDovuto.innerText) || 0;
+    const scontoIscrizione = Number(document.getElementById("scontoIscrizione")?.innerText) || 0;
+    const scontoExtra = Number(this.value) || 0;
+    const pagato = Number(totalePagato.innerText) || 0;
+
     const totaleNetto = quota - scontoIscrizione - scontoExtra;
 
     residuoPagamento.innerText = totaleNetto - pagato;
+
+  });
 
   });
 
