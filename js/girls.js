@@ -127,35 +127,58 @@ function toggleAllergie(btn, stato){
 
 function caricaSettimane(){
 
-  const c = document.getElementById("settimaneToggle");
-  c.innerHTML = "";
+  const container = document.getElementById("settimaneToggle");
+  if(!container) return;
+
+  container.innerHTML = "";
 
   db.collection("settimane")
-   .where("camp","==",CAMP)
-  .get()
-  .then(s => {
+    .where("camp","==", CAMP)
+    .orderBy("createdAt")
+    .get()
+    .then(snapshot => {
 
-    s.forEach(doc => {
+      if(snapshot.empty){
+        container.innerHTML = `
+          <div style="opacity:0.6;">
+            Nessuna settimana disponibile
+          </div>
+        `;
+        return;
+      }
 
-      const d = doc.data();
+      snapshot.forEach(doc => {
 
-      const box = document.createElement("div");
-      box.className = "toggle red";
-      box.innerText = d.nome;
-      box.dataset.id = doc.id;
-      box.dataset.prezzo = d.prezzo;
+        const data = doc.data();
 
-      box.onclick = () => {
-        box.classList.toggle("green");
-        box.classList.toggle("red");
-        calcolaTotale();
-      };
+        const box = document.createElement("div");
+        box.className = "toggle red";
+        box.innerText = data.nome || "Settimana";
+        box.dataset.id = doc.id;
+        box.dataset.prezzo = Number(data.prezzo || 0);
 
-      c.appendChild(box);
+        box.addEventListener("click", () => {
+          box.classList.toggle("green");
+          box.classList.toggle("red");
+          calcolaTotale();
+        });
+
+        container.appendChild(box);
+
+      });
+
+    })
+    .catch(error => {
+
+      console.error("Errore caricamento settimane:", error);
+
+      container.innerHTML = `
+        <div style="color:red;">
+          Errore caricamento settimane
+        </div>
+      `;
 
     });
-
-  });
 
 }
 
