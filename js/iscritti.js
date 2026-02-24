@@ -100,6 +100,7 @@ pagamentiSnap.forEach(p=>{
 });
 
 const quota = Number(iscrizione.quota || 0);
+const scontoIscrizione = Number(iscrizione.sconto || 0);
 
 let stato = "da_pagare";
 
@@ -267,7 +268,18 @@ async function apriPagamento(atletaId){
 
   totaleDovuto.innerText = quota;
   totalePagato.innerText = pagato;
-  residuoPagamento.innerText = quota - pagato;
+  // 🔹 Mostra sconto iscrizione se presente
+if(scontoIscrizione > 0){
+  document.getElementById("scontoIscrizione").innerText = scontoIscrizione;
+  document.getElementById("rigaScontoIscrizione").style.display = "block";
+}else{
+  document.getElementById("rigaScontoIscrizione").style.display = "none";
+}
+
+const totaleNetto = quota - scontoIscrizione;
+residuoPagamento.innerText = totaleNetto - pagato;
+
+document.getElementById("scontoExtra").value = 0;
 
   importoPagamento.value = "";
   metodoPagamento.value = "";
@@ -293,19 +305,22 @@ async function registraPagamento(){
     alert("Seleziona metodo pagamento");
     return;
   }
+// 🔹 CREA PAGAMENTO
+const pagamentoRef = db.collection("pagamenti").doc();
 
-  // 🔹 CREA PAGAMENTO
-  const pagamentoRef = db.collection("pagamenti").doc();
+await pagamentoRef.set({
+  atletaId: atletaPagamentoInCorso,
+  settimanaId: settimanaID,
+  importo: importo,
+  metodo: metodo,
 
-  await pagamentoRef.set({
-    atletaId: atletaPagamentoInCorso,
-    settimanaId: settimanaID,
-    importo: importo,
-    metodo: metodo,
-    numeroRicevuta: null,
-    data: firebase.firestore.FieldValue.serverTimestamp(),
-    anno: new Date().getFullYear()
-  });
+  // 🔥 NUOVO CAMPO SCONTO EXTRA
+  scontoExtra: Number(document.getElementById("scontoExtra")?.value) || 0,
+
+  numeroRicevuta: null,
+  data: firebase.firestore.FieldValue.serverTimestamp(),
+  anno: new Date().getFullYear()
+});
 
   // 🔹 NON chiudere popup
   await caricaIscritti();
@@ -654,7 +669,19 @@ document.getElementById("popupPagamento")
     }
 
 });
+document.getElementById("scontoExtra")
+  ?.addEventListener("input", function(){
 
+    const quota = Number(totaleDovuto.innerText) || 0;
+    const scontoIscrizione = Number(document.getElementById("scontoIscrizione")?.innerText) || 0;
+    const scontoExtra = Number(this.value) || 0;
+    const pagato = Number(totalePagato.innerText) || 0;
+
+    const totaleNetto = quota - scontoIscrizione - scontoExtra;
+
+    residuoPagamento.innerText = totaleNetto - pagato;
+
+  });
 
 // Rendi le funzioni globali
 window.stampaRicevutaDiretta = stampaRicevutaDiretta;
