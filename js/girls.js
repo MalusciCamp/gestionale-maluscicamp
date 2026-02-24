@@ -480,14 +480,18 @@ if(atleta.settimane && atleta.settimane.length > 0){
     const idIscrizione = atletaId + "_" + settimana.id;
 
     await db.collection("iscrizioni")
-      .doc(idIscrizione)
-      .set({
-        atletaId: atletaId,
-        settimanaId: settimana.id,
-        quota: Number(settimana.prezzo),
-        anno: new Date().getFullYear(),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+  .doc(idIscrizione)
+  .set({
+    atletaId: atletaId,
+    settimanaId: settimana.id,
+    quota: Number(settimana.prezzo),
+
+    // 🔥 AGGIUNGI QUESTO
+    sconto: Number(atleta.pagamento.sconto || 0),
+
+    anno: new Date().getFullYear(),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
     // 🔥 SE C'È ACCONTO → CREA MOVIMENTO PAGAMENTO
    // 🔥 SE C'È ACCONTO → CREA MOVIMENTO PAGAMENTO
