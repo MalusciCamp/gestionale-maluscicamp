@@ -1,20 +1,31 @@
+/* ================= LAYOUT GENERALE ================= */
+
 .page-container{
   padding:40px;
 }
 
+/* ================= CONTENITORE RIEPILOGO ================= */
+
 .riepilogo-container{
-  display:grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
+  display:flex;
+  flex-direction:column;
+  gap:25px;
   margin-bottom:40px;
 }
 
+/* ================= BOX BASE ================= */
+
 .box{
   padding:25px;
-  border-radius:18px;
+  border-radius:16px;
   color:white;
   text-align:center;
-  box-shadow:0 15px 35px rgba(0,0,0,0.2);
+  box-shadow:0 12px 25px rgba(0,0,0,0.15);
+  transition:transform 0.2s ease;
+}
+
+.box:hover{
+  transform:translateY(-3px);
 }
 
 .box span{
@@ -25,33 +36,100 @@
 .box h2{
   font-size:28px;
   margin-top:10px;
+  font-weight:600;
 }
 
-.totale{ background:#3949ab; }
-.incassato{ background:#43a047; }
-.contanti{ background:#00897b; }
-.bonifico{ background:#1e88e5; }
-.carta{ background:#8e24aa; }
-.residuo{ background:#e53935; }
+/* ================= COLORI SEZIONI ================= */
+
+.totale{
+  background:#283593;
+}
+
+.sconti{
+  background:#6d4c41;
+}
+
+.residuo{
+  background:#c62828;
+}
+
+/* ================= SEZIONI METODI ================= */
+
+.sezione-metodo{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+/* CONTANTI */
+
+.contanti-pre{
+  background:#00695c;
+}
+
+.contanti-durante{
+  background:#00897b;
+}
+
+/* BONIFICO */
+
+.bonifico-pre{
+  background:#1565c0;
+}
+
+.bonifico-durante{
+  background:#1e88e5;
+}
+
+/* CARTA */
+
+.carta-pre{
+  background:#6a1b9a;
+}
+
+.carta-durante{
+  background:#8e24aa;
+}
+
+/* ================= PULSANTE ================= */
 
 .btn-stampa{
-  background:#222;
+  background:#111;
   color:white;
-  padding:10px 20px;
+  padding:12px 25px;
   border:none;
   border-radius:8px;
   cursor:pointer;
   margin-bottom:30px;
+  font-size:14px;
 }
+
+.btn-stampa:hover{
+  background:#000;
+}
+
+/* ================= TABELLA ================= */
 
 table{
   width:100%;
   border-collapse:collapse;
   background:white;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+th{
+  background:#f5f5f5;
+  font-weight:600;
 }
 
 th, td{
   padding:12px;
   border-bottom:1px solid #eee;
   text-align:center;
+  font-size:14px;
+}
+
+tbody tr:hover{
+  background:#fafafa;
 }
