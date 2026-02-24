@@ -210,29 +210,39 @@
     // 🔥 COLORI DINAMICI
 
     if(data.camp === "girls"){
-      card.classList.add("card-girls");
-    }
+  card.classList.add("card-girls");
+}
 
-    if(data.camp === "boys"){
+if(data.camp === "boys"){
 
-      const nome = data.nome.toLowerCase();
+  const nome = data.nome.toLowerCase();
 
-      if(nome.includes("rossa")){
-        card.classList.add("card-rossa");
-      }
-      else if(nome.includes("bianca")){
-        card.classList.add("card-bianca");
-      }
-      else if(nome.includes("azzurra")){
-        card.classList.add("card-azzurra");
-      }
-      else if(nome.includes("verde")){
-        card.classList.add("card-verde");
-      }
-      else{
-        card.classList.add("card-boys-default");
-      }
-    }
+  if(nome.includes("ross")){
+    card.classList.add("card-rossa");
+  }
+  else if(nome.includes("arancio") || nome.includes("arancione")){
+    card.classList.add("card-arancio");
+  }
+  else if(nome.includes("gial")){
+    card.classList.add("card-giallo");
+  }
+  else if(nome.includes("azzurr")){
+    card.classList.add("card-azzurro");
+  }
+  else if(nome.includes("blu")){
+    card.classList.add("card-blu");
+  }
+  else if(nome.includes("bian")){
+    card.classList.add("card-bianco");
+  }
+  else if(nome.includes("verd")){
+    card.classList.add("card-verde");
+  }
+  else{
+    card.classList.add("card-boys-default");
+  }
+
+}
 
     card.onclick = function() {
       window.location.href = "settimana.html?id=" + data.id;
