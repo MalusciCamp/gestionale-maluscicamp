@@ -132,7 +132,6 @@ function caricaSettimane(){
 
   db.collection("settimane")
    .where("camp","==",CAMP)
-  .orderBy("createdAt")
   .get()
   .then(s => {
 
