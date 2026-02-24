@@ -228,29 +228,51 @@ body {
   color:white;
 }
 
-/* BOYS COLORI */
+/* ROSSA */
 .card-rossa {
   background: linear-gradient(135deg,#e53935,#b71c1c);
   color:white;
 }
 
-.card-bianca {
+/* ARANCIO */
+.card-arancio {
+  background: linear-gradient(135deg,#fb8c00,#ef6c00);
+  color:white;
+}
+
+/* GIALLO */
+.card-giallo {
+  background: linear-gradient(135deg,#fdd835,#f9a825);
+  color:#333;
+}
+
+/* AZZURRO */
+.card-azzurro {
+  background: linear-gradient(135deg,#4fc3f7,#0288d1);
+  color:white;
+}
+
+/* BLU */
+.card-blu {
+  background: linear-gradient(135deg,#1976d2,#0d47a1);
+  color:white;
+}
+
+/* BIANCO */
+.card-bianco {
   background:#ffffff;
   color:#333;
   border:2px solid #ddd;
 }
 
-.card-azzurra {
-  background: linear-gradient(135deg,#42a5f5,#1565c0);
-  color:white;
-}
-
+/* VERDE */
 .card-verde {
   background: linear-gradient(135deg,#43a047,#1b5e20);
   color:white;
 }
 
+/* DEFAULT BOYS */
 .card-boys-default {
-  background: linear-gradient(135deg,#1976d2,#0d47a1);
+  background: linear-gradient(135deg,#455a64,#263238);
   color:white;
 }
