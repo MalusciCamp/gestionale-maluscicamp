@@ -53,9 +53,17 @@
     <h3>Pagamento Atleta</h3>
 
     <p>Totale dovuto: <strong id="totaleDovuto">0</strong> €</p>
+    <p id="riepilogoScontoIscrizione" style="display:none;">
+  Sconto iscrizione: <strong id="scontoIscrizione">0</strong> €
+</p>
     <p>Totale pagato: <strong id="totalePagato">0</strong> €</p>
     <p>Residuo: <strong id="residuoPagamento">0</strong> €</p>
 
+
+<p>
+  Sconto:
+  <input type="number" id="scontoPagamento" value="0" style="width:80px;"> €
+</p>
     <input type="number" id="importoPagamento" placeholder="Importo da registrare">
 
     <select id="metodoPagamento">
