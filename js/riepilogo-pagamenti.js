@@ -48,6 +48,7 @@ async function caricaRiepilogo(){
 
   let totaleIncassare = 0;
   let totaleIncassato = 0;
+  
 
   let contanti = 0;
   let bonifico = 0;
@@ -81,12 +82,15 @@ async function caricaRiepilogo(){
 
   let movimenti = [];
   let totaleAtleta = 0;
+  let scontoExtraAtleta = 0;
 
   pagamentiSnap.forEach(p => {
 
     const data = p.data();
     const importo = Number(data.importo || 0);
-    totaleSconti += Number(data.scontoExtra || 0);
+    const sExtra = Number(data.scontoExtra || 0);
+totaleSconti += sExtra;
+scontoExtraAtleta += sExtra;
 
     totaleAtleta += importo;
 
@@ -105,11 +109,16 @@ async function caricaRiepilogo(){
 
   // 🔥 Totale incassato globale
   totaleIncassato += totaleAtleta;
+  const scontoIniziale = Number(iscr.scontoIniziale || 0);
+const scontoTotaleAtleta = scontoIniziale + scontoExtraAtleta;
+
+const quotaNetta = Number(iscr.quota || 0) - scontoTotaleAtleta;
+const residuoAtleta = quotaNetta - totaleAtleta;
 
   // 🔹 Calcolo stato dinamico
   let stato = "da_pagare";
 
-  if(totaleAtleta >= Number(iscr.quota || 0)){
+  if(totaleAtleta >= quotaNetta && quotaNetta > 0){
     stato = "pagato";
   }else if(totaleAtleta > 0){
     stato = "parziale";
@@ -118,24 +127,27 @@ async function caricaRiepilogo(){
   // 🔹 Creazione riga tabella
   const tr = document.createElement("tr");
 
-  tr.innerHTML = `
-    <td>${atleta.cognome} ${atleta.nome}</td>
-    <td>${Number(iscr.quota || 0)} €</td>
-    <td>${totaleAtleta} €</td>
-    <td>${stato}</td>
-    <td style="text-align:left">${movimenti.join("<br>")}</td>
-  `;
-
+ tr.innerHTML = `
+  <td>${atleta.cognome} ${atleta.nome}</td>
+  <td>${Number(iscr.quota || 0)} €</td>
+  <td>${scontoTotaleAtleta} €</td>
+  <td>${totaleAtleta} €</td>
+  <td>${residuoAtleta} €</td>
+  <td>${stato}</td>
+  <td style="text-align:left">${movimenti.join("<br>")}</td>
+`;
   tbody.appendChild(tr);
 
   // 🔹 Salvataggio per PDF
-  datiReport.push({
-    atleta: atleta.cognome + " " + atleta.nome,
-    quota: Number(iscr.quota || 0),
-    pagato: totaleAtleta,
-    stato: stato,
-    movimenti: movimenti
-  });
+ datiReport.push({
+  atleta: atleta.cognome + " " + atleta.nome,
+  quota: Number(iscr.quota || 0),
+  sconti: scontoTotaleAtleta,
+  pagato: totaleAtleta,
+  residuo: residuoAtleta,
+  stato: stato,
+  movimenti: movimenti
+});
 
 }
 
@@ -145,8 +157,8 @@ async function caricaRiepilogo(){
   document.getElementById("totaleContanti").innerText = contanti + " €";
   document.getElementById("totaleBonifico").innerText = bonifico + " €";
   document.getElementById("totaleCarta").innerText = carta + " €";
-  document.getElementById("totaleResiduo").innerText =
-    (totaleIncassare - totaleIncassato) + " €";
+document.getElementById("totaleResiduo").innerText =
+  (totaleIncassare - totaleSconti - totaleIncassato) + " €";
 }
 
 // ================= PDF REPORT =================
@@ -198,13 +210,15 @@ async function stampaReportPagamenti(){
 
   let totaleIncassare = 0;
   let totaleIncassato = 0;
+  let totaleSconti = 0;
   let contanti = 0;
   let bonifico = 0;
   let carta = 0;
 
   datiReport.forEach(d=>{
     totaleIncassare += d.quota;
-    totaleIncassato += d.pagato;
+totaleSconti += d.sconti || 0;
+totaleIncassato += d.pagato;
 
     d.movimenti.forEach(m=>{
       if(m.includes("Contanti")) contanti += parseFloat(m.split("€")[1]);
@@ -213,12 +227,13 @@ async function stampaReportPagamenti(){
     });
   });
 
-  const residuo = totaleIncassare - totaleIncassato;
+  const residuo = totaleIncassare - totaleSconti - totaleIncassato;
 
   pdf.setFontSize(10);
   pdf.setFont("helvetica","bold");
 
   pdf.text("Totale da incassare: € " + totaleIncassare.toFixed(2), 15, 55);
+  pdf.text("Totale sconti: € " + totaleSconti.toFixed(2), 15, 60);
   pdf.text("Totale incassato: € " + totaleIncassato.toFixed(2), 15, 60);
   pdf.text("Contanti: € " + contanti.toFixed(2), 100, 55);
   pdf.text("Bonifico: € " + bonifico.toFixed(2), 100, 60);
@@ -234,6 +249,7 @@ async function stampaReportPagamenti(){
   pdf.setFont("helvetica","bold");
   pdf.text("Atleta", 15, y);
   pdf.text("Quota", 70, y);
+  pdf.text("Sconti", 85, y);
   pdf.text("Pagato", 90, y);
   pdf.text("Stato", 110, y);
   pdf.text("Movimenti", 130, y);
@@ -253,7 +269,8 @@ async function stampaReportPagamenti(){
 
     pdf.text(d.atleta, 15, y);
     pdf.text(d.quota + " €", 70, y);
-    pdf.text(d.pagato + " €", 90, y);
+pdf.text((d.sconti || 0) + " €", 85, y);
+pdf.text(d.pagato + " €", 105, y);
 
     // Stato colorato
     if(d.stato === "pagato"){
