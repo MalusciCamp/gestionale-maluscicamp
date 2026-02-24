@@ -29,6 +29,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 async function caricaRiepilogo(){
 
+  let totaleSconti = 0;
+
+
+
   const settimanaDoc = await db.collection("settimane")
     .doc(settimanaID)
     .get();
@@ -58,6 +62,7 @@ async function caricaRiepilogo(){
 
   // 🔹 Totale da incassare
   totaleIncassare += Number(iscr.quota || 0);
+  totaleSconti += Number(iscr.scontoIniziale || 0);
 
   // 🔹 Recupero atleta
   const atletaDoc = await db.collection("atleti")
@@ -81,6 +86,7 @@ async function caricaRiepilogo(){
 
     const data = p.data();
     const importo = Number(data.importo || 0);
+    totaleSconti += Number(data.scontoExtra || 0);
 
     totaleAtleta += importo;
 
@@ -134,6 +140,7 @@ async function caricaRiepilogo(){
 }
 
   document.getElementById("totaleIncassare").innerText = totaleIncassare + " €";
+  document.getElementById("totaleSconti").innerText = totaleSconti + " €";
   document.getElementById("totaleIncassato").innerText = totaleIncassato + " €";
   document.getElementById("totaleContanti").innerText = contanti + " €";
   document.getElementById("totaleBonifico").innerText = bonifico + " €";
