@@ -21,58 +21,35 @@
 
 <h1 id="titoloSettimana">Riepilogo Pagamenti</h1>
 
-<!-- ================= RIEPILOGO BOX ================= -->
-
 <div class="riepilogo-container">
 
   <div class="box totale">
-    <span>Totale Quote</span>
+    <span>Totale da Incassare</span>
     <h2 id="totaleIncassare">0 €</h2>
   </div>
 
-  <div class="box sconti">
-    <span>Sconti Totali</span>
-    <h2 id="totaleSconti">0 €</h2>
+  <div class="box incassato">
+    <span>Totale Incassato</span>
+    <h2 id="totaleIncassato">0 €</h2>
   </div>
 
-  <div class="sezione-metodo">
-    <div class="box contanti-pre">
-      <span>Contanti PRE Camp</span>
-      <h2 id="contantiPre">0 €</h2>
-    </div>
-
-    <div class="box contanti-durante">
-      <span>Contanti DURANTE Camp</span>
-      <h2 id="contantiDurante">0 €</h2>
-    </div>
+  <div class="box contanti">
+    <span>Contanti</span>
+    <h2 id="totaleContanti">0 €</h2>
   </div>
 
-  <div class="sezione-metodo">
-    <div class="box bonifico-pre">
-      <span>Bonifico PRE Camp</span>
-      <h2 id="bonificoPre">0 €</h2>
-    </div>
-
-    <div class="box bonifico-durante">
-      <span>Bonifico DURANTE Camp</span>
-      <h2 id="bonificoDurante">0 €</h2>
-    </div>
+  <div class="box bonifico">
+    <span>Bonifico</span>
+    <h2 id="totaleBonifico">0 €</h2>
   </div>
 
-  <div class="sezione-metodo">
-    <div class="box carta-pre">
-      <span>Carta PRE Camp</span>
-      <h2 id="cartaPre">0 €</h2>
-    </div>
-
-    <div class="box carta-durante">
-      <span>Carta DURANTE Camp</span>
-      <h2 id="cartaDurante">0 €</h2>
-    </div>
+  <div class="box carta">
+    <span>Carta</span>
+    <h2 id="totaleCarta">0 €</h2>
   </div>
 
   <div class="box residuo">
-    <span>Residuo Finale</span>
+    <span>Rimanenza</span>
     <h2 id="totaleResiduo">0 €</h2>
   </div>
 
@@ -82,8 +59,6 @@
 🖨️ Stampa Report
 </button>
 
-<!-- ================= TABELLA DETTAGLIO ================= -->
-
 <h2>Dettaglio Pagamenti</h2>
 
 <table>
@@ -91,9 +66,7 @@
 <tr>
 <th>Atleta</th>
 <th>Quota</th>
-<th>Sconti</th>
 <th>Pagato</th>
-<th>Residuo</th>
 <th>Stato</th>
 <th>Dettaglio Movimenti</th>
 </tr>
@@ -104,7 +77,6 @@
 </div>
 
 <script src="js/riepilogo-pagamenti.js"></script>
-
 <script>
 function goDashboard() {
   window.location.href = "dashboard.html";
@@ -114,6 +86,5 @@ function goBack() {
   window.history.back();
 }
 </script>
-
 </body>
 </html>
