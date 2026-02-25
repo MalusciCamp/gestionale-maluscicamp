@@ -260,7 +260,7 @@ const iscrizioniSnap = await db.collection("iscrizioni")
 if(iscrizioniSnap.empty) return;
 
 const iscrizione = iscrizioniSnap.docs[0].data();
-const quotaTotale = Number(iscrizione.quota || 0);
+let quotaTotale = Number(iscrizione.quota || 0);
 
   // 🔹 Recupero sconto da atleta
   const atletaDoc = await db.collection("atleti")
