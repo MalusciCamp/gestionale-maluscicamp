@@ -177,7 +177,6 @@ async function stampaReportPagamenti(){
     : "";
 
   const dataOggi = new Date().toLocaleDateString("it-IT");
-  const anno = new Date().getFullYear();
 
   // ================= HEADER =================
 
@@ -194,7 +193,6 @@ async function stampaReportPagamenti(){
   pdf.text("Via Montalbano N°98 - 51039 Quarrata (PT)", 55, 20);
   pdf.text("P.IVA 01963540479", 55, 24);
 
-  pdf.setDrawColor(0);
   pdf.line(15, 30, 195, 30);
 
   pdf.setFontSize(12);
@@ -208,37 +206,22 @@ async function stampaReportPagamenti(){
 
   // ================= TOTALI =================
 
-  let totaleIncassare = 0;
-  let totaleIncassato = 0;
+  let totaleQuote = 0;
   let totaleSconti = 0;
-  let contanti = 0;
-  let bonifico = 0;
-  let carta = 0;
+  let totalePagato = 0;
 
   datiReport.forEach(d=>{
-    totaleIncassare += d.quota;
-totaleSconti += d.sconti || 0;
-totaleIncassato += d.pagato;
-
-    d.movimenti.forEach(m=>{
-      if(m.includes("Contanti")) contanti += parseFloat(m.split("€")[1]);
-      if(m.includes("Bonifico")) bonifico += parseFloat(m.split("€")[1]);
-      if(m.includes("Carta")) carta += parseFloat(m.split("€")[1]);
-    });
+    totaleQuote += d.quota;
+    totaleSconti += d.sconti || 0;
+    totalePagato += d.pagato;
   });
 
-  const residuo = totaleIncassare - totaleSconti - totaleIncassato;
-
-  pdf.setFontSize(10);
   pdf.setFont("helvetica","bold");
+  pdf.setFontSize(10);
 
-  pdf.text("Totale da incassare: € " + totaleIncassare.toFixed(2), 15, 55);
-  pdf.text("Totale sconti: € " + totaleSconti.toFixed(2), 15, 60);
-  pdf.text("Totale incassato: € " + totaleIncassato.toFixed(2), 15, 60);
-  pdf.text("Contanti: € " + contanti.toFixed(2), 100, 55);
-  pdf.text("Bonifico: € " + bonifico.toFixed(2), 100, 60);
-  pdf.text("Carta: € " + carta.toFixed(2), 100, 65);
-  pdf.text("Rimanenza: € " + residuo.toFixed(2), 15, 65);
+  pdf.text("Totale Quote: € " + totaleQuote.toFixed(2), 15, 55);
+  pdf.text("Totale Sconti: € " + totaleSconti.toFixed(2), 15, 60);
+  pdf.text("Totale Incassato: € " + totalePagato.toFixed(2), 15, 65);
 
   pdf.line(15, 70, 195, 70);
 
@@ -248,17 +231,17 @@ totaleIncassato += d.pagato;
 
   pdf.setFont("helvetica","bold");
   pdf.text("Atleta", 15, y);
-  pdf.text("Quota", 70, y);
-  pdf.text("Sconti", 85, y);
-  pdf.text("Pagato", 90, y);
-  pdf.text("Stato", 110, y);
-  pdf.text("Movimenti", 130, y);
+  pdf.text("Quota", 80, y);
+  pdf.text("Sconti", 100, y);
+  pdf.text("Pagato", 120, y);
+  pdf.text("Movimenti", 140, y);
 
   y += 5;
   pdf.line(15, y, 195, y);
-  y += 5;
+  y += 6;
 
   pdf.setFont("helvetica","normal");
+  pdf.setFontSize(9);
 
   for(const d of datiReport){
 
@@ -267,27 +250,18 @@ totaleIncassato += d.pagato;
       y = 20;
     }
 
+    pdf.setFont("helvetica","bold");
     pdf.text(d.atleta, 15, y);
-    pdf.text(d.quota + " €", 70, y);
-pdf.text((d.sconti || 0) + " €", 85, y);
-pdf.text(d.pagato + " €", 105, y);
 
-    // Stato colorato
-    if(d.stato === "pagato"){
-      pdf.setTextColor(0,150,0);
-    } else if(d.stato === "parziale"){
-      pdf.setTextColor(255,140,0);
-    } else {
-      pdf.setTextColor(200,0,0);
-    }
-
-    pdf.text(d.stato, 110, y);
-    pdf.setTextColor(0,0,0);
+    pdf.setFont("helvetica","normal");
+    pdf.text(d.quota + " €", 80, y);
+    pdf.text((d.sconti || 0) + " €", 100, y);
+    pdf.text(d.pagato + " €", 120, y);
 
     let movY = y;
 
     d.movimenti.forEach(m=>{
-      pdf.text(m, 130, movY);
+      pdf.text("- " + m, 140, movY);
       movY += 4;
     });
 
