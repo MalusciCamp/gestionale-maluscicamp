@@ -250,15 +250,17 @@ async function apriPagamento(atletaId){
 
   atletaPagamentoInCorso = atletaId;
 
-  const iscrizioniSnap = await db.collection("iscrizioni")
-    .where("atletaId","==", atletaId)
-    .where("settimanaId","==", settimanaID)
-    .get();
+  // ================= RECUPERO ISCRIZIONE =================
 
-  if(iscrizioniSnap.empty) return;
+const iscrizioniSnap = await db.collection("iscrizioni")
+  .where("atletaId","==", atletaId)
+  .where("settimanaId","==", settimanaID)
+  .get();
 
-  const iscrizione = iscrizioniSnap.docs[0].data();
-  const quota = Number(iscrizione.quota || 0);
+if(iscrizioniSnap.empty) return;
+
+const iscrizione = iscrizioniSnap.docs[0].data();
+const quotaTotale = Number(iscrizione.quota || 0);
 
   // 🔹 Recupero sconto da atleta
   const atletaDoc = await db.collection("atleti")
@@ -498,7 +500,7 @@ async function stampaRicevutaDiretta(atletaId){
   let y = 48;
 
   pdf.text(
-    `Ha versato la somma di € ${quotaNetta.toFixed(2)} a titolo di partecipazione`,
+    `Ha versato la somma di € ${quotaTotale.toFixed(2)} a titolo di partecipazione`,
     15,
     y
   );
