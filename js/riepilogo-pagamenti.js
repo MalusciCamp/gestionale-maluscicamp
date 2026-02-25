@@ -63,7 +63,6 @@ async function caricaRiepilogo(){
 
   // 🔹 Totale da incassare
   totaleIncassare += Number(iscr.quota || 0);
-  totaleSconti += Number(iscr.sconto || 0);
 
   // 🔹 Recupero atleta
   const atletaDoc = await db.collection("atleti")
