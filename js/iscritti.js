@@ -250,14 +250,17 @@ async function apriPagamento(atletaId){
 
   atletaPagamentoInCorso = atletaId;
 
-  // ================= RECUPERO ISCRIZIONE =================
+ // ================= RECUPERO ISCRIZIONE =================
 
 const iscrizioniSnap = await db.collection("iscrizioni")
   .where("atletaId","==", atletaId)
   .where("settimanaId","==", settimanaID)
   .get();
 
-if(iscrizioniSnap.empty) return;
+if(iscrizioniSnap.empty){
+  alert("Iscrizione non trovata");
+  return;
+}
 
 const iscrizione = iscrizioniSnap.docs[0].data();
 let quotaTotale = Number(iscrizione.quota || 0);
@@ -421,6 +424,20 @@ async function stampaRicevutaDiretta(atletaId){
   if(!atletaDoc.exists) return;
 
   const atleta = atletaDoc.data();
+  // ================= RECUPERO ISCRIZIONE =================
+
+const iscrizioniSnap = await db.collection("iscrizioni")
+  .where("atletaId","==", atletaId)
+  .where("settimanaId","==", settimanaID)
+  .get();
+
+if(iscrizioniSnap.empty){
+  alert("Iscrizione non trovata");
+  return;
+}
+
+const iscrizione = iscrizioniSnap.docs[0].data();
+let quotaTotale = Number(iscrizione.quota || 0);
 
   // ================= PERIODO SETTIMANA =================
 
