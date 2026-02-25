@@ -498,7 +498,7 @@ async function stampaRicevutaDiretta(atletaId){
   let y = 48;
 
   pdf.text(
-    `Ha versato la somma di € ${totalePagato.toFixed(2)} a titolo di partecipazione`,
+    `Ha versato la somma di € ${quotaNetta.toFixed(2)} a titolo di partecipazione`,
     15,
     y
   );
