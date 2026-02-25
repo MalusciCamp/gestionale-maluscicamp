@@ -1,3 +1,5 @@
+let filtroDataAttivo = null;
+
 // ================= FIREBASE =================
 
 const firebaseConfig = {
@@ -171,6 +173,29 @@ document.getElementById("totaleResiduo").innerText =
 
 async function stampaReportPagamenti(){
 
+  let pagamentiSnap;
+
+if(filtroDataAttivo){
+
+  const inizio = new Date(filtroDataAttivo);
+  inizio.setHours(0,0,0,0);
+
+  const fine = new Date(filtroDataAttivo);
+  fine.setHours(23,59,59,999);
+
+  pagamentiSnap = await db.collection("pagamenti")
+    .where("settimanaId","==", settimanaID)
+    .where("data", ">=", inizio)
+    .where("data", "<=", fine)
+    .get();
+
+}else{
+
+  pagamentiSnap = await db.collection("pagamenti")
+    .where("settimanaId","==", settimanaID)
+    .get();
+}
+
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p","mm","a4");
 
@@ -311,4 +336,52 @@ async function stampaReportPagamenti(){
 function formattaData(d){
   if(!d) return "";
   return new Date(d).toLocaleDateString("it-IT");
+}
+
+async function filtraPerData(){
+
+  const dataInput = document.getElementById("filtroData").value;
+  if(!dataInput) return;
+
+  filtroDataAttivo = dataInput;
+
+  const inizio = new Date(dataInput);
+  inizio.setHours(0,0,0,0);
+
+  const fine = new Date(dataInput);
+  fine.setHours(23,59,59,999);
+
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("settimanaId","==", settimanaID)
+    .where("data", ">=", inizio)
+    .where("data", "<=", fine)
+    .get();
+
+  let totale = 0;
+  let contanti = 0;
+  let bonifico = 0;
+  let carta = 0;
+
+  pagamentiSnap.forEach(doc => {
+
+    const p = doc.data();
+    const importo = Number(p.importo || 0);
+
+    totale += importo;
+
+    if(p.metodo === "Contanti") contanti += importo;
+    if(p.metodo === "Bonifico") bonifico += importo;
+    if(p.metodo === "Carta") carta += importo;
+  });
+
+  document.getElementById("totaleIncassato").innerText = totale + " €";
+  document.getElementById("totaleContanti").innerText = contanti + " €";
+  document.getElementById("totaleBonifico").innerText = bonifico + " €";
+  document.getElementById("totaleCarta").innerText = carta + " €";
+}
+
+function resetFiltro(){
+  filtroDataAttivo = null;
+  document.getElementById("filtroData").value = "";
+  caricaRiepilogo();
 }
