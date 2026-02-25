@@ -163,6 +163,8 @@ document.getElementById("totaleResiduo").innerText =
 
 // ================= PDF REPORT =================
 
+// ================= PDF REPORT =================
+
 async function stampaReportPagamenti(){
 
   const { jsPDF } = window.jspdf;
@@ -209,12 +211,23 @@ async function stampaReportPagamenti(){
   let totaleQuote = 0;
   let totaleSconti = 0;
   let totalePagato = 0;
+  let contanti = 0;
+  let bonifico = 0;
+  let carta = 0;
 
   datiReport.forEach(d=>{
     totaleQuote += d.quota;
     totaleSconti += d.sconti || 0;
     totalePagato += d.pagato;
+
+    d.movimenti.forEach(m=>{
+      if(m.includes("Contanti")) contanti += parseFloat(m.split("€")[1]);
+      if(m.includes("Bonifico")) bonifico += parseFloat(m.split("€")[1]);
+      if(m.includes("Carta")) carta += parseFloat(m.split("€")[1]);
+    });
   });
+
+  const residuo = totaleQuote - totaleSconti - totalePagato;
 
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(10);
@@ -222,12 +235,17 @@ async function stampaReportPagamenti(){
   pdf.text("Totale Quote: € " + totaleQuote.toFixed(2), 15, 55);
   pdf.text("Totale Sconti: € " + totaleSconti.toFixed(2), 15, 60);
   pdf.text("Totale Incassato: € " + totalePagato.toFixed(2), 15, 65);
+  pdf.text("Residuo: € " + residuo.toFixed(2), 15, 70);
 
-  pdf.line(15, 70, 195, 70);
+  pdf.text("Contanti: € " + contanti.toFixed(2), 100, 55);
+  pdf.text("Bonifico: € " + bonifico.toFixed(2), 100, 60);
+  pdf.text("Carta: € " + carta.toFixed(2), 100, 65);
+
+  pdf.line(15, 75, 195, 75);
 
   // ================= TABELLA =================
 
-  let y = 78;
+  let y = 83;
 
   pdf.setFont("helvetica","bold");
   pdf.text("Atleta", 15, y);
