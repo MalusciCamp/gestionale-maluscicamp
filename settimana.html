@@ -38,10 +38,11 @@
 </div>
 
     <!-- 3️⃣ GRUPPI -->
-    <div class="settimana-card gruppi">
-      <i class="fa-solid fa-layer-group"></i>
-      <h2>Gruppi</h2>
-    </div>
+    <!-- 3️⃣ COMPOSIZIONE GRUPPI -->
+<div class="settimana-card gruppi" onclick="apriGruppi()">
+  <i class="fa-solid fa-people-group"></i>
+  <h2>Composizione Gruppi</h2>
+</div>
 
     <!-- 4️⃣ RIEPILOGO KIT -->
     <div class="settimana-card kit" onclick="apriRiepilogoKit()">
@@ -125,6 +126,9 @@ function apriCamere(){
   window.location.href = "composizione-camere.html?id=" + settimanaID;
 }
 
+function apriGruppi(){
+  window.location.href = `gruppi.html?id=${settimanaID}`;
+}
 </script>
 </body>
 </html>
