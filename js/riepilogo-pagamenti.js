@@ -173,6 +173,7 @@ document.getElementById("totaleResiduo").innerText =
 
 async function stampaReportPagamenti(){
 
+  datiReport = [];
   let pagamentiSnap;
 
 if(filtroDataAttivo){
@@ -357,12 +358,15 @@ async function filtraPerData(){
     .where("data", "<=", fine)
     .get();
 
+  const tbody = document.getElementById("tabellaPagamenti");
+  tbody.innerHTML = "";   // 🔥 SVUOTA TABELLA
+
   let totale = 0;
   let contanti = 0;
   let bonifico = 0;
   let carta = 0;
 
-  pagamentiSnap.forEach(doc => {
+  for(const doc of pagamentiSnap.docs){
 
     const p = doc.data();
     const importo = Number(p.importo || 0);
@@ -372,8 +376,30 @@ async function filtraPerData(){
     if(p.metodo === "Contanti") contanti += importo;
     if(p.metodo === "Bonifico") bonifico += importo;
     if(p.metodo === "Carta") carta += importo;
-  });
 
+    // 🔹 Recupero atleta
+    const atletaDoc = await db.collection("atleti")
+      .doc(p.atletaId)
+      .get();
+
+    const atleta = atletaDoc.data();
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${atleta.cognome} ${atleta.nome}</td>
+      <td>-</td>
+      <td>${p.scontoExtra || 0} €</td>
+      <td>${importo} €</td>
+      <td>-</td>
+      <td>pagamento</td>
+      <td>${formattaData(p.data?.toDate())} - €${importo} ${p.metodo}</td>
+    `;
+
+    tbody.appendChild(tr);
+  }
+
+  // 🔹 Aggiorno box
   document.getElementById("totaleIncassato").innerText = totale + " €";
   document.getElementById("totaleContanti").innerText = contanti + " €";
   document.getElementById("totaleBonifico").innerText = bonifico + " €";
