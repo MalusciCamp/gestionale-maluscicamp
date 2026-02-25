@@ -63,7 +63,7 @@ async function caricaRiepilogo(){
 
   // 🔹 Totale da incassare
   totaleIncassare += Number(iscr.quota || 0);
-  totaleSconti += Number(iscr.scontoIniziale || 0);
+  totaleSconti += Number(iscr.sconto || 0);
 
   // 🔹 Recupero atleta
   const atletaDoc = await db.collection("atleti")
@@ -139,16 +139,14 @@ const residuoAtleta = quotaNetta - totaleAtleta;
   tbody.appendChild(tr);
 
   // 🔹 Salvataggio per PDF
- datiReport.push({
+datiReport.push({
   atleta: atleta.cognome + " " + atleta.nome,
   quota: Number(iscr.quota || 0),
-  sconti: scontoTotaleAtleta,
+  sconti: Number(iscr.sconto || 0) + scontoExtraTotale,
   pagato: totaleAtleta,
-  residuo: residuoAtleta,
   stato: stato,
   movimenti: movimenti
 });
-
 }
 
   document.getElementById("totaleIncassare").innerText = totaleIncassare + " €";
