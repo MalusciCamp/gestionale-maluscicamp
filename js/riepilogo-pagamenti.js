@@ -228,8 +228,17 @@ if(filtroDataAttivo){
   pdf.line(15, 30, 195, 30);
 
   pdf.setFontSize(12);
-  pdf.setFont("helvetica","bold");
-  pdf.text("RIEPILOGO PAGAMENTI", 15, 38);
+pdf.setFont("helvetica","bold");
+
+let titoloReport = "RIEPILOGO PAGAMENTI";
+
+if(filtroDataAttivo){
+  const dataFormattata = new Date(filtroDataAttivo)
+    .toLocaleDateString("it-IT");
+  titoloReport = `RIEPILOGO PAGAMENTI GIORNO ${dataFormattata}`;
+}
+
+pdf.text(titoloReport, 15, 38);
 
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(10);
