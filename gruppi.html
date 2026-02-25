@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Composizione Gruppi</title>
+
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/composizione-gruppi.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<div class="page-container">
+
+  <!-- HEADER PAGINA -->
+  <div class="page-header">
+    <h1 id="titoloPagina">
+      <i class="fa-solid fa-people-group"></i>
+      Composizione Gruppi
+    </h1>
+
+    <div class="header-buttons">
+      <button class="btn-salva" onclick="salvaComposizioneGruppi()">
+        <i class="fa-solid fa-floppy-disk"></i> Salva
+      </button>
+
+      <button class="btn-stampa" onclick="stampaGruppi()">
+        <i class="fa-solid fa-print"></i> Stampa
+      </button>
+    </div>
+  </div>
+
+  <!-- CREA GRUPPO -->
+  <div class="crea-camera-section">
+    <div class="crea-inputs">
+      <input type="text" id="nomeGruppo" placeholder="Nome gruppo">
+      <button class="btn-crea" onclick="creaGruppo()">
+        <i class="fa-solid fa-plus"></i> Crea
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <div class="layout-camere">
+
+    <!-- LISTA ISCRITTI -->
+    <div class="colonna atlete">
+      <h3><i class="fa-solid fa-users"></i> Iscritti disponibili</h3>
+      <ul id="listaIscritti" class="lista-atlete"></ul>
+    </div>
+
+    <!-- GRUPPI -->
+    <div class="colonna camere">
+      <h3><i class="fa-solid fa-people-group"></i> Gruppi</h3>
+
+      <!-- 🔥 CONTENITORE DINAMICO BOX GRUPPI -->
+      <div id="gruppiContainer" class="camere-grid"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="js/composizione-gruppi.js"></script>
+
+<script>
+  fetch("components/header.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("header").innerHTML = data;
+    });
+
+  function goDashboard() {
+    window.location.href = "dashboard.html";
+  }
+
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+</body>
+</html>
