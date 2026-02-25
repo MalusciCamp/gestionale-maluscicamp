@@ -95,14 +95,18 @@ const pagamentiSnap = await db.collection("pagamenti")
   .get();
 
 let pagato = 0;
+let scontoExtraTotale = 0;
+
 pagamentiSnap.forEach(p=>{
-  pagato += Number(p.data().importo || 0);
+  const data = p.data();
+  pagato += Number(data.importo || 0);
+  scontoExtraTotale += Number(data.scontoExtra || 0);
 });
 
 const quota = Number(iscrizione.quota || 0);
 const scontoIscrizione = Number(atleta.pagamento?.sconto || 0);
 
-const quotaNetta = quota - scontoIscrizione;
+const quotaNetta = quota - scontoIscrizione - scontoExtraTotale;
 
 let stato = "da_pagare";
 
@@ -270,10 +274,14 @@ async function apriPagamento(atletaId){
     .where("settimanaId","==", settimanaID)
     .get();
 
-  let pagato = 0;
-  pagamentiSnap.forEach(p=>{
-    pagato += Number(p.data().importo || 0);
-  });
+ let pagato = 0;
+let scontoExtraTotale = 0;
+
+pagamentiSnap.forEach(p=>{
+  const data = p.data();
+  pagato += Number(data.importo || 0);
+  scontoExtraTotale += Number(data.scontoExtra || 0);
+});
 
   // 🔹 Aggiorno campi
   document.getElementById("totaleDovuto").innerText = quota;
@@ -288,7 +296,7 @@ async function apriPagamento(atletaId){
   }
 
   // 🔥 RESIDUO CORRETTO
-  const residuo = quota - scontoIscrizione - pagato;
+  const residuo = quota - scontoIscrizione - scontoExtraTotale - pagato;
   document.getElementById("residuoPagamento").innerText = residuo;
 
   // reset campi
@@ -355,7 +363,8 @@ async function stampaRicevutaDiretta(atletaId){
 
   const anno = new Date().getFullYear();
 
-  // 🔹 Recupero pagamenti della settimana
+  // ================= RECUPERO PAGAMENTI =================
+
   const pagamentiSnap = await db.collection("pagamenti")
     .where("atletaId","==", atletaId)
     .where("settimanaId","==", settimanaID)
@@ -376,7 +385,8 @@ async function stampaRicevutaDiretta(atletaId){
     }
   });
 
-  // 🔥 SE NON ESISTE → ASSEGNA PROGRESSIVO
+  // ================= ASSEGNA NUMERO SE NON ESISTE =================
+
   if(!numeroRicevuta){
 
     const configRef = db.collection("config").doc("contatori");
@@ -390,19 +400,18 @@ async function stampaRicevutaDiretta(atletaId){
 
     numeroRicevuta = progressivo;
 
-    // aggiorna contatore globale
     await configRef.set({
       numeroRicevute: progressivo + 1
     }, { merge:true });
 
-    // salva numero nel PRIMO pagamento
     const primoPagamento = pagamentiSnap.docs[0];
     await primoPagamento.ref.update({
       numeroRicevuta: numeroRicevuta
     });
   }
 
-  // 🔹 Recupero atleta
+  // ================= RECUPERO DATI ATLETA =================
+
   const atletaDoc = await db.collection("atleti")
     .doc(atletaId)
     .get();
@@ -411,7 +420,8 @@ async function stampaRicevutaDiretta(atletaId){
 
   const atleta = atletaDoc.data();
 
-  // 🔹 Recupero periodo settimana
+  // ================= PERIODO SETTIMANA =================
+
   let periodoTesto = "";
 
   const settimanaDoc = await db.collection("settimane")
@@ -420,13 +430,34 @@ async function stampaRicevutaDiretta(atletaId){
 
   if(settimanaDoc.exists){
     const settimana = settimanaDoc.data();
-    if(settimana.dal && settimana.al){
+
+    const dal = settimana.dal?.toDate
+      ? settimana.dal.toDate()
+      : settimana.dal;
+
+    const al = settimana.al?.toDate
+      ? settimana.al.toDate()
+      : settimana.al;
+
+    if(dal && al){
       periodoTesto =
-        `${formattaData(settimana.dal)} - ${formattaData(settimana.al)}`;
+        `${formattaData(dal)} - ${formattaData(al)}`;
     }
   }
 
+  // ================= DATA NASCITA CORRETTA =================
+
+  const dataNascita = atleta.dataNascita?.toDate
+    ? atleta.dataNascita.toDate()
+    : atleta.dataNascita;
+
+  const dataNascitaFormattata = dataNascita
+    ? formattaData(dataNascita)
+    : "__________";
+
   const dataOggi = new Date().toLocaleDateString("it-IT");
+
+  // ================= CREAZIONE PDF =================
 
   const { jsPDF } = window.jspdf;
 
@@ -436,12 +467,14 @@ async function stampaRicevutaDiretta(atletaId){
     format: "a5"
   });
 
-  // 🔹 LOGO
+  // ================= LOGO =================
+
   try{
     pdf.addImage("img/logo.png", "PNG", 10, 8, 35, 12);
   }catch(e){}
 
-  // 🔹 INTESTAZIONE
+  // ================= INTESTAZIONE =================
+
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "bold");
   pdf.text("A.S.D. MALUSCI CAMP", 55, 12);
@@ -480,25 +513,44 @@ async function stampaRicevutaDiretta(atletaId){
   y += 6;
   pdf.text(`Periodo: ${periodoTesto}`, 15, y);
 
+  // ================= DATI ATLETA =================
+
   y += 10;
-  pdf.text(`Atleta: ${atleta.cognome || ""} ${atleta.nome || ""}`, 15, y);
-
-  y += 6;
   pdf.text(
-    `Nato/a a ${atleta.luogoNascita || "________"} il ${formattaData(atleta.dataNascita) || "________"}`,
+    `Atleta: ${atleta.cognome || ""} ${atleta.nome || ""}`,
     15,
     y
   );
 
   y += 6;
   pdf.text(
-    `Residente in ${atleta.indirizzo || "______________________________"}`,
+    `C.F. ________________________________________________`,
     15,
     y
   );
+
+  y += 6;
+  pdf.text(
+    `Nato/a a ${atleta.luogoNascita || "__________"} il ${dataNascitaFormattata}`,
+    15,
+    y
+  );
+
+  y += 6;
+  pdf.text(
+    `Residente in ${atleta.indirizzo || "__________________________________________"}`,
+    15,
+    y
+  );
+
+  // ================= FIRMA =================
 
   y += 12;
-  pdf.text(`Luogo ____________________    Data ${dataOggi}`, 15, y);
+  pdf.text(
+    `Luogo ____________________    Data ${dataOggi}`,
+    15,
+    y
+  );
 
   pdf.rect(120, 85, 65, 35);
   pdf.setFontSize(8);
@@ -508,12 +560,14 @@ async function stampaRicevutaDiretta(atletaId){
   pdf.save(`Ricevuta_${numeroRicevuta}_${atleta.cognome}.pdf`);
 }
 
-function formattaData(dataISO){
-  if(!dataISO) return "";
-  const d = new Date(dataISO);
+
+// ================= FORMATTA DATA SICURA =================
+
+function formattaData(data){
+  if(!data) return "";
+  const d = new Date(data);
   return d.toLocaleDateString("it-IT");
 }
-
 function apriPopupAggiungi(){
 
   const popup = document.getElementById("popupAggiungi");
@@ -689,13 +743,6 @@ document.getElementById("scontoPagamento")
     const scontoExtra = Number(this.value) || 0;
     const pagato = Number(totalePagato.innerText) || 0;
 
- document.getElementById("scontoPagamento")
-  ?.addEventListener("input", function(){
-
-    const quota = Number(totaleDovuto.innerText) || 0;
-    const scontoIscrizione = Number(document.getElementById("scontoIscrizione")?.innerText) || 0;
-    const scontoExtra = Number(this.value) || 0;
-    const pagato = Number(totalePagato.innerText) || 0;
 
     const totaleNetto = quota - scontoIscrizione - scontoExtra;
 
@@ -703,7 +750,6 @@ document.getElementById("scontoPagamento")
 
   });
 
-  });
 
 // Rendi le funzioni globali
 window.stampaRicevutaDiretta = stampaRicevutaDiretta;
