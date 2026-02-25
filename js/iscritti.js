@@ -289,7 +289,7 @@ pagamentiSnap.forEach(p=>{
 });
 
   // 🔹 Aggiorno campi
-  document.getElementById("totaleDovuto").innerText = quota;
+  document.getElementById("totaleDovuto").innerText = quotaTotale;
   document.getElementById("totalePagato").innerText = pagato;
 
   // 🔹 Mostra sconto
@@ -301,7 +301,7 @@ pagamentiSnap.forEach(p=>{
   }
 
   // 🔥 RESIDUO CORRETTO
-  const residuo = quota - scontoIscrizione - scontoExtraTotale - pagato;
+ const residuo = quotaTotale - scontoIscrizione - scontoExtraTotale - pagato;
   document.getElementById("residuoPagamento").innerText = residuo;
 
   // reset campi
