@@ -74,60 +74,67 @@ async function caricaRiepilogo(){
 
   const atleta = atletaDoc.data();
 
-  // 🔹 Recupero pagamenti REALI
-  const pagamentiSnap = await db.collection("pagamenti")
-    .where("atletaId","==", iscr.atletaId)
-    .where("settimanaId","==", settimanaID)
-    .get();
+ // 🔹 Recupero pagamenti REALI
+const pagamentiSnap = await db.collection("pagamenti")
+  .where("atletaId","==", iscr.atletaId)
+  .where("settimanaId","==", settimanaID)
+  .get();
 
-  let movimenti = [];
-  let totaleAtleta = 0;
-  let scontoExtraAtleta = 0;
+let movimenti = [];
+let totaleAtleta = 0;
+let scontoExtraAtleta = 0;
 
-  pagamentiSnap.forEach(p => {
+pagamentiSnap.forEach(p => {
 
-    const data = p.data();
-    const importo = Number(data.importo || 0);
-    const sExtra = Number(data.scontoExtra || 0);
-totaleSconti += sExtra;
-scontoExtraAtleta += sExtra;
+  const data = p.data();
+  const importo = Number(data.importo || 0);
+  const sExtra = Number(data.scontoExtra || 0);
 
-    totaleAtleta += importo;
+  totaleAtleta += importo;
+  scontoExtraAtleta += sExtra;
 
-    // Totali globali per metodo
-    if(data.metodo === "Contanti") contanti += importo;
-    if(data.metodo === "Bonifico") bonifico += importo;
-    if(data.metodo === "Carta") carta += importo;
+  // Totali globali per metodo
+  if(data.metodo === "Contanti") contanti += importo;
+  if(data.metodo === "Bonifico") bonifico += importo;
+  if(data.metodo === "Carta") carta += importo;
 
-    movimenti.push(
-      formattaData(data.data?.toDate()) +
-      " - €" + importo +
-      " " + data.metodo
-    );
+  movimenti.push(
+    formattaData(data.data?.toDate()) +
+    " - €" + importo +
+    " " + data.metodo +
+    (sExtra > 0 ? " (Sconto €" + sExtra + ")" : "")
+  );
 
-  });
+});
 
-  // 🔥 Totale incassato globale
-  totaleIncassato += totaleAtleta;
-  const scontoIniziale = Number(iscr.scontoIniziale || 0);
+// 🔥 CORRETTO: campo giusto
+const scontoIniziale = Number(iscr.sconto || 0);
+
+// 🔥 Calcolo totale sconti atleta
 const scontoTotaleAtleta = scontoIniziale + scontoExtraAtleta;
+
+// 🔥 Aggiorno totale generale sconti UNA SOLA VOLTA
+totaleSconti += scontoTotaleAtleta;
 
 const quotaNetta = Number(iscr.quota || 0) - scontoTotaleAtleta;
 const residuoAtleta = quotaNetta - totaleAtleta;
 
-  // 🔹 Calcolo stato dinamico
-  let stato = "da_pagare";
+// 🔹 Totale incassato globale
+totaleIncassato += totaleAtleta;
 
-  if(totaleAtleta >= quotaNetta && quotaNetta > 0){
-    stato = "pagato";
-  }else if(totaleAtleta > 0){
-    stato = "parziale";
-  }
+// 🔹 Calcolo stato dinamico
+let stato = "da_pagare";
 
-  // 🔹 Creazione riga tabella
-  const tr = document.createElement("tr");
+if(totaleAtleta >= quotaNetta && quotaNetta > 0){
+  stato = "pagato";
+}else if(totaleAtleta > 0){
+  stato = "parziale";
+}
 
- tr.innerHTML = `
+// 🔹 Creazione riga tabella
+const tr = document.createElement("tr");
+
+tr.innerHTML = `
   <td>${atleta.cognome} ${atleta.nome}</td>
   <td>${Number(iscr.quota || 0)} €</td>
   <td>${scontoTotaleAtleta} €</td>
@@ -136,15 +143,15 @@ const residuoAtleta = quotaNetta - totaleAtleta;
   <td>${stato}</td>
   <td style="text-align:left">${movimenti.join("<br>")}</td>
 `;
-  tbody.appendChild(tr);
 
-  // 🔹 Salvataggio per PDF
+tbody.appendChild(tr);
+
+// 🔹 Salvataggio per PDF
 datiReport.push({
   atleta: atleta.cognome + " " + atleta.nome,
   quota: Number(iscr.quota || 0),
-  sconti: Number(iscr.sconto || 0) + scontoExtraAtleta,
+  sconti: scontoTotaleAtleta,
   pagato: totaleAtleta,
-  stato: stato,
   movimenti: movimenti
 });
 }
