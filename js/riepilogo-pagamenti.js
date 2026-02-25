@@ -142,7 +142,7 @@ const residuoAtleta = quotaNetta - totaleAtleta;
 datiReport.push({
   atleta: atleta.cognome + " " + atleta.nome,
   quota: Number(iscr.quota || 0),
-  sconti: Number(iscr.sconto || 0) + scontoExtraTotale,
+  sconti: Number(iscr.sconto || 0) + scontoExtraAtleta,
   pagato: totaleAtleta,
   stato: stato,
   movimenti: movimenti
