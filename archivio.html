@@ -48,7 +48,73 @@ h1{
   padding:20px;
   box-shadow:0 10px 30px rgba(0,0,0,0.25);
 }
+/* ===== TOPBAR ARCHIVIO ===== */
 
+.archivio-topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+/* FILTRI CAMP */
+
+.archivio-filtro button{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#198754;
+  color:white;
+  font-size:13px;
+  transition:0.2s;
+}
+
+.archivio-filtro button:hover{
+  background:#157347;
+}
+
+/* ===== RICERCA ===== */
+
+.archivio-ricerca{
+  position:relative;
+  width:260px;
+}
+
+.archivio-ricerca input{
+  width:100%;
+  padding:7px 10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
+.risultati-ricerca{
+  position:absolute;
+  top:38px;
+  left:0;
+  width:100%;
+  background:white;
+  border-radius:6px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  max-height:250px;
+  overflow-y:auto;
+  display:none;
+  z-index:1000;
+}
+
+.riga-risultato-archivio{
+  padding:8px;
+  cursor:pointer;
+  font-size:14px;
+  border-bottom:1px solid #f1f1f1;
+}
+
+.riga-risultato-archivio:hover{
+  background:#e3f2fd;
+}
 /* ===== TABELLA ===== */
 
 /* ===== TABELLA ===== */
@@ -193,7 +259,27 @@ h1{
 
 <div class="archivio-wrapper">
 
-<table class="archivio-table">
+  <!-- ===== HEADER SOPRA TABELLA ===== -->
+  <div class="archivio-topbar">
+
+    <div class="archivio-filtro">
+      <button onclick="filtroCamp('girls')">GIRL CAMP</button>
+      <button onclick="filtroCamp('boys')">BOY CAMP</button>
+    </div>
+
+    <div class="archivio-ricerca">
+      <input 
+        type="text" 
+        id="inputRicercaArchivio" 
+        placeholder="Cerca per cognome..."
+        oninput="cercaArchivio()"
+      >
+      <div id="risultatiRicercaArchivio" class="risultati-ricerca"></div>
+    </div>
+
+  </div>
+
+  <table class="archivio-table">
 
 <thead>
 <tr>
