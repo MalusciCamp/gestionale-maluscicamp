@@ -53,6 +53,7 @@ fetch("components/header.html")
 .then(h=>document.getElementById("header").innerHTML=h);
 </script>
 
+<!-- ===== POPUP MAIL ===== -->
 <div id="popupMail" class="popup-mail">
 
   <div class="popup-content">
@@ -69,65 +70,69 @@ fetch("components/header.html")
 
   </div>
 
-  <div id="popupReport" class="popup-report">
+</div>
+
+
+<!-- ===== POPUP REPORT ===== -->
+<div id="popupReport" class="popup-report">
 
   <div class="popup-report-content">
 
     <h2>Genera Report Personalizzato</h2>
 
-   <div class="campi-grid">
+    <div class="campi-grid">
 
-  <label class="campo-item">
-    <input type="checkbox" value="cognome" checked>
-    <span>Cognome</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="cognome" checked>
+        <span>Cognome</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="nome" checked>
-    <span>Nome</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="nome" checked>
+        <span>Nome</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="classe">
-    <span>Classe</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="classe">
+        <span>Classe</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="ruolo">
-    <span>Ruolo</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="ruolo">
+        <span>Ruolo</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="dataNascita">
-    <span>Data Nascita</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="dataNascita">
+        <span>Data Nascita</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="luogoNascita">
-    <span>Luogo Nascita</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="luogoNascita">
+        <span>Luogo Nascita</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="indirizzo">
-    <span>Indirizzo</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="indirizzo">
+        <span>Indirizzo</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="telefono">
-    <span>Telefono</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="telefono">
+        <span>Telefono</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="email">
-    <span>Email</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="email">
+        <span>Email</span>
+      </label>
 
-  <label class="campo-item">
-    <input type="checkbox" value="certMedico">
-    <span>Cert. Medico</span>
-  </label>
+      <label class="campo-item">
+        <input type="checkbox" value="certMedico">
+        <span>Cert. Medico</span>
+      </label>
 
-</div>
+    </div>
 
     <button onclick="generaReport()">Genera PDF</button>
     <button onclick="chiudiReport()">Annulla</button>
