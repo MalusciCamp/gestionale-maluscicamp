@@ -319,3 +319,116 @@ async function salvaComposizioneGruppi() {
 
   alert("Composizione gruppi salvata!");
 }
+
+async function stampaGruppi(){
+
+  if(!gruppi || gruppi.length === 0){
+    alert("Nessun gruppo da stampare");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  // ================= HEADER UFFICIALE =================
+
+  try{
+    pdf.addImage("img/logo.png", "PNG", 15, 10, 30, 12);
+  }catch(e){}
+
+  pdf.setFont("helvetica","bold");
+  pdf.setFontSize(14);
+  pdf.text("A.S.D. MALUSCI CAMP", 55, 15);
+
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(9);
+  pdf.text("Via Montalbano N°98 - 51039 Quarrata (PT)", 55, 20);
+  pdf.text("P.IVA 01963540479", 55, 24);
+
+  pdf.line(15, 30, 195, 30);
+
+  // ================= DATI SETTIMANA =================
+
+  const settimanaDoc = await db.collection("settimane")
+    .doc(settimanaID)
+    .get();
+
+  let nomeSettimana = "";
+  let periodo = "";
+
+  if(settimanaDoc.exists){
+    const data = settimanaDoc.data();
+    nomeSettimana = data.nome || "";
+
+    if(data.dal && data.al){
+
+      const dal = data.dal?.toDate
+        ? data.dal.toDate()
+        : new Date(data.dal);
+
+      const al = data.al?.toDate
+        ? data.al.toDate()
+        : new Date(data.al);
+
+      periodo =
+        dal.toLocaleDateString("it-IT") +
+        " - " +
+        al.toLocaleDateString("it-IT");
+    }
+  }
+
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica","bold");
+  pdf.text("Composizione Gruppi", 15, 40);
+
+  pdf.setFont("helvetica","normal");
+  pdf.setFontSize(10);
+  pdf.text(nomeSettimana, 15, 46);
+  pdf.text(periodo, 15, 52);
+
+  let y = 65;
+
+  // Ordina gruppi alfabeticamente
+  const gruppiOrdinati = [...gruppi].sort((a,b)=>
+    a.nome.localeCompare(b.nome)
+  );
+
+  gruppiOrdinati.forEach(gruppo => {
+
+    if(y > 270){
+      pdf.addPage();
+      y = 20;
+    }
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(11);
+    pdf.text(`${gruppo.nome} (${gruppo.iscritti.length}/30)`, 15, y);
+
+    y += 6;
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(10);
+
+    gruppo.iscritti.forEach(id => {
+
+      const atleta = tuttiIscritti.find(a => a.id === id);
+
+      if(atleta){
+
+        pdf.text(
+          `- ${atleta.cognome} ${atleta.nome} (${atleta.classe || ""} - ${atleta.ruolo || ""})`,
+          20,
+          y
+        );
+
+        y += 5;
+      }
+
+    });
+
+    y += 8;
+
+  });
+
+  pdf.save(`Gruppi_${nomeSettimana}.pdf`);
+}
