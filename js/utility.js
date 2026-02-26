@@ -1,4 +1,4 @@
-// ================= FIREBASE INIT SICURO =================
+// ================= FIREBASE INIT =================
 
 if (!firebase.apps.length) {
 
@@ -14,14 +14,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// 🔥 IMPORTANTE: usare let e non ridichiarare se esiste
-let db;
-try{
-  db = firebase.firestore();
-}catch(e){
-  console.error("Errore inizializzazione Firestore", e);
-}
-
+const db = firebase.firestore();
 
 
 // ================= PARAMETRO SETTIMANA =================
@@ -34,30 +27,29 @@ if(!settimanaID){
 }
 
 
+// ================= RENDI FUNZIONI GLOBALI =================
 
-// ================= GESTIONE POPUP =================
-
-function chiudiTuttiPopup(){
+window.chiudiTuttiPopup = function(){
   const mail = document.getElementById("popupMail");
   const report = document.getElementById("popupReport");
 
   if(mail) mail.style.display = "none";
   if(report) report.style.display = "none";
-}
+};
 
 
 // ===== MAIL =====
 
-function apriMailBox(){
+window.apriMailBox = function(){
   chiudiTuttiPopup();
   document.getElementById("popupMail").style.display = "flex";
-}
+};
 
-function chiudiMail(){
+window.chiudiMail = function(){
   document.getElementById("popupMail").style.display = "none";
-}
+};
 
-function inviaMailSettimana(){
+window.inviaMailSettimana = function(){
 
   const oggetto = document.getElementById("oggettoMail").value.trim();
   const testo = document.getElementById("testoMail").value.trim();
@@ -67,27 +59,24 @@ function inviaMailSettimana(){
     return;
   }
 
-  alert("Funzione invio email non ancora attiva.\n\nSistema pronto per configurazione.");
-
+  alert("Funzione invio email non ancora attiva.");
   chiudiMail();
-}
-
+};
 
 
 // ===== REPORT =====
 
-function apriReport(){
+window.apriReport = function(){
   chiudiTuttiPopup();
   document.getElementById("popupReport").style.display = "flex";
-}
+};
 
-function chiudiReport(){
+window.chiudiReport = function(){
   document.getElementById("popupReport").style.display = "none";
-}
+};
 
 
-
-// ================= CHIUSURA CLICK FUORI =================
+// ================= CLICK FUORI =================
 
 document.addEventListener("click", function(e){
 
@@ -105,10 +94,9 @@ document.addEventListener("click", function(e){
 });
 
 
-
 // ================= GENERA REPORT =================
 
-async function generaReport(){
+window.generaReport = async function(){
 
   const checkboxes = document.querySelectorAll(".campi-grid input:checked");
 
@@ -150,13 +138,6 @@ async function generaReport(){
       }
     }
 
-    if(atleti.length === 0){
-      alert("Nessun atleta trovato");
-      return;
-    }
-
-    // ===== CREA PDF =====
-
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF("p","mm","a4");
 
@@ -195,7 +176,6 @@ async function generaReport(){
         }
 
         riga += valore + "   |   ";
-
       });
 
       pdf.setFontSize(9);
@@ -206,11 +186,10 @@ async function generaReport(){
     });
 
     pdf.save("Report_Iscritti.pdf");
-
     chiudiReport();
 
   } catch(error){
     console.error("Errore generazione report:", error);
     alert("Errore generazione report");
   }
-}
+};
