@@ -36,10 +36,10 @@
   <h3>Invia Email Iscritti</h3>
 </div>
 
-    <div class="utility-box">
-      <i class="fa-solid fa-users-gear"></i>
-      <h3>Staff</h3>
-    </div>
+    <div class="utility-box" onclick="apriReport()">
+  <i class="fa-solid fa-file-lines"></i>
+  <h3>Report</h3>
+</div>
 
     <div class="utility-box">
       <i class="fa-solid fa-clipboard-list"></i>
@@ -73,6 +73,34 @@ fetch("components/header.html")
     <button onclick="chiudiMail()">Annulla</button>
 
   </div>
+
+  <div id="popupReport" class="popup-report">
+
+  <div class="popup-report-content">
+
+    <h2>Genera Report Personalizzato</h2>
+
+    <div class="campi-grid">
+
+      <label><input type="checkbox" value="cognome" checked> Cognome</label>
+      <label><input type="checkbox" value="nome" checked> Nome</label>
+      <label><input type="checkbox" value="classe"> Classe</label>
+      <label><input type="checkbox" value="ruolo"> Ruolo</label>
+      <label><input type="checkbox" value="dataNascita"> Data Nascita</label>
+      <label><input type="checkbox" value="luogoNascita"> Luogo Nascita</label>
+      <label><input type="checkbox" value="indirizzo"> Indirizzo</label>
+      <label><input type="checkbox" value="telefono"> Telefono</label>
+      <label><input type="checkbox" value="email"> Email</label>
+      <label><input type="checkbox" value="certMedico"> Cert. Medico</label>
+
+    </div>
+
+    <button onclick="generaReport()">Genera PDF</button>
+    <button onclick="chiudiReport()">Annulla</button>
+
+  </div>
+
+</div>
 <script>
 function goDashboard() {
   window.location.href = "dashboard.html";
