@@ -209,3 +209,38 @@
   background: #bbb;
   border-radius: 3px;
 }
+
+/* ================= FILTRI MULTIPLI ================= */
+
+.filtro-box {
+  margin-bottom: 15px;
+}
+
+.filtro-box h4 {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.filtro-multi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filtro-multi label {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.filtro-multi input {
+  margin-right: 4px;
+}
+
+.filtro-multi label:hover {
+  background: #e3f2fd;
+}
