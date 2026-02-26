@@ -7,13 +7,29 @@ if(!settimanaID){
   alert("Settimana non trovata");
 }
 
+
+// ================= POPUP CONTROLLO =================
+
+// Chiude tutti i popup
+function chiudiTuttiPopup(){
+  const mail = document.getElementById("popupMail");
+  const report = document.getElementById("popupReport");
+
+  if(mail) mail.style.display = "none";
+  if(report) report.style.display = "none";
+}
+
+// ===== MAIL =====
+
 function apriMailBox(){
-  document.getElementById("popupMail").style.display="flex";
+  chiudiTuttiPopup();
+  document.getElementById("popupMail").style.display = "flex";
 }
 
 function chiudiMail(){
-  document.getElementById("popupMail").style.display="none";
+  document.getElementById("popupMail").style.display = "none";
 }
+
 function inviaMailSettimana(){
 
   const oggetto = document.getElementById("oggettoMail").value.trim();
@@ -29,13 +45,38 @@ function inviaMailSettimana(){
   chiudiMail();
 }
 
+
+// ===== REPORT =====
+
 function apriReport(){
-  document.getElementById("popupReport").style.display="flex";
+  chiudiTuttiPopup();
+  document.getElementById("popupReport").style.display = "flex";
 }
 
 function chiudiReport(){
-  document.getElementById("popupReport").style.display="none";
+  document.getElementById("popupReport").style.display = "none";
 }
+
+
+// ================= CHIUSURA CLICK FUORI =================
+
+document.addEventListener("click", function(e){
+
+  const popupMail = document.getElementById("popupMail");
+  const popupReport = document.getElementById("popupReport");
+
+  if(e.target === popupMail){
+    chiudiMail();
+  }
+
+  if(e.target === popupReport){
+    chiudiReport();
+  }
+
+});
+
+
+// ================= GENERA REPORT =================
 
 async function generaReport(){
 
@@ -46,74 +87,96 @@ async function generaReport(){
     return;
   }
 
-  const campiSelezionati = Array.from(checkboxes).map(cb=>cb.value);
+  const campiSelezionati = Array.from(checkboxes).map(cb => cb.value);
 
-  // 🔥 Recupero iscritti settimana
-  const iscrizioniSnap = await db.collection("iscrizioni")
-    .where("settimanaId","==",settimanaID)
-    .get();
+  try {
 
-  const atleti = [];
-
-  for(const doc of iscrizioniSnap.docs){
-
-    const atletaId = doc.data().atletaId;
-
-    const atletaDoc = await db.collection("atleti")
-      .doc(atletaId)
+    // 🔥 Recupero iscritti settimana
+    const iscrizioniSnap = await db.collection("iscrizioni")
+      .where("settimanaId","==",settimanaID)
       .get();
 
-    if(atletaDoc.exists){
-      atleti.push(atletaDoc.data());
-    }
-  }
-
-  if(atleti.length === 0){
-    alert("Nessun iscritto");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p","mm","a4");
-
-  pdf.setFontSize(12);
-  pdf.text("Report Iscritti Settimana",15,20);
-
-  let y = 30;
-
-  atleti.forEach(atleta=>{
-
-    if(y > 270){
-      pdf.addPage();
-      y = 20;
+    if(iscrizioniSnap.empty){
+      alert("Nessun iscritto trovato");
+      return;
     }
 
-    let riga = "";
+    const atleti = [];
 
-    campiSelezionati.forEach(campo=>{
+    for(const doc of iscrizioniSnap.docs){
 
-      let valore = atleta[campo] || "";
+      const atletaId = doc.data().atletaId;
 
-      if(campo === "dataNascita" && valore?.toDate){
-        valore = valore.toDate().toLocaleDateString("it-IT");
+      const atletaDoc = await db.collection("atleti")
+        .doc(atletaId)
+        .get();
+
+      if(atletaDoc.exists){
+        atleti.push(atletaDoc.data());
+      }
+    }
+
+    if(atleti.length === 0){
+      alert("Nessun atleta trovato");
+      return;
+    }
+
+    // ================= CREA PDF =================
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p","mm","a4");
+
+    pdf.setFontSize(14);
+    pdf.text("Report Iscritti Settimana",15,20);
+
+    let y = 30;
+
+    atleti.forEach(atleta => {
+
+      if(y > 270){
+        pdf.addPage();
+        y = 20;
       }
 
-      if(campo === "certMedico"){
-        valore = atleta.documenti?.certMedico ? "SI" : "NO";
-      }
+      let riga = "";
 
-      riga += valore + "   |   ";
+      campiSelezionati.forEach(campo => {
+
+        let valore = "";
+
+        if(campo === "certMedico"){
+          valore = atleta.documenti?.certMedico ? "SI" : "NO";
+        }
+        else if(campo === "dataNascita"){
+          const data = atleta.dataNascita?.toDate
+            ? atleta.dataNascita.toDate()
+            : atleta.dataNascita;
+
+          valore = data
+            ? new Date(data).toLocaleDateString("it-IT")
+            : "";
+        }
+        else{
+          valore = atleta[campo] || "";
+        }
+
+        riga += valore + "   |   ";
+
+      });
+
+      pdf.setFontSize(9);
+      pdf.text(riga,15,y);
+
+      y += 6;
 
     });
 
-    pdf.setFontSize(9);
-    pdf.text(riga,15,y);
+    pdf.save("Report_Iscritti.pdf");
 
-    y += 6;
+    chiudiReport();
 
-  });
-
-  pdf.save("Report_Iscritti.pdf");
-
-  chiudiReport();
+  } catch(error){
+    console.error("Errore generazione report:", error);
+    alert("Errore generazione report");
+  }
 }
