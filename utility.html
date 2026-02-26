@@ -30,52 +30,36 @@
 
   <div class="utility-grid">
 
-    <!-- BOX FUTURE -->
     <div class="utility-box" onclick="apriMailBox()">
-  <i class="fa-solid fa-envelope"></i>
-  <h3>Invia Email Iscritti</h3>
-</div>
+      <i class="fa-solid fa-envelope"></i>
+      <h3>Invia Email Iscritti</h3>
+    </div>
 
     <div class="utility-box" onclick="apriReport()">
-  <i class="fa-solid fa-file-lines"></i>
-  <h3>Report</h3>
-</div>
+      <i class="fa-solid fa-file-lines"></i>
+      <h3>Report</h3>
+    </div>
 
   </div>
 
 </div>
 
-<script src="js/utility.js"></script>
-
-<script>
-fetch("components/header.html")
-.then(r=>r.text())
-.then(h=>document.getElementById("header").innerHTML=h);
-</script>
-
 <!-- ===== POPUP MAIL ===== -->
 <div id="popupMail" class="popup-mail">
-
   <div class="popup-content">
-
     <h2>Invia Email agli Iscritti</h2>
 
     <input type="text" id="oggettoMail" placeholder="Oggetto">
-
     <textarea id="testoMail" rows="6"
       placeholder="Scrivi qui il messaggio..."></textarea>
 
     <button onclick="inviaMailSettimana()">Invia</button>
     <button onclick="chiudiMail()">Annulla</button>
-
   </div>
-
 </div>
-
 
 <!-- ===== POPUP REPORT ===== -->
 <div id="popupReport" class="popup-report">
-
   <div class="popup-report-content">
 
     <h2>Genera Report Personalizzato</h2>
@@ -138,18 +122,23 @@ fetch("components/header.html")
     <button onclick="chiudiReport()">Annulla</button>
 
   </div>
-
 </div>
+
+<script src="js/utility.js"></script>
+
 <script>
-function goDashboard() {
-  window.location.href = "dashboard.html";
+fetch("components/header.html")
+  .then(r=>r.text())
+  .then(h=>document.getElementById("header").innerHTML=h);
+
+function goDashboard(){
+  window.location.href="dashboard.html";
 }
 
-function goBack() {
+function goBack(){
   window.history.back();
 }
 </script>
 
-</div>
 </body>
 </html>
