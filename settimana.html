@@ -56,6 +56,12 @@
       <h2>Riepilogo Pagamenti</h2>
     </div>
 
+    <!-- 🧰 UTILITY -->
+<div class="settimana-card utility" onclick="apriUtility()">
+  <i class="fa-solid fa-screwdriver-wrench"></i>
+  <h2>Utility</h2>
+</div>
+
   </div>
 
 </div>
@@ -128,6 +134,10 @@ function apriCamere(){
 
 function apriGruppi(){
   window.location.href = `gruppi.html?id=${settimanaID}`;
+}
+
+function apriUtility(){
+  window.location.href = "utility.html?id=" + settimanaID;
 }
 </script>
 </body>
