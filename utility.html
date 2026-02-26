@@ -31,10 +31,10 @@
   <div class="utility-grid">
 
     <!-- BOX FUTURE -->
-    <div class="utility-box">
-      <i class="fa-solid fa-file-lines"></i>
-      <h3>Documenti</h3>
-    </div>
+    <div class="utility-box" onclick="apriMailBox()">
+  <i class="fa-solid fa-envelope"></i>
+  <h3>Invia Email Iscritti</h3>
+</div>
 
     <div class="utility-box">
       <i class="fa-solid fa-users-gear"></i>
@@ -58,5 +58,22 @@ fetch("components/header.html")
 .then(h=>document.getElementById("header").innerHTML=h);
 </script>
 
+<div id="popupMail" class="popup-mail">
+
+  <div class="popup-content">
+
+    <h2>Invia Email agli Iscritti</h2>
+
+    <input type="text" id="oggettoMail" placeholder="Oggetto">
+
+    <textarea id="testoMail" rows="6"
+      placeholder="Scrivi qui il messaggio..."></textarea>
+
+    <button onclick="inviaMailSettimana()">Invia</button>
+    <button onclick="chiudiMail()">Annulla</button>
+
+  </div>
+
+</div>
 </body>
 </html>
