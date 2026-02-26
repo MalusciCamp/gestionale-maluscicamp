@@ -128,3 +128,53 @@ function visualizzaScheda(id){
 // ================= AVVIO =================
 
 window.onload = caricaAtlete;
+
+async function cercaArchivio(){
+
+  const testo = document
+    .getElementById("inputRicercaArchivio")
+    .value
+    .toLowerCase()
+    .trim();
+
+  const box = document.getElementById("risultatiRicercaArchivio");
+  box.innerHTML = "";
+
+  if(testo.length < 2){
+    box.style.display = "none";
+    return;
+  }
+
+  const snapshot = await db.collection("atleti").get();
+
+  snapshot.forEach(doc => {
+
+    const atleta = doc.data();
+
+    if(atleta.cognomeLower?.includes(testo)){
+
+      const div = document.createElement("div");
+      div.className = "riga-risultato-archivio";
+      div.innerText = atleta.cognome + " " + atleta.nome;
+
+      div.onclick = () => {
+        window.location.href = "scheda.html?id=" + doc.id;
+      };
+
+      box.appendChild(div);
+    }
+
+  });
+
+  box.style.display = "block";
+}
+document.addEventListener("click", function(e){
+
+  const box = document.getElementById("risultatiRicercaArchivio");
+  const input = document.getElementById("inputRicercaArchivio");
+
+  if(!input.contains(e.target) && !box.contains(e.target)){
+    box.style.display = "none";
+  }
+
+});
