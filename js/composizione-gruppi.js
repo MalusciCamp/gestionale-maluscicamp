@@ -113,8 +113,11 @@ function creaGruppo() {
 
 function popolaFiltri() {
 
-  const filtroClasse = document.getElementById("filtroClasse");
-  const filtroRuolo = document.getElementById("filtroRuolo");
+  const classeContainer = document.getElementById("filtroClasseContainer");
+  const ruoloContainer = document.getElementById("filtroRuoloContainer");
+
+  classeContainer.innerHTML = "";
+  ruoloContainer.innerHTML = "";
 
   const classi = [...new Set(tuttiIscritti.map(a => a.classe).filter(Boolean))];
   const ruoli = [...new Set(tuttiIscritti.map(a => a.ruolo).filter(Boolean))];
@@ -122,18 +125,24 @@ function popolaFiltri() {
   classi.sort();
   ruoli.sort();
 
-  filtroClasse.innerHTML = `<option value="">Tutte le classi</option>`;
-  filtroRuolo.innerHTML = `<option value="">Tutti i ruoli</option>`;
-
   classi.forEach(c => {
-    filtroClasse.innerHTML += `<option value="${c}">${c}</option>`;
+    const label = document.createElement("label");
+    label.innerHTML = `
+      <input type="checkbox" value="${c}" onchange="renderLista()">
+      ${c}
+    `;
+    classeContainer.appendChild(label);
   });
 
   ruoli.forEach(r => {
-    filtroRuolo.innerHTML += `<option value="${r}">${r}</option>`;
+    const label = document.createElement("label");
+    label.innerHTML = `
+      <input type="checkbox" value="${r}" onchange="renderLista()">
+      ${r}
+    `;
+    ruoloContainer.appendChild(label);
   });
 }
-
 // ================= RENDER =================
 
 function renderizza() {
@@ -148,8 +157,13 @@ function renderLista() {
   const lista = document.getElementById("listaIscritti");
   lista.innerHTML = "";
 
-  const filtroClasseVal = document.getElementById("filtroClasse").value;
-  const filtroRuoloVal = document.getElementById("filtroRuolo").value;
+  const classiSelezionate = Array.from(
+    document.querySelectorAll("#filtroClasseContainer input:checked")
+  ).map(cb => cb.value);
+
+  const ruoliSelezionati = Array.from(
+    document.querySelectorAll("#filtroRuoloContainer input:checked")
+  ).map(cb => cb.value);
 
   const assegnati = gruppi.flatMap(g => g.iscritti);
 
@@ -157,8 +171,17 @@ function renderLista() {
 
     if (assegnati.includes(atleta.id)) return;
 
-    if (filtroClasseVal && atleta.classe !== filtroClasseVal) return;
-    if (filtroRuoloVal && atleta.ruolo !== filtroRuoloVal) return;
+    // Filtro classe
+    if (classiSelezionate.length > 0 &&
+        !classiSelezionate.includes(atleta.classe)) {
+      return;
+    }
+
+    // Filtro ruolo
+    if (ruoliSelezionati.length > 0 &&
+        !ruoliSelezionati.includes(atleta.ruolo)) {
+      return;
+    }
 
     const li = document.createElement("li");
     li.innerText = `${atleta.cognome} ${atleta.nome} (${atleta.classe || ""} - ${atleta.ruolo || ""})`;
@@ -168,7 +191,6 @@ function renderLista() {
     lista.appendChild(li);
   });
 }
-
 // ================= GRUPPI =================
 
 function renderGruppi() {
