@@ -53,8 +53,15 @@
   <!-- CONTENUTO PRINCIPALE -->
   <div class="layout-camere">
 
-    <select id="filtroClasse" onchange="renderLista()"></select>
-<select id="filtroRuolo" onchange="renderLista()"></select>
+ <div class="filtro-box">
+  <h4>Classe</h4>
+  <div id="filtroClasseContainer" class="filtro-multi"></div>
+</div>
+
+<div class="filtro-box">
+  <h4>Ruolo</h4>
+  <div id="filtroRuoloContainer" class="filtro-multi"></div>
+</div>
 
     <!-- LISTA ISCRITTI -->
     <div class="colonna atlete">
