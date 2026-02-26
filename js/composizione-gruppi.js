@@ -330,25 +330,6 @@ async function stampaGruppi(){
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
 
-  // ================= HEADER UFFICIALE =================
-
-  try{
-    pdf.addImage("img/logo.png", "PNG", 15, 10, 30, 12);
-  }catch(e){}
-
-  pdf.setFont("helvetica","bold");
-  pdf.setFontSize(14);
-  pdf.text("A.S.D. MALUSCI CAMP", 55, 15);
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(9);
-  pdf.text("Via Montalbano N°98 - 51039 Quarrata (PT)", 55, 20);
-  pdf.text("P.IVA 01963540479", 55, 24);
-
-  pdf.line(15, 30, 195, 30);
-
-  // ================= DATI SETTIMANA =================
-
   const settimanaDoc = await db.collection("settimane")
     .doc(settimanaID)
     .get();
@@ -377,37 +358,59 @@ async function stampaGruppi(){
     }
   }
 
-  pdf.setFontSize(12);
-  pdf.setFont("helvetica","bold");
-  pdf.text("Composizione Gruppi", 15, 40);
-
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(10);
-  pdf.text(nomeSettimana, 15, 46);
-  pdf.text(periodo, 15, 52);
-
-  let y = 65;
-
   // Ordina gruppi alfabeticamente
   const gruppiOrdinati = [...gruppi].sort((a,b)=>
     a.nome.localeCompare(b.nome)
   );
 
-  gruppiOrdinati.forEach(gruppo => {
+  gruppiOrdinati.forEach((gruppo, index) => {
 
-    if(y > 270){
+    // 🔥 Nuova pagina per ogni gruppo (tranne il primo)
+    if(index > 0){
       pdf.addPage();
-      y = 20;
     }
 
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(11);
-    pdf.text(`${gruppo.nome} (${gruppo.iscritti.length}/30)`, 15, y);
+    // ================= HEADER =================
 
-    y += 6;
+    try{
+      pdf.addImage("img/logo.png", "PNG", 15, 10, 30, 12);
+    }catch(e){}
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(14);
+    pdf.text("A.S.D. MALUSCI CAMP", 55, 15);
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(9);
+    pdf.text("Via Montalbano N°98 - 51039 Quarrata (PT)", 55, 20);
+    pdf.text("P.IVA 01963540479", 55, 24);
+
+    pdf.line(15, 30, 195, 30);
+
+    // ================= TITOLO =================
+
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica","bold");
+    pdf.text("Composizione Gruppo", 15, 40);
 
     pdf.setFont("helvetica","normal");
     pdf.setFontSize(10);
+    pdf.text(nomeSettimana, 15, 46);
+    pdf.text(periodo, 15, 52);
+
+    // ================= NOME GRUPPO =================
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(16);
+    pdf.text(`${gruppo.nome}`, 15, 65);
+
+    pdf.setFontSize(11);
+    pdf.text(`Iscritti: ${gruppo.iscritti.length}/30`, 15, 72);
+
+    let y = 82;
+
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(11);
 
     gruppo.iscritti.forEach(id => {
 
@@ -421,12 +424,18 @@ async function stampaGruppi(){
           y
         );
 
-        y += 5;
+        y += 6;
       }
 
     });
 
-    y += 8;
+    // ================= FIRMA ALLENATORE =================
+
+    y += 15;
+
+    pdf.line(20, y, 120, y);
+    pdf.setFontSize(10);
+    pdf.text("Firma Allenatore", 20, y + 6);
 
   });
 
