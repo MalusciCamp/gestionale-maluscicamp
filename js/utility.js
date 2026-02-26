@@ -1,4 +1,4 @@
-// ================= FIREBASE INIT =================
+// ================= FIREBASE INIT SICURO =================
 
 if (!firebase.apps.length) {
 
@@ -14,7 +14,14 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const db = firebase.firestore();
+// 🔥 IMPORTANTE: usare let e non ridichiarare se esiste
+let db;
+try{
+  db = firebase.firestore();
+}catch(e){
+  console.error("Errore inizializzazione Firestore", e);
+}
+
 
 
 // ================= PARAMETRO SETTIMANA =================
@@ -27,9 +34,9 @@ if(!settimanaID){
 }
 
 
-// ================= POPUP CONTROLLO =================
 
-// Chiude tutti i popup
+// ================= GESTIONE POPUP =================
+
 function chiudiTuttiPopup(){
   const mail = document.getElementById("popupMail");
   const report = document.getElementById("popupReport");
@@ -37,6 +44,7 @@ function chiudiTuttiPopup(){
   if(mail) mail.style.display = "none";
   if(report) report.style.display = "none";
 }
+
 
 // ===== MAIL =====
 
@@ -65,6 +73,7 @@ function inviaMailSettimana(){
 }
 
 
+
 // ===== REPORT =====
 
 function apriReport(){
@@ -75,6 +84,7 @@ function apriReport(){
 function chiudiReport(){
   document.getElementById("popupReport").style.display = "none";
 }
+
 
 
 // ================= CHIUSURA CLICK FUORI =================
@@ -95,6 +105,7 @@ document.addEventListener("click", function(e){
 });
 
 
+
 // ================= GENERA REPORT =================
 
 async function generaReport(){
@@ -110,7 +121,11 @@ async function generaReport(){
 
   try {
 
-    // 🔥 Recupero iscritti settimana
+    if(!window.jspdf){
+      alert("Libreria PDF non caricata");
+      return;
+    }
+
     const iscrizioniSnap = await db.collection("iscrizioni")
       .where("settimanaId","==",settimanaID)
       .get();
@@ -140,7 +155,7 @@ async function generaReport(){
       return;
     }
 
-    // ================= CREA PDF =================
+    // ===== CREA PDF =====
 
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF("p","mm","a4");
