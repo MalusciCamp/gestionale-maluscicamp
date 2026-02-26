@@ -99,3 +99,38 @@ body{
 .popup-content button:hover{
   background:#157347;
 }
+
+/* ===== POPUP REPORT ===== */
+
+.popup-report{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:2000;
+}
+
+.popup-report-content{
+  background:#ffe6f0;
+  padding:30px;
+  border-radius:16px;
+  width:500px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.campi-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.campi-grid label{
+  background:white;
+  padding:6px;
+  border-radius:6px;
+  font-size:14px;
+}
