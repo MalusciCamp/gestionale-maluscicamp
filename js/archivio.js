@@ -131,13 +131,11 @@ window.onload = caricaAtlete;
 
 async function cercaArchivio(){
 
-  const testo = document
-    .getElementById("inputRicercaArchivio")
-    .value
-    .toLowerCase()
-    .trim();
-
+  const input = document.getElementById("inputRicercaArchivio");
   const box = document.getElementById("risultatiRicercaArchivio");
+
+  const testo = input.value.toLowerCase().trim();
+
   box.innerHTML = "";
 
   if(testo.length < 2){
@@ -145,28 +143,51 @@ async function cercaArchivio(){
     return;
   }
 
-  const snapshot = await db.collection("atleti").get();
+  try{
 
-  snapshot.forEach(doc => {
+    // 🔥 QUERY OTTIMIZZATA CON RANGE
+    const snapshot = await db.collection("atleti")
+      .where("camp","==",CAMP)
+      .where("cognomeLower", ">=", testo)
+      .where("cognomeLower", "<=", testo + "\uf8ff")
+      .orderBy("cognomeLower")
+      .limit(10)
+      .get();
 
-    const atleta = doc.data();
+    if(snapshot.empty){
+      box.style.display = "none";
+      return;
+    }
 
-    if(atleta.cognomeLower?.includes(testo)){
+    snapshot.forEach(doc => {
+
+      const atleta = doc.data();
+
+      const cognome = atleta.cognome || "";
+      const nome = atleta.nome || "";
+
+      // 🔥 EVIDENZIAZIONE PARTE CERCATA
+      const regex = new RegExp(`(${testo})`, "gi");
+      const cognomeEvidenziato = cognome.replace(regex, "<strong>$1</strong>");
 
       const div = document.createElement("div");
       div.className = "riga-risultato-archivio";
-      div.innerText = atleta.cognome + " " + atleta.nome;
+      div.innerHTML = `${cognomeEvidenziato} ${nome}`;
 
       div.onclick = () => {
-        window.location.href = "scheda.html?id=" + doc.id;
+        visualizzaScheda(doc.id);
       };
 
       box.appendChild(div);
-    }
 
-  });
+    });
 
-  box.style.display = "block";
+    box.style.display = "block";
+
+  }catch(err){
+    console.error("Errore ricerca:", err);
+  }
+
 }
 document.addEventListener("click", function(e){
 
