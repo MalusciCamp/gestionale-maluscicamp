@@ -41,11 +41,6 @@
   <h3>Report</h3>
 </div>
 
-    <div class="utility-box">
-      <i class="fa-solid fa-clipboard-list"></i>
-      <h3>Check-in</h3>
-    </div>
-
   </div>
 
 </div>
@@ -80,20 +75,59 @@ fetch("components/header.html")
 
     <h2>Genera Report Personalizzato</h2>
 
-    <div class="campi-grid">
+   <div class="campi-grid">
 
-      <label><input type="checkbox" value="cognome" checked> Cognome</label>
-      <label><input type="checkbox" value="nome" checked> Nome</label>
-      <label><input type="checkbox" value="classe"> Classe</label>
-      <label><input type="checkbox" value="ruolo"> Ruolo</label>
-      <label><input type="checkbox" value="dataNascita"> Data Nascita</label>
-      <label><input type="checkbox" value="luogoNascita"> Luogo Nascita</label>
-      <label><input type="checkbox" value="indirizzo"> Indirizzo</label>
-      <label><input type="checkbox" value="telefono"> Telefono</label>
-      <label><input type="checkbox" value="email"> Email</label>
-      <label><input type="checkbox" value="certMedico"> Cert. Medico</label>
+  <label class="campo-item">
+    <input type="checkbox" value="cognome" checked>
+    <span>Cognome</span>
+  </label>
 
-    </div>
+  <label class="campo-item">
+    <input type="checkbox" value="nome" checked>
+    <span>Nome</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="classe">
+    <span>Classe</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="ruolo">
+    <span>Ruolo</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="dataNascita">
+    <span>Data Nascita</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="luogoNascita">
+    <span>Luogo Nascita</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="indirizzo">
+    <span>Indirizzo</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="telefono">
+    <span>Telefono</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="email">
+    <span>Email</span>
+  </label>
+
+  <label class="campo-item">
+    <input type="checkbox" value="certMedico">
+    <span>Cert. Medico</span>
+  </label>
+
+</div>
 
     <button onclick="generaReport()">Genera PDF</button>
     <button onclick="chiudiReport()">Annulla</button>
