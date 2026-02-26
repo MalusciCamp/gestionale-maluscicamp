@@ -58,7 +58,8 @@ body{
 
 /* ===== POPUP MAIL ===== */
 
-.popup-mail{
+.popup-mail,
+.popup-report{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,0.6);
@@ -102,18 +103,8 @@ body{
 
 /* ===== POPUP REPORT ===== */
 
-.popup-report{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:2000;
-}
-
 .popup-report-content{
-  background:#ffe6f0;
+  background:white;
   padding:30px;
   border-radius:16px;
   width:500px;
@@ -122,15 +113,41 @@ body{
   gap:20px;
 }
 
+/* ===== CAMPI REPORT ===== */
+
 .campi-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:10px;
+  gap:12px;
 }
 
-.campi-grid label{
-  background:white;
-  padding:6px;
-  border-radius:6px;
+.campo-item{
+  cursor:pointer;
+}
+
+/* Nasconde checkbox */
+.campo-item input{
+  display:none;
+}
+
+/* Stato base (ROSSO) */
+.campo-item span{
+  display:block;
+  background:#f8d7da;
+  padding:10px;
+  border-radius:8px;
   font-size:14px;
+  text-align:center;
+  transition:0.2s ease;
+  border:2px solid transparent;
+  user-select:none;
+}
+
+/* Stato selezionato (VERDE) */
+.campo-item input:checked + span{
+  background:#d1e7dd;
+  border-color:#198754;
+  color:#0f5132;
+  font-weight:600;
+  transform:scale(1.03);
 }
