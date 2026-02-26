@@ -69,3 +69,14 @@
 .pagamenti {
   background: #e53935;
 }
+
+/* ================= UTILITY ================= */
+
+.settimana-card.utility{
+  background: linear-gradient(135deg,#6c757d,#495057);
+  color:white;
+}
+
+.settimana-card.utility i{
+  color:white;
+}
