@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utility Settimana</title>
+
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/utility.css">
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<div class="page-container">
+
+  <div class="page-header">
+    <h1 id="titoloUtility">
+      <i class="fa-solid fa-screwdriver-wrench"></i>
+      Utility
+    </h1>
+  </div>
+
+  <div class="utility-grid">
+
+    <!-- BOX FUTURE -->
+    <div class="utility-box">
+      <i class="fa-solid fa-file-lines"></i>
+      <h3>Documenti</h3>
+    </div>
+
+    <div class="utility-box">
+      <i class="fa-solid fa-users-gear"></i>
+      <h3>Staff</h3>
+    </div>
+
+    <div class="utility-box">
+      <i class="fa-solid fa-clipboard-list"></i>
+      <h3>Check-in</h3>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="js/utility.js"></script>
+
+<script>
+fetch("components/header.html")
+.then(r=>r.text())
+.then(h=>document.getElementById("header").innerHTML=h);
+</script>
+
+</body>
+</html>
