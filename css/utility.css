@@ -1,43 +1,67 @@
+/* ===== PAGINA ===== */
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(135deg,#0f5132,#198754);
+  min-height:100vh;
+}
+
 .page-container{
   padding:40px 20px;
   max-width:1200px;
   margin:auto;
 }
 
+/* ===== HEADER ===== */
+
 .page-header{
   margin-bottom:30px;
+  color:white;
 }
+
+/* ===== GRID ===== */
 
 .utility-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-  gap:20px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:25px;
 }
+
+/* ===== BOX ===== */
 
 .utility-box{
   background:white;
   border-radius:16px;
-  padding:30px;
+  padding:35px 25px;
   text-align:center;
-  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
   cursor:pointer;
-  transition:0.2s;
+  transition:0.25s ease;
 }
 
 .utility-box i{
-  font-size:32px;
-  margin-bottom:10px;
+  font-size:34px;
+  margin-bottom:15px;
   color:#198754;
 }
 
-.utility-box:hover{
-  transform:translateY(-5px);
+.utility-box h3{
+  margin:0;
+  font-size:18px;
 }
+
+.utility-box:hover{
+  transform:translateY(-6px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.35);
+}
+
+/* ===== POPUP MAIL ===== */
 
 .popup-mail{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.6);
   display:none;
   justify-content:center;
   align-items:center;
@@ -59,4 +83,19 @@
   padding:8px;
   border:1px solid #ccc;
   border-radius:6px;
+  font-size:14px;
+}
+
+.popup-content button{
+  padding:8px;
+  border:none;
+  border-radius:6px;
+  background:#198754;
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.popup-content button:hover{
+  background:#157347;
 }
