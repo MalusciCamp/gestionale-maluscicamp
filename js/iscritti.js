@@ -129,10 +129,23 @@ if(pagato >= quotaNetta && quotaNetta > 0){
 </td>
 
 <td>
-  <span class="cert-toggle ${atleta.documenti?.tesseraSanitaria ? "green" : "red"}"
-        onclick="toggleCert(this)">
-    ${atleta.documenti?.tesseraSanitaria ? "SI" : "NO"}
-  </span>
+  ${
+    atleta.documenti?.tesseraSanitaria?.trim()
+      ? `
+        <span class="ts-numero">
+          ${atleta.documenti.tesseraSanitaria}
+        </span>
+      `
+      : `
+        <input 
+          type="text"
+          class="input-ts"
+          placeholder="Inserisci CF"
+          maxlength="16"
+          onblur="salvaTesseraInline('${atletaId}', this)"
+        >
+      `
+  }
 </td>
 
 <td>
@@ -222,19 +235,23 @@ function toggleCert(el){
 async function salvaDocumentiRiga(atletaId, btn){
 
   const tr = btn.closest("tr");
-
   const toggles = tr.querySelectorAll(".cert-toggle");
 
   const documenti = {
-    certMedico: toggles[0].innerText === "SI",
-    tesseraSanitaria: toggles[1].innerText === "SI",
-    documentoIdentita: toggles[2].innerText === "SI"
+    certMedico: toggles[0]?.innerText === "SI",
+    documentoIdentita: toggles[1]?.innerText === "SI"
   };
 
   await db.collection("atleti")
     .doc(atletaId)
     .update({
-      documenti: documenti
+      documenti: {
+        ...documenti,
+        tesseraSanitaria: (
+          (await db.collection("atleti").doc(atletaId).get())
+          .data()?.documenti?.tesseraSanitaria || ""
+        )
+      }
     });
 
   btn.innerText = "✔";
@@ -249,6 +266,28 @@ let iscrizioniAtletaCache = [];
 async function apriPagamento(atletaId){
 
   atletaPagamentoInCorso = atletaId;
+
+  async function salvaTesseraInline(atletaId, input){
+
+  const valore = input.value.trim().toUpperCase();
+
+  if(valore.length !== 16){
+    input.style.border = "2px solid #dc3545";
+    return;
+  }
+
+  await db.collection("atleti")
+    .doc(atletaId)
+    .update({
+      "documenti.tesseraSanitaria": valore
+    });
+
+  // Sostituisce input con testo salvato
+  const td = input.closest("td");
+  td.innerHTML = `
+    <span class="ts-numero">${valore}</span>
+  `;
+}
 
  // ================= RECUPERO ISCRIZIONE =================
 
