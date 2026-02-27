@@ -233,3 +233,22 @@ th{
   color:#43a047;
   font-weight:bold;
 }
+
+.input-ts{
+  padding:4px 6px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  font-size:13px;
+  width:140px;
+  text-transform:uppercase;
+}
+
+.input-ts:focus{
+  outline:none;
+  border-color:#198754;
+}
+
+.ts-numero{
+  font-weight:600;
+  color:#0f5132;
+}
