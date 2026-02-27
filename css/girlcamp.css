@@ -342,3 +342,42 @@ textarea {
 body[data-camp="boys"] .girls-card.new {
   background: linear-gradient(135deg, #2196f3, #0d47a1);
 }
+
+.documento-tessera{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:8px;
+}
+
+.documento-tessera label{
+  font-size:13px;
+  font-weight:600;
+  color:#444;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.documento-tessera input{
+  padding:9px 10px;
+  border:2px solid #ddd;
+  border-radius:8px;
+  font-size:14px;
+  transition:0.2s ease;
+}
+
+.documento-tessera input.valida{
+  border-color:#198754;
+  background:#f0fff4;
+}
+
+.documento-tessera input.non-valida{
+  border-color:#dc3545;
+  background:#fff5f5;
+}
+
+#statoTessera{
+  font-size:12px;
+  font-weight:600;
+}
