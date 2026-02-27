@@ -100,13 +100,23 @@
     Cert. Medico
   </div>
 
-  <div class="documento-input">
-  <label>Tessera Sanitaria</label>
+ <div class="documento-tessera">
+
+  <label for="tesseraSanitariaNumero">
+    <i class="fa-solid fa-id-card"></i>
+    Tessera Sanitaria
+  </label>
+
   <input 
-    type="text" 
-    id="tesseraSanitariaNumero" 
-    placeholder="Inserisci numero tessera"
+    type="text"
+    id="tesseraSanitariaNumero"
+    maxlength="16"
+    placeholder="Inserisci codice fiscale"
+    autocomplete="off"
   >
+
+  <small id="statoTessera"></small>
+
 </div>
 
   <div class="toggle red documento" data-key="documentoIdentita">
