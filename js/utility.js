@@ -69,7 +69,7 @@ document.addEventListener("click", function (e) {
 });
 
 
-// ================= GENERA REPORT UFFICIALE =================
+// ================= GENERA REPORT PREMIUM =================
 
 async function generaReport() {
 
@@ -89,7 +89,8 @@ async function generaReport() {
       return;
     }
 
-    // 🔹 Recupero settimana
+    // ================= RECUPERO SETTIMANA =================
+
     const settimanaDoc = await db.collection("settimane")
       .doc(settimanaID)
       .get();
@@ -98,10 +99,12 @@ async function generaReport() {
     let periodo = "";
 
     if (settimanaDoc.exists) {
+
       const data = settimanaDoc.data();
       nomeSettimana = data.nome || "";
 
       if (data.dal && data.al) {
+
         const dal = data.dal.toDate
           ? data.dal.toDate()
           : new Date(data.dal);
@@ -117,7 +120,8 @@ async function generaReport() {
       }
     }
 
-    // 🔹 Recupero iscritti
+    // ================= RECUPERO ATLETI =================
+
     const iscrizioniSnap = await db.collection("iscrizioni")
       .where("settimanaId", "==", settimanaID)
       .get();
@@ -147,8 +151,20 @@ async function generaReport() {
       (a.cognome || "").localeCompare(b.cognome || "")
     );
 
+    // ================= ORIENTAMENTO DINAMICO =================
+
+    const orientation =
+      campiSelezionati.length > 6 ? "landscape" : "portrait";
+
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("p", "mm", "a4");
+    const pdf = new jsPDF({
+      orientation: orientation,
+      unit: "mm",
+      format: "a4"
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
     const dataOggi = new Date().toLocaleDateString("it-IT");
 
@@ -167,7 +183,7 @@ async function generaReport() {
     pdf.text("Via Montalbano N°98 - 51039 Quarrata (PT)", 55, 20);
     pdf.text("P.IVA 01963540479", 55, 24);
 
-    pdf.line(15, 30, 195, 30);
+    pdf.line(15, 30, pageWidth - 15, 30);
 
     pdf.setFontSize(12);
     pdf.setFont("helvetica", "bold");
@@ -177,44 +193,75 @@ async function generaReport() {
     pdf.setFontSize(10);
     pdf.text("Settimana: " + nomeSettimana, 15, 45);
     pdf.text("Periodo: " + periodo, 15, 50);
-    pdf.text("Data generazione: " + dataOggi, 150, 45);
+    pdf.text("Data generazione: " + dataOggi, pageWidth - 70, 45);
 
-    // ================= TABELLA =================
+    // ================= PREPARAZIONE TABELLA =================
 
     let y = 60;
 
-    const colWidth = 180 / campiSelezionati.length;
-    let xStart = 15;
+    const margine = 15;
+    const spazioDisponibile = pageWidth - (margine * 2);
 
-    // 🔹 Intestazione colonne
-    pdf.setFillColor(230, 230, 230);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(9);
+    const numeroColonne = campiSelezionati.length + 1; // +1 per numerazione
 
-    campiSelezionati.forEach((campo, index) => {
+    const colWidth = spazioDisponibile / numeroColonne;
 
-      pdf.rect(xStart + (index * colWidth), y, colWidth, 8, "F");
-      pdf.text(
-        campo.toUpperCase(),
-        xStart + 2 + (index * colWidth),
-        y + 5
-      );
+    // 🔹 Funzione titoli leggibili
+    function titoloCampo(campo) {
+
+      const mappa = {
+        cognome: "Cognome",
+        nome: "Nome",
+        classe: "Classe",
+        ruolo: "Ruolo",
+        dataNascita: "Data Nascita",
+        luogoNascita: "Luogo Nascita",
+        indirizzo: "Indirizzo",
+        telefono: "Telefono",
+        email: "Email",
+        certMedico: "Cert. Medico"
+      };
+
+      return mappa[campo] || campo;
+    }
+
+    // ================= HEADER TABELLA =================
+
+    pdf.setFillColor(230,230,230);
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(8);
+
+    // Numero riga
+    pdf.rect(margine, y, colWidth, 8, "F");
+    pdf.text("#", margine + 2, y + 5);
+
+    campiSelezionati.forEach((campo, i) => {
+
+      const x = margine + colWidth * (i + 1);
+
+      pdf.rect(x, y, colWidth, 8, "F");
+      pdf.text(titoloCampo(campo), x + 2, y + 5);
 
     });
 
     y += 10;
 
-    pdf.setFont("helvetica", "normal");
+    pdf.setFont("helvetica","normal");
+    pdf.setFontSize(8);
 
-    // 🔹 Righe atleti
-    atleti.forEach(atleta => {
+    // ================= RIGHE =================
 
-      if (y > 270) {
+    atleti.forEach((atleta, index) => {
+
+      if (y > pageHeight - 20) {
         pdf.addPage();
         y = 20;
       }
 
-      campiSelezionati.forEach((campo, index) => {
+      // Numero riga
+      pdf.text(String(index + 1), margine + 2, y);
+
+      campiSelezionati.forEach((campo, i) => {
 
         let valore = "";
 
@@ -235,12 +282,15 @@ async function generaReport() {
           valore = atleta[campo] || "";
         }
 
-        pdf.text(
+        const x = margine + colWidth * (i + 1);
+
+        // Word wrap automatico
+        const testoDiviso = pdf.splitTextToSize(
           String(valore),
-          xStart + 2 + (index * colWidth),
-          y
+          colWidth - 2
         );
 
+        pdf.text(testoDiviso, x + 1, y);
       });
 
       y += 7;
@@ -251,8 +301,10 @@ async function generaReport() {
     const pageCount = pdf.internal.getNumberOfPages();
 
     for (let i = 1; i <= pageCount; i++) {
+
       pdf.setPage(i);
       pdf.setFontSize(8);
+
       pdf.text(
         "Documento generato il " +
         dataOggi +
@@ -261,7 +313,7 @@ async function generaReport() {
         "/" +
         pageCount,
         15,
-        290
+        pageHeight - 10
       );
     }
 
