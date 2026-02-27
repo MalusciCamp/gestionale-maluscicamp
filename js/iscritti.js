@@ -559,11 +559,33 @@ let quotaTotale = Number(iscrizione.quota || 0);
   );
 
   y += 6;
+  // ================= CODICE FISCALE =================
+
+const codiceFiscale =
+  atleta.documenti?.tesseraSanitaria &&
+  atleta.documenti.tesseraSanitaria.trim() !== ""
+    ? atleta.documenti.tesseraSanitaria
+    : null;
+
+y += 6;
+
+if(codiceFiscale){
+
+  pdf.text(
+    `C.F. ${codiceFiscale}`,
+    15,
+    y
+  );
+
+}else{
+
   pdf.text(
     `C.F. ________________________________________________`,
     15,
     y
   );
+
+}
 
   y += 6;
   pdf.text(
