@@ -227,22 +227,32 @@ async function generaReport() {
 
     // ================= HEADER TABELLA =================
 
-    pdf.setFillColor(230,230,230);
-    pdf.setFont("helvetica","bold");
-    pdf.setFontSize(8);
+    // ================= HEADER TABELLA =================
 
-    // Numero riga
-    pdf.rect(margine, y, colWidth, 8, "F");
-    pdf.text("#", margine + 2, y + 5);
+pdf.setFont("helvetica","bold");
+pdf.setFontSize(8);
 
-    campiSelezionati.forEach((campo, i) => {
+// Sfondo grigio chiaro sicuro
+pdf.setFillColor(240,240,240);
+pdf.setDrawColor(200,200,200);
 
-      const x = margine + colWidth * (i + 1);
+// Colonna numerazione
+pdf.rect(margine, y, colWidth, 8, "FD");
+pdf.setTextColor(0,0,0);
+pdf.text("#", margine + 2, y + 5);
 
-      pdf.rect(x, y, colWidth, 8, "F");
-      pdf.text(titoloCampo(campo), x + 2, y + 5);
+// Colonne dinamiche
+campiSelezionati.forEach((campo, i) => {
 
-    });
+  const x = margine + colWidth * (i + 1);
+
+  pdf.rect(x, y, colWidth, 8, "FD");
+  pdf.text(titoloCampo(campo), x + 2, y + 5);
+
+});
+
+// Ripristina colori normali
+pdf.setTextColor(0,0,0);
 
     y += 10;
 
