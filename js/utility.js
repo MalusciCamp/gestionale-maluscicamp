@@ -69,7 +69,7 @@ document.addEventListener("click", function (e) {
 });
 
 
-// ================= GENERA REPORT =================
+// ================= GENERA REPORT UFFICIALE =================
 
 async function generaReport() {
 
@@ -87,6 +87,34 @@ async function generaReport() {
     if (!window.jspdf) {
       alert("Libreria PDF non caricata");
       return;
+    }
+
+    // 🔹 Recupero settimana
+    const settimanaDoc = await db.collection("settimane")
+      .doc(settimanaID)
+      .get();
+
+    let nomeSettimana = "";
+    let periodo = "";
+
+    if (settimanaDoc.exists) {
+      const data = settimanaDoc.data();
+      nomeSettimana = data.nome || "";
+
+      if (data.dal && data.al) {
+        const dal = data.dal.toDate
+          ? data.dal.toDate()
+          : new Date(data.dal);
+
+        const al = data.al.toDate
+          ? data.al.toDate()
+          : new Date(data.al);
+
+        periodo =
+          dal.toLocaleDateString("it-IT") +
+          " - " +
+          al.toLocaleDateString("it-IT");
+      }
     }
 
     // 🔹 Recupero iscritti
@@ -114,14 +142,71 @@ async function generaReport() {
       }
     }
 
+    // 🔹 Ordine alfabetico
+    atleti.sort((a,b)=>
+      (a.cognome || "").localeCompare(b.cognome || "")
+    );
+
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF("p", "mm", "a4");
 
+    const dataOggi = new Date().toLocaleDateString("it-IT");
+
+    // ================= HEADER UFFICIALE =================
+
+    try {
+      pdf.addImage("img/logo.png", "PNG", 15, 10, 30, 12);
+    } catch (e) {}
+
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(14);
-    pdf.text("Report Iscritti Settimana", 15, 20);
+    pdf.text("A.S.D. MALUSCI CAMP", 55, 15);
 
-    let y = 30;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.text("Via Montalbano N°98 - 51039 Quarrata (PT)", 55, 20);
+    pdf.text("P.IVA 01963540479", 55, 24);
 
+    pdf.line(15, 30, 195, 30);
+
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("REPORT ISCRITTI", 15, 38);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.text("Settimana: " + nomeSettimana, 15, 45);
+    pdf.text("Periodo: " + periodo, 15, 50);
+    pdf.text("Data generazione: " + dataOggi, 150, 45);
+
+    // ================= TABELLA =================
+
+    let y = 60;
+
+    const colWidth = 180 / campiSelezionati.length;
+    let xStart = 15;
+
+    // 🔹 Intestazione colonne
+    pdf.setFillColor(230, 230, 230);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(9);
+
+    campiSelezionati.forEach((campo, index) => {
+
+      pdf.rect(xStart + (index * colWidth), y, colWidth, 8, "F");
+      pdf.text(
+        campo.toUpperCase(),
+        xStart + 2 + (index * colWidth),
+        y + 5
+      );
+
+    });
+
+    y += 10;
+
+    pdf.setFont("helvetica", "normal");
+
+    // 🔹 Righe atleti
     atleti.forEach(atleta => {
 
       if (y > 270) {
@@ -129,9 +214,7 @@ async function generaReport() {
         y = 20;
       }
 
-      let riga = "";
-
-      campiSelezionati.forEach(campo => {
+      campiSelezionati.forEach((campo, index) => {
 
         let valore = "";
 
@@ -152,17 +235,37 @@ async function generaReport() {
           valore = atleta[campo] || "";
         }
 
-        riga += valore + "   |   ";
+        pdf.text(
+          String(valore),
+          xStart + 2 + (index * colWidth),
+          y
+        );
+
       });
 
-      pdf.setFontSize(9);
-      pdf.text(riga, 15, y);
-
-      y += 6;
-
+      y += 7;
     });
 
-    pdf.save("Report_Iscritti.pdf");
+    // ================= FOOTER =================
+
+    const pageCount = pdf.internal.getNumberOfPages();
+
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.text(
+        "Documento generato il " +
+        dataOggi +
+        " - Pagina " +
+        i +
+        "/" +
+        pageCount,
+        15,
+        290
+      );
+    }
+
+    pdf.save("Report_Iscritti_" + nomeSettimana + ".pdf");
     chiudiReport();
 
   } catch (error) {
