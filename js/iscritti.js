@@ -267,28 +267,6 @@ async function apriPagamento(atletaId){
 
   atletaPagamentoInCorso = atletaId;
 
-  async function salvaTesseraInline(atletaId, input){
-
-  const valore = input.value.trim().toUpperCase();
-
-  if(valore.length !== 16){
-    input.style.border = "2px solid #dc3545";
-    return;
-  }
-
-  await db.collection("atleti")
-    .doc(atletaId)
-    .update({
-      "documenti.tesseraSanitaria": valore
-    });
-
-  // Sostituisce input con testo salvato
-  const td = input.closest("td");
-  td.innerHTML = `
-    <span class="ts-numero">${valore}</span>
-  `;
-}
-
  // ================= RECUPERO ISCRIZIONE =================
 
 const iscrizioniSnap = await db.collection("iscrizioni")
@@ -812,3 +790,39 @@ document.getElementById("scontoPagamento")
 // Rendi le funzioni globali
 window.stampaRicevutaDiretta = stampaRicevutaDiretta;
 window.eliminaIscrizione = eliminaIscrizione;
+
+async function salvaTesseraInline(atletaId, input){
+
+  const valore = input.value.trim().toUpperCase();
+
+  if(valore === ""){
+    alert("Inserisci un numero valido");
+    return;
+  }
+
+  if(valore.length !== 16){
+    alert("Il Codice Fiscale deve avere 16 caratteri");
+    return;
+  }
+
+  try {
+
+    await db.collection("atleti")
+      .doc(atletaId)
+      .update({
+        "documenti.tesseraSanitaria": valore
+      });
+
+    // 🔥 Aggiorna visivamente la cella
+    input.parentElement.innerHTML = `
+      <span class="ts-numero">
+        ${valore}
+      </span>
+    `;
+
+  } catch(error){
+    console.error("Errore salvataggio tessera:", error);
+    alert("Errore salvataggio");
+  }
+}
+window.salvaTesseraInline = salvaTesseraInline;
