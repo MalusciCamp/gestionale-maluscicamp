@@ -205,30 +205,28 @@ async function generaReport() {
 
     const body = atleti.map(atleta => {
 
-      return campiSelezionati.map(campo => {
+  return campiSelezionati.map(campo => {
 
-        if (campo === "codiceFiscale") {
+    if (campo === "codiceFiscale") {
 
-  valore = atleta.documenti?.tesseraSanitaria?.trim() || "";
+      return atleta.documenti?.tesseraSanitaria?.trim() || "";
+    }
 
-}
+    if (campo === "dataNascita") {
 
-        if (campo === "dataNascita") {
+      const data = atleta.dataNascita?.toDate
+        ? atleta.dataNascita.toDate()
+        : atleta.dataNascita;
 
-          const data = atleta.dataNascita?.toDate
-            ? atleta.dataNascita.toDate()
-            : atleta.dataNascita;
+      return data
+        ? new Date(data).toLocaleDateString("it-IT")
+        : "";
+    }
 
-          return data
-            ? new Date(data).toLocaleDateString("it-IT")
-            : "";
-        }
+    return atleta[campo] || "";
+  });
 
-        return atleta[campo] || "";
-      });
-
-    });
-
+});
     // ================= TABELLA PROFESSIONALE =================
 
     pdf.autoTable({
