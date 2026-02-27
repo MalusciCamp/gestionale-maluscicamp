@@ -60,6 +60,9 @@ const file = document.getElementById("fileImport");
 if(file) file.value = "";
 }
 
+const ts = document.getElementById("tesseraSanitariaNumero");
+if(ts) ts.value = "";
+
 function openArchivio(){
   window.location.href = "archivio.html?camp=" + CAMP;
 }
@@ -277,20 +280,30 @@ function caricaDatiAtleta(){
 // ===== DOCUMENTI =====
 if(data.documenti){
 
+  // Toggle normali (certMedico, documentoIdentita)
   document.querySelectorAll(".documento")
   .forEach(box=>{
 
     const key = box.dataset.key;
 
-    if(data.documenti[key]){
-      box.classList.remove("red");
-      box.classList.add("green");
-    }else{
-      box.classList.remove("green");
-      box.classList.add("red");
+    if(key !== "tesseraSanitaria"){  // escludiamo tessera
+      if(data.documenti[key]){
+        box.classList.remove("red");
+        box.classList.add("green");
+      }else{
+        box.classList.remove("green");
+        box.classList.add("red");
+      }
     }
 
   });
+
+  // 🔥 Tessera sanitaria numero
+  const inputTS = document.getElementById("tesseraSanitariaNumero");
+
+  if(inputTS){
+    inputTS.value = data.documenti.tesseraSanitaria || "";
+  }
 
 }
     // =========================
@@ -392,13 +405,27 @@ const pagamento = {
   metodoSaldo: metodoSaldo.value || ""
 };
 
- const documenti = {};
+const documenti = {};
 
+// Toggle normali
 document.querySelectorAll(".documento")
 .forEach(box=>{
-  documenti[box.dataset.key] =
-    box.classList.contains("green");
+
+  const key = box.dataset.key;
+
+  if(key !== "tesseraSanitaria"){ // non più booleano
+    documenti[key] = box.classList.contains("green");
+  }
+
 });
+
+// 🔥 Tessera sanitaria numero
+const numeroTS = document
+  .getElementById("tesseraSanitariaNumero")
+  ?.value
+  .trim();
+
+documenti.tesseraSanitaria = numeroTS || "";
  const atleta = {
 
   camp: CAMP,
@@ -713,7 +740,7 @@ const atleta = {
 
         documenti: {
           certMedico: (riga["Certificato Medico"] || "").toString().toUpperCase() === "SI",
-          tesseraSanitaria: (riga["Tessera Sanitaria"] || "").toString().toUpperCase() === "SI",
+          tesseraSanitaria: String(riga["Tessera Sanitaria"] || "").trim(),
           documentoIdentita: (riga["Documento Identità"] || "").toString().toUpperCase() === "SI"
         },
 
