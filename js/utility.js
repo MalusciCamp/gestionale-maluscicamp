@@ -267,7 +267,7 @@ async function generaReport() {
       );
     }
 
-    pdf.save("Report_Iscritti_" + nomeSettimana + ".pdf");
+   window.open(pdf.output("bloburl"));
     chiudiReport();
 
   } catch (error) {
