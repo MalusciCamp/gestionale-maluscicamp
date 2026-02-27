@@ -196,7 +196,7 @@ async function generaReport() {
       indirizzo: "Indirizzo",
       telefono: "Telefono",
       email: "Email",
-      certMedico: "Cert. Medico"
+      codiceFiscale: "Codice Fiscale",
     };
 
     const head = [
@@ -207,9 +207,11 @@ async function generaReport() {
 
       return campiSelezionati.map(campo => {
 
-        if (campo === "certMedico") {
-          return atleta.documenti?.certMedico ? "SI" : "NO";
-        }
+        if (campo === "codiceFiscale") {
+
+  valore = atleta.documenti?.tesseraSanitaria?.trim() || "";
+
+}
 
         if (campo === "dataNascita") {
 
