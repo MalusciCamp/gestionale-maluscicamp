@@ -419,13 +419,14 @@ document.querySelectorAll(".documento")
 
 });
 
-// 🔥 Tessera sanitaria numero
 const numeroTS = document
   .getElementById("tesseraSanitariaNumero")
   ?.value
   .trim();
 
-documenti.tesseraSanitaria = numeroTS || "";
+console.log("NUMERO TESSERA:", numeroTS);
+
+documenti.tesseraSanitaria = numeroTS ? numeroTS : "";
  const atleta = {
 
   camp: CAMP,
