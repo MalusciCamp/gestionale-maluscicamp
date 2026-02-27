@@ -69,7 +69,7 @@ document.addEventListener("click", function (e) {
 });
 
 
-// ================= GENERA REPORT PREMIUM =================
+// ================= GENERA REPORT PROFESSIONALE =================
 
 async function generaReport() {
 
@@ -83,13 +83,6 @@ async function generaReport() {
   const campiSelezionati = Array.from(checkboxes).map(cb => cb.value);
 
   try {
-
-    if (!window.jspdf) {
-      alert("Libreria PDF non caricata");
-      return;
-    }
-
-    // ================= RECUPERO SETTIMANA =================
 
     const settimanaDoc = await db.collection("settimane")
       .doc(settimanaID)
@@ -120,8 +113,7 @@ async function generaReport() {
       }
     }
 
-    // ================= RECUPERO ATLETI =================
-
+    // 🔹 Recupero iscritti
     const iscrizioniSnap = await db.collection("iscrizioni")
       .where("settimanaId", "==", settimanaID)
       .get();
@@ -151,8 +143,7 @@ async function generaReport() {
       (a.cognome || "").localeCompare(b.cognome || "")
     );
 
-    // ================= ORIENTAMENTO DINAMICO =================
-
+    // 🔹 Orientamento automatico
     const orientation =
       campiSelezionati.length > 6 ? "landscape" : "portrait";
 
@@ -164,8 +155,6 @@ async function generaReport() {
     });
 
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
     const dataOggi = new Date().toLocaleDateString("it-IT");
 
     // ================= HEADER UFFICIALE =================
@@ -193,117 +182,70 @@ async function generaReport() {
     pdf.setFontSize(10);
     pdf.text("Settimana: " + nomeSettimana, 15, 45);
     pdf.text("Periodo: " + periodo, 15, 50);
-    pdf.text("Data generazione: " + dataOggi, pageWidth - 70, 45);
+    pdf.text("Data generazione: " + dataOggi, pageWidth - 60, 45);
 
-    // ================= PREPARAZIONE TABELLA =================
+    // ================= PREPARA COLONNE =================
 
-    let y = 60;
+    const mappaTitoli = {
+      cognome: "Cognome",
+      nome: "Nome",
+      classe: "Classe",
+      ruolo: "Ruolo",
+      dataNascita: "Data Nascita",
+      luogoNascita: "Luogo Nascita",
+      indirizzo: "Indirizzo",
+      telefono: "Telefono",
+      email: "Email",
+      certMedico: "Cert. Medico"
+    };
 
-    const margine = 15;
-    const spazioDisponibile = pageWidth - (margine * 2);
+    const head = [
+      campiSelezionati.map(c => mappaTitoli[c] || c)
+    ];
 
-    const numeroColonne = campiSelezionati.length + 1; // +1 per numerazione
+    const body = atleti.map(atleta => {
 
-    const colWidth = spazioDisponibile / numeroColonne;
-
-    // 🔹 Funzione titoli leggibili
-    function titoloCampo(campo) {
-
-      const mappa = {
-        cognome: "Cognome",
-        nome: "Nome",
-        classe: "Classe",
-        ruolo: "Ruolo",
-        dataNascita: "Data Nascita",
-        luogoNascita: "Luogo Nascita",
-        indirizzo: "Indirizzo",
-        telefono: "Telefono",
-        email: "Email",
-        certMedico: "Cert. Medico"
-      };
-
-      return mappa[campo] || campo;
-    }
-
-    // ================= HEADER TABELLA =================
-
-    // ================= HEADER TABELLA =================
-
-pdf.setFont("helvetica","bold");
-pdf.setFontSize(8);
-
-// Sfondo grigio chiaro sicuro
-pdf.setFillColor(240,240,240);
-pdf.setDrawColor(200,200,200);
-
-// Colonna numerazione
-pdf.rect(margine, y, colWidth, 8, "FD");
-pdf.setTextColor(0,0,0);
-pdf.text("#", margine + 2, y + 5);
-
-// Colonne dinamiche
-campiSelezionati.forEach((campo, i) => {
-
-  const x = margine + colWidth * (i + 1);
-
-  pdf.rect(x, y, colWidth, 8, "FD");
-  pdf.text(titoloCampo(campo), x + 2, y + 5);
-
-});
-
-// Ripristina colori normali
-pdf.setTextColor(0,0,0);
-
-    y += 10;
-
-    pdf.setFont("helvetica","normal");
-    pdf.setFontSize(8);
-
-    // ================= RIGHE =================
-
-    atleti.forEach((atleta, index) => {
-
-      if (y > pageHeight - 20) {
-        pdf.addPage();
-        y = 20;
-      }
-
-      // Numero riga
-      pdf.text(String(index + 1), margine + 2, y);
-
-      campiSelezionati.forEach((campo, i) => {
-
-        let valore = "";
+      return campiSelezionati.map(campo => {
 
         if (campo === "certMedico") {
-          valore = atleta.documenti?.certMedico ? "SI" : "NO";
+          return atleta.documenti?.certMedico ? "SI" : "NO";
         }
-        else if (campo === "dataNascita") {
+
+        if (campo === "dataNascita") {
 
           const data = atleta.dataNascita?.toDate
             ? atleta.dataNascita.toDate()
             : atleta.dataNascita;
 
-          valore = data
+          return data
             ? new Date(data).toLocaleDateString("it-IT")
             : "";
         }
-        else {
-          valore = atleta[campo] || "";
-        }
 
-        const x = margine + colWidth * (i + 1);
-
-        // Word wrap automatico
-        const testoDiviso = pdf.splitTextToSize(
-          String(valore),
-          colWidth - 2
-        );
-
-        pdf.text(testoDiviso, x + 1, y);
+        return atleta[campo] || "";
       });
 
-      y += 7;
+    });
+
+    // ================= TABELLA PROFESSIONALE =================
+
+    pdf.autoTable({
+      startY: 60,
+      head: head,
+      body: body,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2
+      },
+      headStyles: {
+        fillColor: [240, 240, 240],
+        textColor: 0,
+        fontStyle: "bold"
+      },
+      alternateRowStyles: {
+        fillColor: [250, 250, 250]
+      },
+      margin: { left: 15, right: 15 }
     });
 
     // ================= FOOTER =================
@@ -311,10 +253,8 @@ pdf.setTextColor(0,0,0);
     const pageCount = pdf.internal.getNumberOfPages();
 
     for (let i = 1; i <= pageCount; i++) {
-
       pdf.setPage(i);
       pdf.setFontSize(8);
-
       pdf.text(
         "Documento generato il " +
         dataOggi +
@@ -323,7 +263,7 @@ pdf.setTextColor(0,0,0);
         "/" +
         pageCount,
         15,
-        pageHeight - 10
+        pdf.internal.pageSize.getHeight() - 10
       );
     }
 
