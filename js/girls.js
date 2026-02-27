@@ -225,6 +225,54 @@ window.addEventListener("DOMContentLoaded", () => {
   scontoPagamento?.addEventListener("input", calcolaSconto);
   accontoPagamento?.addEventListener("input", calcolaRimanenza);
 
+  // ===== VALIDAZIONE TESSERA SANITARIA =====
+
+  const inputTS = document.getElementById("tesseraSanitariaNumero");
+  const statoTS = document.getElementById("statoTessera");
+
+  if(inputTS){
+
+    inputTS.addEventListener("input", () => {
+
+      // Maiuscolo automatico
+      inputTS.value = inputTS.value.toUpperCase();
+
+      const valore = inputTS.value.trim();
+
+      if(valore.length === 16){
+
+        inputTS.classList.remove("non-valida");
+        inputTS.classList.add("valida");
+
+        if(statoTS){
+          statoTS.textContent = "Codice inserito";
+          statoTS.style.color = "#198754";
+        }
+
+      }else if(valore.length > 0){
+
+        inputTS.classList.remove("valida");
+        inputTS.classList.add("non-valida");
+
+        if(statoTS){
+          statoTS.textContent = "Il codice deve essere di 16 caratteri";
+          statoTS.style.color = "#dc3545";
+        }
+
+      }else{
+
+        inputTS.classList.remove("valida","non-valida");
+
+        if(statoTS){
+          statoTS.textContent = "";
+        }
+
+      }
+
+    });
+
+  }
+
 });
 
 
