@@ -364,10 +364,15 @@ Object.keys(settimanePerAnno)
   .sort((a,b)=>b-a)
   .forEach(anno => {
 
-    const titolo = document.createElement("h2");
-    titolo.className = "section-title";
-    titolo.innerText = "Riepilogo " + anno;
+    // 🔥 BOX CONTENITORE
+    const boxRiepilogo = document.createElement("div");
+    boxRiepilogo.className = "box-riepilogo";
 
+    // 🔥 TITOLO BOX
+    const titolo = document.createElement("h2");
+    titolo.innerText = "Riepilogo " + anno + " - Settimane Concluse";
+
+    // 🔥 CONTAINER INTERNO
     const containerAnno = document.createElement("div");
     containerAnno.className = "settimane-container";
 
@@ -375,8 +380,10 @@ Object.keys(settimanePerAnno)
       creaCardSettimana(settimana, containerAnno);
     });
 
-    storicoContainer.appendChild(titolo);
-    storicoContainer.appendChild(containerAnno);
+    boxRiepilogo.appendChild(titolo);
+    boxRiepilogo.appendChild(containerAnno);
+
+    storicoContainer.appendChild(boxRiepilogo);
 
   });
 
