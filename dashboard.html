@@ -231,94 +231,158 @@ function formattaDataIT(data){
   // ===============================
   // CREA CARD SETTIMANA
   // ===============================
-  function creaCardSettimana(data) {
+function creaCardSettimana(data, containerParam = null) {
 
-    const container = document.getElementById("settimaneContainer");
+  // 🔥 Se viene passato un container lo usa,
+  // altrimenti usa quello principale
+  const container = containerParam || document.getElementById("settimaneContainer");
 
-    const card = document.createElement("div");
-    card.className = "settimana-card";
+  const card = document.createElement("div");
+  card.className = "settimana-card";
 
-    // 🔥 COLORI DINAMICI
+  // ===============================
+  // COLORI DINAMICI (TUO CODICE)
+  // ===============================
 
-    if(data.camp === "girls"){
-  card.classList.add("card-girls");
+  if(data.camp === "girls"){
+    card.classList.add("card-girls");
+  }
+
+  if(data.camp === "boys"){
+
+    const nome = data.nome.toLowerCase();
+
+    if(nome.includes("ross")){
+      card.classList.add("card-rossa");
+    }
+    else if(nome.includes("arancio") || nome.includes("arancione")){
+      card.classList.add("card-arancio");
+    }
+    else if(nome.includes("gial")){
+      card.classList.add("card-giallo");
+    }
+    else if(nome.includes("azzurr")){
+      card.classList.add("card-azzurro");
+    }
+    else if(nome.includes("blu")){
+      card.classList.add("card-blu");
+    }
+    else if(nome.includes("bian")){
+      card.classList.add("card-bianco");
+    }
+    else if(nome.includes("verd")){
+      card.classList.add("card-verde");
+    }
+    else{
+      card.classList.add("card-boys-default");
+    }
+  }
+
+  // ===============================
+  // CLICK
+  // ===============================
+
+  card.onclick = function() {
+    window.location.href = "settimana.html?id=" + data.id;
+  };
+
+  // ===============================
+  // FORMATTA DATA
+  // ===============================
+
+  const dalFormattato = formattaDataIT(data.dal);
+  const alFormattato = formattaDataIT(data.al);
+
+  card.innerHTML = `
+    <h3>${data.nome}</h3>
+    <p><strong>Periodo:</strong> ${dalFormattato} - ${alFormattato}</p>
+    <small>${data.camp.toUpperCase()}</small>
+  `;
+
+  container.appendChild(card);
 }
-
-if(data.camp === "boys"){
-
-  const nome = data.nome.toLowerCase();
-
-  if(nome.includes("ross")){
-    card.classList.add("card-rossa");
-  }
-  else if(nome.includes("arancio") || nome.includes("arancione")){
-    card.classList.add("card-arancio");
-  }
-  else if(nome.includes("gial")){
-    card.classList.add("card-giallo");
-  }
-  else if(nome.includes("azzurr")){
-    card.classList.add("card-azzurro");
-  }
-  else if(nome.includes("blu")){
-    card.classList.add("card-blu");
-  }
-  else if(nome.includes("bian")){
-    card.classList.add("card-bianco");
-  }
-  else if(nome.includes("verd")){
-    card.classList.add("card-verde");
-  }
-  else{
-    card.classList.add("card-boys-default");
-  }
-
-}
-
-    card.onclick = function() {
-      window.location.href = "settimana.html?id=" + data.id;
-    };
-
-   const dalFormattato = formattaDataIT(data.dal);
-const alFormattato = formattaDataIT(data.al);
-
-card.innerHTML = `
-  <h3>${data.nome}</h3>
-  <p><strong>Periodo:</strong> ${dalFormattato} - ${alFormattato}</p>
-  <small>${data.camp.toUpperCase()}</small>
-`;
-
-    container.appendChild(card);
-  }
 
 
   // ===============================
   // CARICA SETTIMANE ALL'AVVIO
   // ===============================
-  window.onload = function() {
+window.onload = function() {
 
-    db.collection("settimane")
-      .orderBy("createdAt")
-      .get()
-      .then((querySnapshot) => {
+  const containerAttive = document.getElementById("settimaneContainer");
 
-        querySnapshot.forEach((doc) => {
+  // 🔥 Crea contenitore storico
+  const storicoContainer = document.createElement("div");
+  storicoContainer.id = "storicoContainer";
+  storicoContainer.style.marginTop = "40px";
 
-          const data = doc.data();
+  document.querySelector(".dashboard-container")
+    .appendChild(storicoContainer);
 
-          creaCardSettimana({
-            id: doc.id,
-            nome: data.nome,
-            dal: data.dal,
-            al: data.al,
-            camp: data.camp
-          });
+  db.collection("settimane")
+    .orderBy("createdAt")
+    .get()
+    .then((querySnapshot) => {
 
-        });
+      const oggi = new Date();
+
+      const settimanePerAnno = {};
+
+      querySnapshot.forEach((doc) => {
+
+        const data = doc.data();
+
+        const dataFine = new Date(data.al);
+
+        const settimanaObj = {
+          id: doc.id,
+          nome: data.nome,
+          dal: data.dal,
+          al: data.al,
+          camp: data.camp
+        };
+
+        // 🔥 SE ATTIVA
+        if(dataFine >= oggi){
+
+          creaCardSettimana(settimanaObj, containerAttive);
+
+        }else{
+
+          const anno = new Date(data.al).getFullYear();
+
+          if(!settimanePerAnno[anno]){
+            settimanePerAnno[anno] = [];
+          }
+
+          settimanePerAnno[anno].push(settimanaObj);
+        }
 
       });
 
-  };
+      // 🔥 CREA SEZIONI STORICO
+      Object.keys(settimanePerAnno)
+        .sort((a,b)=>b-a) // anni dal più recente
+        .forEach(anno => {
+
+          const titolo = document.createElement("h2");
+          titolo.className = "section-title";
+          titolo.innerText = "Riepilogo " + anno;
+
+          const containerAnno = document.createElement("div");
+          containerAnno.className = "settimane-container";
+
+          settimanePerAnno[anno].forEach(settimana => {
+            creaCardSettimana(settimana, containerAnno);
+          });
+
+          storicoContainer.appendChild(titolo);
+          storicoContainer.appendChild(containerAnno);
+
+        });
+
+    });
+
+};
 // ===============================
 // POPUP UTENTI
 // ===============================
