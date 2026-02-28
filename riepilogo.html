@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Riepilogo Anno</title>
+
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="dashboard-container">
+
+  <h1 id="titoloAnno"></h1>
+
+  <div id="containerSettimane" class="settimane-container"></div>
+
+</div>
+
+<script src="js/firebase-config.js"></script>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const anno = params.get("anno");
+
+document.getElementById("titoloAnno").innerText =
+  "RIEPILOGO " + anno + " - SETTIMANE CONCLUSE";
+
+const oggi = new Date();
+
+db.collection("settimane")
+  .get()
+  .then(snapshot => {
+
+    snapshot.forEach(doc => {
+
+      const data = doc.data();
+      const dataFine = new Date(data.al);
+
+      if(
+        dataFine.getFullYear() == anno &&
+        dataFine < oggi
+      ){
+
+        creaCardSettimana({
+          id: doc.id,
+          nome: data.nome,
+          dal: data.dal,
+          al: data.al,
+          camp: data.camp
+        });
+
+      }
+
+    });
+
+  });
+
+function creaCardSettimana(data){
+
+  const container = document.getElementById("containerSettimane");
+
+  const card = document.createElement("div");
+  card.className = "settimana-card";
+
+  const dalFormattato = formattaDataIT(data.dal);
+  const alFormattato = formattaDataIT(data.al);
+
+  card.innerHTML = `
+    <h3>${data.nome}</h3>
+    <p><strong>Periodo:</strong> ${dalFormattato} - ${alFormattato}</p>
+    <small>${data.camp.toUpperCase()}</small>
+  `;
+
+  card.onclick = function(){
+    window.location.href = "settimana.html?id=" + data.id;
+  };
+
+  container.appendChild(card);
+}
+
+function formattaDataIT(data){
+  const d = new Date(data);
+  return d.toLocaleDateString("it-IT");
+}
+
+</script>
+<script>
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+
+function goBack() {
+  window.history.back();
+}
+</script>
+</body>
+</html>

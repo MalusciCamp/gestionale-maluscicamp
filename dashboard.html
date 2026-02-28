@@ -364,26 +364,19 @@ Object.keys(settimanePerAnno)
   .sort((a,b)=>b-a)
   .forEach(anno => {
 
-    // 🔥 BOX CONTENITORE
-    const boxRiepilogo = document.createElement("div");
-    boxRiepilogo.className = "box-riepilogo";
+    const cardRiepilogo = document.createElement("div");
+    cardRiepilogo.className = "settimana-card card-riepilogo";
 
-    // 🔥 TITOLO BOX
-    const titolo = document.createElement("h2");
-    titolo.innerText = "Riepilogo " + anno + " - Settimane Concluse";
+    cardRiepilogo.innerHTML = `
+      <h3>RIEPILOGO ${anno}</h3>
+      <p>Settimane Concluse</p>
+    `;
 
-    // 🔥 CONTAINER INTERNO
-    const containerAnno = document.createElement("div");
-    containerAnno.className = "settimane-container";
+    cardRiepilogo.onclick = function(){
+      window.location.href = "riepilogo.html?anno=" + anno;
+    };
 
-    settimanePerAnno[anno].forEach(settimana => {
-      creaCardSettimana(settimana, containerAnno);
-    });
-
-    boxRiepilogo.appendChild(titolo);
-    boxRiepilogo.appendChild(containerAnno);
-
-    storicoContainer.appendChild(boxRiepilogo);
+    storicoContainer.appendChild(cardRiepilogo);
 
   });
 
