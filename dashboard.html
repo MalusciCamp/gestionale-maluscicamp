@@ -221,7 +221,13 @@ function logout() {
     });
   }
 
+function formattaDataIT(data){
 
+  if(!data) return "";
+
+  const d = new Date(data);
+  return d.toLocaleDateString("it-IT");
+}
   // ===============================
   // CREA CARD SETTIMANA
   // ===============================
@@ -273,11 +279,14 @@ if(data.camp === "boys"){
       window.location.href = "settimana.html?id=" + data.id;
     };
 
-    card.innerHTML = `
-      <h3>${data.nome}</h3>
-      <p><strong>Periodo:</strong> ${data.dal} - ${data.al}</p>
-      <small>${data.camp.toUpperCase()}</small>
-    `;
+   const dalFormattato = formattaDataIT(data.dal);
+const alFormattato = formattaDataIT(data.al);
+
+card.innerHTML = `
+  <h3>${data.nome}</h3>
+  <p><strong>Periodo:</strong> ${dalFormattato} - ${alFormattato}</p>
+  <small>${data.camp.toUpperCase()}</small>
+`;
 
     container.appendChild(card);
   }
