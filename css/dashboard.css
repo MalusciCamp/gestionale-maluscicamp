@@ -278,11 +278,36 @@ body {
 }
 
 .card-riepilogo{
-  background: linear-gradient(135deg,#2c3e50,#34495e);
-  color:white;
-  cursor:pointer;
+  background: linear-gradient(135deg,#1f2c38,#2c3e50);
+  color: white;
+  cursor: pointer;
+
+  /* 🔥 Dimensioni eleganti */
+  max-width: 380px;
+  margin: 50px auto;
+  padding: 28px 20px;
+
+  border-radius: 22px;
+  text-align: center;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+
+  transition: all 0.25s ease;
+}
+
+.card-riepilogo h3{
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.card-riepilogo p{
+  font-size: 14px;
+  opacity: 0.8;
+  margin: 0;
 }
 
 .card-riepilogo:hover{
-  transform:scale(1.03);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
 }
