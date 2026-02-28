@@ -310,7 +310,7 @@ window.onload = function() {
 
   const containerAttive = document.getElementById("settimaneContainer");
 
-  // 🔥 Crea contenitore storico
+  // 🔥 Creo contenitore storico
   const storicoContainer = document.createElement("div");
   storicoContainer.id = "storicoContainer";
   storicoContainer.style.marginTop = "40px";
@@ -324,13 +324,11 @@ window.onload = function() {
     .then((querySnapshot) => {
 
       const oggi = new Date();
-
       const settimanePerAnno = {};
 
       querySnapshot.forEach((doc) => {
 
         const data = doc.data();
-
         const dataFine = new Date(data.al);
 
         const settimanaObj = {
@@ -341,14 +339,16 @@ window.onload = function() {
           camp: data.camp
         };
 
-        // 🔥 SE ATTIVA
+        // 🔵 SETTIMANE ATTIVE
         if(dataFine >= oggi){
 
           creaCardSettimana(settimanaObj, containerAttive);
 
-        }else{
+        } 
+        // 🔴 SETTIMANE CONCLUSE
+        else {
 
-          const anno = new Date(data.al).getFullYear();
+          const anno = dataFine.getFullYear();
 
           if(!settimanePerAnno[anno]){
             settimanePerAnno[anno] = [];
@@ -360,25 +360,25 @@ window.onload = function() {
       });
 
       // 🔥 CREA SEZIONI STORICO
-      Object.keys(settimanePerAnno)
-        .sort((a,b)=>b-a) // anni dal più recente
-        .forEach(anno => {
+Object.keys(settimanePerAnno)
+  .sort((a,b)=>b-a)
+  .forEach(anno => {
 
-          const titolo = document.createElement("h2");
-          titolo.className = "section-title";
-          titolo.innerText = "Riepilogo " + anno;
+    const titolo = document.createElement("h2");
+    titolo.className = "section-title";
+    titolo.innerText = "Riepilogo " + anno;
 
-          const containerAnno = document.createElement("div");
-          containerAnno.className = "settimane-container";
+    const containerAnno = document.createElement("div");
+    containerAnno.className = "settimane-container";
 
-          settimanePerAnno[anno].forEach(settimana => {
-            creaCardSettimana(settimana, containerAnno);
-          });
+    settimanePerAnno[anno].forEach(settimana => {
+      creaCardSettimana(settimana, containerAnno);
+    });
 
-          storicoContainer.appendChild(titolo);
-          storicoContainer.appendChild(containerAnno);
+    storicoContainer.appendChild(titolo);
+    storicoContainer.appendChild(containerAnno);
 
-        });
+  });
 
     });
 
