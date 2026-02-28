@@ -276,3 +276,17 @@ body {
   background: linear-gradient(135deg,#455a64,#263238);
   color:white;
 }
+
+.box-riepilogo{
+  margin-top:40px;
+  padding:25px;
+  border-radius:18px;
+  background:#f4f6fa;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.box-riepilogo h2{
+  margin-bottom:20px;
+  font-size:22px;
+  color:#2c3e50;
+}
