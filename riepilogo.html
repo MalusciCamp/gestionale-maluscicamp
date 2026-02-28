@@ -5,10 +5,16 @@
   <title>Riepilogo Anno</title>
 
   <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/header.css">
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
+
+<!-- HEADER PUBBLICO -->
+<div id="header"></div>
 
 <div class="dashboard-container">
 
@@ -22,6 +28,15 @@
 
 <script>
 
+// ================= HEADER LOAD =================
+fetch("components/header.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("header").innerHTML = data;
+  });
+
+
+// ================= PARAMETRO ANNO =================
 const params = new URLSearchParams(window.location.search);
 const anno = params.get("anno");
 
@@ -30,6 +45,8 @@ document.getElementById("titoloAnno").innerText =
 
 const oggi = new Date();
 
+
+// ================= CARICA SETTIMANE CONCLUSE =================
 db.collection("settimane")
   .get()
   .then(snapshot => {
@@ -58,6 +75,8 @@ db.collection("settimane")
 
   });
 
+
+// ================= CREA CARD (CON COLORI DINAMICI) =================
 function creaCardSettimana(data){
 
   const container = document.getElementById("containerSettimane");
@@ -65,6 +84,43 @@ function creaCardSettimana(data){
   const card = document.createElement("div");
   card.className = "settimana-card";
 
+  // 🔥 COLORI DINAMICI (UGUALI ALLA DASHBOARD)
+
+  if(data.camp === "girls"){
+    card.classList.add("card-girls");
+  }
+
+  if(data.camp === "boys"){
+
+    const nome = data.nome.toLowerCase();
+
+    if(nome.includes("ross")){
+      card.classList.add("card-rossa");
+    }
+    else if(nome.includes("arancio") || nome.includes("arancione")){
+      card.classList.add("card-arancio");
+    }
+    else if(nome.includes("gial")){
+      card.classList.add("card-giallo");
+    }
+    else if(nome.includes("azzurr")){
+      card.classList.add("card-azzurro");
+    }
+    else if(nome.includes("blu")){
+      card.classList.add("card-blu");
+    }
+    else if(nome.includes("bian")){
+      card.classList.add("card-bianco");
+    }
+    else if(nome.includes("verd")){
+      card.classList.add("card-verde");
+    }
+    else{
+      card.classList.add("card-boys-default");
+    }
+  }
+
+  // ================= DATA FORMATTATA =================
   const dalFormattato = formattaDataIT(data.dal);
   const alFormattato = formattaDataIT(data.al);
 
@@ -81,7 +137,10 @@ function creaCardSettimana(data){
   container.appendChild(card);
 }
 
+
+// ================= FORMATTA DATA =================
 function formattaDataIT(data){
+  if(!data) return "";
   const d = new Date(data);
   return d.toLocaleDateString("it-IT");
 }
@@ -98,3 +157,4 @@ function goBack() {
 </script>
 </body>
 </html>
+
