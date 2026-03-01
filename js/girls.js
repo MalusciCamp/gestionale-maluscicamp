@@ -624,8 +624,9 @@ if(atleta.pagamento && Number(atleta.pagamento.acconto) > 0){
 
 // ================= AUTOCOMPILA =================
 
-nome.addEventListener("blur", controllaOmonimi);
-cognome.addEventListener("blur", controllaOmonimi);
+nome.addEventListener("input", controllaOmonimi);
+cognome.addEventListener("input", controllaOmonimi);
+dataNascita.addEventListener("change", controllaOmonimi);
 
 // ================= MAIUSCOLO AUTOMATICO =================
 
