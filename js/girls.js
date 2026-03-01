@@ -636,21 +636,22 @@ nome.addEventListener("input", ()=>{
 cognome.addEventListener("input", ()=>{
   cognome.value = cognome.value.toUpperCase();
 });
+
+// ================= CONTROLLO OMONIMI =================
+
 async function controllaOmonimi(){
 
-  const n = nome.value.trim().toLowerCase();
-  const c = cognome.value.trim().toLowerCase();
-  const d = dataNascita.value;
+  const n = nome.value.trim().toUpperCase();
+  const c = cognome.value.trim().toUpperCase();
 
-  if(!n || !c || !d) return;
+  if(!n || !c) return;
 
   try{
 
     const snapshot = await db.collection("atleti")
       .where("camp","==",CAMP)
-      .where("nomeLower","==", n)
-      .where("cognomeLower","==", c)
-      .where("dataNascita","==", d)
+      .where("nome","==", n)
+      .where("cognome","==", c)
       .limit(1)
       .get();
 
