@@ -138,10 +138,16 @@ function logout() {
   // HEADER LOAD
   // ===============================
   fetch("components/header.html")
+  
     .then(res => res.text())
     .then(data => {
       document.getElementById("header").innerHTML = data;
     });
+    setTimeout(()=>{
+  if(typeof aggiornaContatoreUI === "function"){
+    aggiornaContatoreUI();
+  }
+},200);
 
 
   // ===============================
