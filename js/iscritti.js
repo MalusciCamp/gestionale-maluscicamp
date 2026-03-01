@@ -145,6 +145,13 @@ if(pagato >= quotaNetta && quotaNetta > 0){
 </td>
 
 <td>
+  <span class="cert-toggle ${atleta.documenti?.fotoCodiceFiscale ? "green" : "red"}"
+        onclick="toggleCert(this)">
+    ${atleta.documenti?.fotoCodiceFiscale ? "SI" : "NO"}
+  </span>
+</td>
+
+<td>
   <span class="cert-toggle ${atleta.documenti?.documentoIdentita ? "green" : "red"}"
         onclick="toggleCert(this)">
     ${atleta.documenti?.documentoIdentita ? "SI" : "NO"}
@@ -234,9 +241,11 @@ async function salvaDocumentiRiga(atletaId, btn){
   const toggles = tr.querySelectorAll(".cert-toggle");
 
   const documenti = {
-    certMedico: toggles[0]?.innerText === "SI",
-    documentoIdentita: toggles[1]?.innerText === "SI"
-  };
+  certMedico: toggles[0]?.innerText === "SI",
+  fotoCodiceFiscale: toggles[1]?.innerText === "SI",
+  documentoIdentita: toggles[2]?.innerText === "SI"
+  
+};
 
   await db.collection("atleti")
     .doc(atletaId)
