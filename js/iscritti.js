@@ -14,8 +14,11 @@ fetch("components/header.html")
 const params = new URLSearchParams(window.location.search);
 const settimanaID = params.get("id");
 
+let CAMP = null;
+
 const tbody = document.getElementById("listaIscritti");
 const titolo = document.getElementById("titoloSettimana");
+
 
 
 // ================= CARICA NOME SETTIMANA =================
@@ -31,8 +34,14 @@ async function caricaTitoloSettimana() {
     .doc(settimanaID)
     .get();
 
-  if(doc.exists){
-    titolo.textContent = "Iscritti - " + doc.data().nome;
+ if(doc.exists){
+
+  const data = doc.data();
+
+  titolo.textContent = "Iscritti - " + data.nome;
+
+  CAMP = data.camp;   // 🔥 QUESTO MANCAVA
+
   } else {
     titolo.textContent = "Settimana non trovata";
   }
