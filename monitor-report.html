@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Monitor Privato</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
+<style>
+body{
+  font-family:Arial;
+  background:#111;
+  color:#00ff88;
+  padding:40px;
+}
+.box{
+  background:#1a1a1a;
+  padding:30px;
+  border-radius:12px;
+  margin-bottom:20px;
+}
+h1{color:#00ffaa;}
+</style>
+
+</head>
+<body>
+
+<h1>📊 Monitor Letture Gestionale</h1>
+
+<div class="box">
+  <h2>Totale Storico</h2>
+  <div id="totaleStorico">Caricamento...</div>
+</div>
+
+<div class="box">
+  <h2>Totale Oggi</h2>
+  <div id="totaleOggi">Caricamento...</div>
+</div>
+
+<script>
+
+const CHIAVE = "malusci_admin_2026"; // 🔐 CAMBIALA
+
+const password = prompt("Inserisci chiave accesso:");
+
+if(password !== CHIAVE){
+  document.body.innerHTML = "<h2>Accesso Negato</h2>";
+  throw new Error("Accesso negato");
+}
+
+async function caricaMonitor(){
+
+  const globaleDoc = await db.collection("monitor")
+    .doc("globale")
+    .get();
+
+  if(globaleDoc.exists){
+    document.getElementById("totaleStorico")
+      .innerText = globaleDoc.data().totaleStorico || 0;
+  }
+
+  const oggi = new Date().toISOString().slice(0,10);
+
+  const giornoDoc = await db.collection("monitor")
+    .doc("giorni")
+    .collection("giorni")
+    .doc(oggi)
+    .get();
+
+  if(giornoDoc.exists){
+    document.getElementById("totaleOggi")
+      .innerText = giornoDoc.data().totaleGiorno || 0;
+  }else{
+    document.getElementById("totaleOggi")
+      .innerText = 0;
+  }
+}
+
+caricaMonitor();
+
+</script>
+
+</body>
+</html>
