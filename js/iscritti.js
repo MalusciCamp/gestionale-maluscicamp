@@ -74,6 +74,54 @@ async function caricaIscritti(){
     for(const docIscr of snapshot.docs){
 
       const iscrizione = docIscr.data();
+      // 🔥 NUOVA STRUTTURA (Versione B)
+if(iscrizione.cognome && iscrizione.statoPagamento){
+
+  const stato = iscrizione.statoPagamento;
+
+  righe.push({
+    cognome: iscrizione.cognome,
+    html: `
+      <tr data-id="${docIscr.id}">
+        <td>${iscrizione.cognome} ${iscrizione.nome}</td>
+
+        <td>
+          <span class="cert-toggle ${iscrizione.certMedico ? "green" : "red"}"
+                onclick="toggleCert(this)">
+            ${iscrizione.certMedico ? "SI" : "NO"}
+          </span>
+        </td>
+
+        <td>${iscrizione.tesseraSanitaria || "-"}</td>
+
+        <td>
+          <span class="cert-toggle ${iscrizione.documentoIdentita ? "green" : "red"}"
+                onclick="toggleCert(this)">
+            ${iscrizione.documentoIdentita ? "SI" : "NO"}
+          </span>
+        </td>
+
+        <td>
+          <span class="cert-toggle ${iscrizione.fotoCodiceFiscale ? "green" : "red"}"
+                onclick="toggleCert(this)">
+            ${iscrizione.fotoCodiceFiscale ? "SI" : "NO"}
+          </span>
+        </td>
+
+        <td class="stato-${stato}">
+          ${stato}
+        </td>
+
+        <td class="azioni-box">
+          <button onclick="apriPagamento('${iscrizione.atletaId}')">💰</button>
+          <button onclick="eliminaIscrizione('${docIscr.id}')">🗑️</button>
+        </td>
+      </tr>
+    `
+  });
+
+  continue; // 🔥 salta sistema vecchio
+}
       const atletaId = iscrizione.atletaId;
 
       const atletaDoc = await db.collection("atleti")
