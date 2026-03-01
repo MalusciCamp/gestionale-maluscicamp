@@ -1,11 +1,4 @@
-const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "gestionale-maluscicamp.firebaseapp.com",
-  projectId: "gestionale-maluscicamp"
-};
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 
 fetch("components/header.html")
   .then(r => r.text())
