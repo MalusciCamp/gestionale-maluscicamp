@@ -197,6 +197,7 @@ async function generaReport() {
       telefono: "Telefono",
       email: "Email",
       codiceFiscale: "Codice Fiscale",
+      allergie: "Allergie",
     };
 
     const head = [
@@ -222,6 +223,25 @@ async function generaReport() {
         ? new Date(data).toLocaleDateString("it-IT")
         : "";
     }
+
+    if (campo === "allergie") {
+
+  // Se NON esistono allergie
+  if (!atleta.allergie || atleta.allergie === "Nessuna") {
+    return "NO";
+  }
+
+  // Se esistono allergie
+  let risultato = "SI";
+
+  if (atleta.noteAllergie && atleta.noteAllergie.trim() !== "") {
+    risultato += " - " + atleta.noteAllergie;
+  }
+
+  return risultato;
+}
+
+
 
     return atleta[campo] || "";
   });
