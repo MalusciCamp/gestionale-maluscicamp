@@ -636,49 +636,44 @@ nome.addEventListener("input", ()=>{
 cognome.addEventListener("input", ()=>{
   cognome.value = cognome.value.toUpperCase();
 });
-
-function controllaOmonimi(){
+async function controllaOmonimi(){
 
   const n = nome.value.trim().toLowerCase();
   const c = cognome.value.trim().toLowerCase();
+  const d = dataNascita.value;
 
-  if(!n || !c) return;
+  if(!n || !c || !d) return;
 
-  db.collection("atleti")
-  .where("camp","==",CAMP)
-  .get()
-  .then(snapshot=>{
+  try{
 
-    snapshot.forEach(doc=>{
+    const snapshot = await db.collection("atleti")
+      .where("camp","==",CAMP)
+      .where("nomeLower","==", n)
+      .where("cognomeLower","==", c)
+      .where("dataNascita","==", d)
+      .limit(1)
+      .get();
 
-      const d = doc.data();
+    if(!snapshot.empty){
 
-      if(
-        d.nome?.toLowerCase() === n &&
-        d.cognome?.toLowerCase() === c
-      ){
+      const doc = snapshot.docs[0];
 
-        const conferma = confirm(
-          "Atleta già presente.\nCaricare i dati?"
-        );
+      const conferma = confirm(
+        "Atleta già presente.\nCaricare i dati?"
+      );
 
-        if(conferma){
-
-          atletaInModifica = doc.id;
-
-          caricaDatiAtleta();
-
-          modalitaArchivio = false;
-        }
-
+      if(conferma){
+        atletaInModifica = doc.id;
+        caricaDatiAtleta();
+        modalitaArchivio = false;
       }
 
-    });
+    }
 
-  });
-
+  }catch(error){
+    console.error("Errore controllo omonimi:", error);
+  }
 }
-
 // ================= IMPORT EXCEL FOGLIO "1 - RAGAZZI" =================
 
 async function importaExcel(){
