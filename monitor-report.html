@@ -2,56 +2,121 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Monitor Privato</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor Letture</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 
 <style>
+
 body{
   font-family:Arial;
-  background:#111;
-  color:#00ff88;
+  background:#0f172a;
+  color:#ffffff;
   padding:40px;
 }
-.box{
-  background:#1a1a1a;
-  padding:30px;
-  border-radius:12px;
-  margin-bottom:20px;
-}
-h1{color:#00ffaa;}
-</style>
 
+h1{
+  margin-bottom:30px;
+  color:#38bdf8;
+}
+
+.container{
+  max-width:1000px;
+  margin:auto;
+}
+
+.box{
+  background:#1e293b;
+  padding:25px;
+  border-radius:14px;
+  margin-bottom:25px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.4);
+}
+
+.box h2{
+  margin-bottom:10px;
+  color:#94a3b8;
+}
+
+.numero{
+  font-size:34px;
+  font-weight:bold;
+  color:#22c55e;
+}
+
+.tabella{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+
+.tabella th,
+.tabella td{
+  padding:10px;
+  border-bottom:1px solid #334155;
+  text-align:left;
+}
+
+.tabella th{
+  background:#1e293b;
+  color:#38bdf8;
+}
+
+.tabella tr:hover{
+  background:#1a2538;
+}
+
+.footer{
+  margin-top:30px;
+  font-size:13px;
+  color:#94a3b8;
+}
+
+</style>
 </head>
 <body>
+
+<div class="container">
 
 <h1>📊 Monitor Letture Gestionale</h1>
 
 <div class="box">
   <h2>Totale Storico</h2>
-  <div id="totaleStorico">Caricamento...</div>
+  <div id="totaleStorico" class="numero">Caricamento...</div>
 </div>
 
 <div class="box">
   <h2>Totale Oggi</h2>
-  <div id="totaleOggi">Caricamento...</div>
+  <div id="totaleOggi" class="numero">Caricamento...</div>
+</div>
+
+<div class="box">
+  <h2>Report Giornaliero</h2>
+  <table class="tabella">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Letture</th>
+      </tr>
+    </thead>
+    <tbody id="tabellaGiorni"></tbody>
+  </table>
+</div>
+
+<div class="footer">
+  Aggiornamento automatico ogni 30 secondi
+</div>
+
 </div>
 
 <script>
 
-const CHIAVE = "Lorenzo1976!"; // 🔐 CAMBIALA
-
-const password = prompt("Inserisci chiave accesso:");
-
-if(password !== CHIAVE){
-  document.body.innerHTML = "<h2>Accesso Negato</h2>";
-  throw new Error("Accesso negato");
-}
-
 async function caricaMonitor(){
 
+  // 🔹 Totale Storico
   const globaleDoc = await db.collection("monitor")
     .doc("globale")
     .get();
@@ -59,8 +124,12 @@ async function caricaMonitor(){
   if(globaleDoc.exists){
     document.getElementById("totaleStorico")
       .innerText = globaleDoc.data().totaleStorico || 0;
+  }else{
+    document.getElementById("totaleStorico")
+      .innerText = 0;
   }
 
+  // 🔹 Totale Oggi
   const oggi = new Date().toISOString().slice(0,10);
 
   const giornoDoc = await db.collection("monitor")
@@ -76,9 +145,41 @@ async function caricaMonitor(){
     document.getElementById("totaleOggi")
       .innerText = 0;
   }
+
+  // 🔹 Tabella Giornaliera
+  const snap = await db.collection("monitor")
+    .doc("giorni")
+    .collection("giorni")
+    .orderBy("data","desc")
+    .get();
+
+  const tbody = document.getElementById("tabellaGiorni");
+  tbody.innerHTML = "";
+
+  snap.forEach(doc => {
+
+    const data = doc.data();
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${data.data}</td>
+      <td>${data.totaleGiorno}</td>
+    `;
+
+    tbody.appendChild(tr);
+
+  });
+
 }
 
+// 🔹 Carica subito
 caricaMonitor();
+
+// 🔹 Aggiorna ogni 30 secondi
+setInterval(() => {
+  caricaMonitor();
+}, 30000);
 
 </script>
 
