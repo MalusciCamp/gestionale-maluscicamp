@@ -92,7 +92,25 @@ if(iscrizione.cognome && iscrizione.statoPagamento){
           </span>
         </td>
 
-        <td>${iscrizione.tesseraSanitaria || "-"}</td>
+        <td>
+  ${
+    iscrizione.tesseraSanitaria?.trim()
+      ? `
+        <span class="ts-numero">
+          ${iscrizione.tesseraSanitaria}
+        </span>
+      `
+      : `
+        <input 
+          type="text"
+          class="input-ts"
+          placeholder="Inserisci CF"
+          maxlength="16"
+          onblur="salvaTesseraIscrizione('${docIscr.id}', this)"
+        >
+      `
+  }
+</td>
 
         <td>
           <span class="cert-toggle ${iscrizione.documentoIdentita ? "green" : "red"}"
@@ -113,9 +131,20 @@ if(iscrizione.cognome && iscrizione.statoPagamento){
         </td>
 
         <td class="azioni-box">
-          <button onclick="apriPagamento('${iscrizione.atletaId}')">💰</button>
-          <button onclick="eliminaIscrizione('${docIscr.id}')">🗑️</button>
-        </td>
+
+  <button onclick="salvaDocumentiIscrizione('${docIscr.id}', this)">
+    💾
+  </button>
+
+  <button onclick="apriPagamento('${iscrizione.atletaId}')">
+    💰
+  </button>
+
+  <button onclick="eliminaIscrizione('${docIscr.id}')">
+    🗑️
+  </button>
+
+</td>
       </tr>
     `
   });
@@ -918,3 +947,47 @@ async function salvaTesseraInline(atletaId, input){
   }
 }
 window.salvaTesseraInline = salvaTesseraInline;
+
+async function salvaDocumentiIscrizione(idIscrizione, btn){
+
+  const tr = btn.closest("tr");
+  const toggles = tr.querySelectorAll(".cert-toggle");
+
+  const dati = {
+    certMedico: toggles[0]?.innerText === "SI",
+    documentoIdentita: toggles[1]?.innerText === "SI",
+    fotoCodiceFiscale: toggles[2]?.innerText === "SI"
+  };
+
+  await db.collection("iscrizioni")
+    .doc(idIscrizione)
+    .update(dati);
+
+  btn.innerText = "✔";
+  setTimeout(()=>{
+    btn.innerText = "💾";
+  },800);
+}
+
+async function salvaTesseraIscrizione(idIscrizione, input){
+
+  const valore = input.value.trim().toUpperCase();
+
+  if(valore.length !== 16){
+    alert("Il Codice Fiscale deve avere 16 caratteri");
+    return;
+  }
+
+  await db.collection("iscrizioni")
+    .doc(idIscrizione)
+    .update({
+      tesseraSanitaria: valore
+    });
+
+  input.parentElement.innerHTML = `
+    <span class="ts-numero">
+      ${valore}
+    </span>
+  `;
+}
+
