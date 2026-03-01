@@ -16,146 +16,139 @@ const db = firebase.firestore();
 
 
 // ======================================
-// 🔥 MONITOR GLOBALE LETTURE FIRESTORE
+// 🔥 MONITOR PROFESSIONALE LETTURE
 // ======================================
 
 (function(){
 
-  let totaleLetture = 0;
-
-  function logLetture(tipo, snapshot){
-    const count = snapshot.size || 0;
-    totaleLetture += count;
-
-    console.log(
-      "🔥 FIRESTORE",
-      tipo,
-      "| letti:", count,
-      "| totale sessione:", totaleLetture
-    );
-  }
-
-  // Intercetta .get()
-  const originalGetQuery = firebase.firestore.Query.prototype.get;
-  firebase.firestore.Query.prototype.get = function(...args){
-    return originalGetQuery.apply(this, args).then(snapshot=>{
-      logLetture("GET", snapshot);
-      return snapshot;
-    });
-  };
-
-  const originalGetCollection = firebase.firestore.CollectionReference.prototype.get;
-  firebase.firestore.CollectionReference.prototype.get = function(...args){
-    return originalGetCollection.apply(this, args).then(snapshot=>{
-      logLetture("GET", snapshot);
-      return snapshot;
-    });
-  };
-
-  // Intercetta .onSnapshot()
-  const originalSnapshot = firebase.firestore.Query.prototype.onSnapshot;
-  firebase.firestore.Query.prototype.onSnapshot = function(...args){
-    return originalSnapshot.apply(this, [
-      snapshot => {
-        logLetture("SNAPSHOT", snapshot);
-        return args[0]?.(snapshot);
-      }
-    ]);
-  };
-
   console.log("✅ Monitor globale Firestore attivo");
 
-})();
+  let lettureOggi = Number(localStorage.getItem("lettureOggi")) || 0;
+  let totaleSessione = 0;
 
-// ================= CONTATORE LETTURE GLOBALE =================
+  // ================= RESET GIORNALIERO =================
 
-let lettureOggi = Number(localStorage.getItem("lettureOggi")) || 0;
+  const oggiLocale = new Date().toDateString();
+  const giornoSalvato = localStorage.getItem("giornoLetture");
 
-// funzione per aggiornare UI
-function aggiornaContatoreUI(){
-  const el = document.getElementById("contatoreLetture");
-  if(el){
-    el.innerText = "🔥 Letture: " + lettureOggi;
-  }
-}
-
-// wrapper GET
-const originalGet = firebase.firestore.Query.prototype.get;
-
-firebase.firestore.Query.prototype.get = function(...args){
-  return originalGet.apply(this, args).then(snapshot=>{
-    lettureOggi += snapshot.size;
-    localStorage.setItem("lettureOggi", lettureOggi);
-    aggiornaContatoreUI();
-    return snapshot;
-  });
-};
-
-// wrapper DOC GET
-const originalDocGet = firebase.firestore.DocumentReference.prototype.get;
-
-firebase.firestore.DocumentReference.prototype.get = function(...args){
-  return originalDocGet.apply(this, args).then(doc=>{
-    if(doc.exists){
-      lettureOggi += 1;
-      localStorage.setItem("lettureOggi", lettureOggi);
-      aggiornaContatoreUI();
-    }
-    return doc;
-  });
-};
-
-// reset automatico giornaliero
-const oggi = new Date().toDateString();
-const giornoSalvato = localStorage.getItem("giornoLetture");
-
-if(giornoSalvato !== oggi){
-  lettureOggi = 0;
-  localStorage.setItem("lettureOggi", 0);
-  localStorage.setItem("giornoLetture", oggi);
-}
-// ================= MONITOR PROFESSIONALE =================
-
-function getDataOggi(){
-  return new Date().toISOString().slice(0,10);
-}
-
-// 🔹 Incremento locale già esistente
-
-// 🔹 Sync ogni ora
-setInterval(async () => {
-
-  const lettureLocali = Number(localStorage.getItem("lettureOggi") || 0);
-
-  if(lettureLocali <= 0) return;
-
-  const oggi = getDataOggi();
-
-  try{
-
-    // 🔹 Incremento storico
-    await db.collection("monitor")
-      .doc("globale")
-      .set({
-        totaleStorico: firebase.firestore.FieldValue.increment(lettureLocali),
-        ultimoAggiornamento: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge:true });
-
-    // 🔹 Incremento giornaliero
-    await db.collection("monitor")
-      .doc("giorni")
-      .collection("giorni")
-      .doc(oggi)
-      .set({
-        totaleGiorno: firebase.firestore.FieldValue.increment(lettureLocali),
-        data: oggi
-      }, { merge:true });
-
-    // 🔥 Reset locale
+  if(giornoSalvato !== oggiLocale){
+    lettureOggi = 0;
     localStorage.setItem("lettureOggi", 0);
-
-  }catch(err){
-    console.error("Errore sync monitor:", err);
+    localStorage.setItem("giornoLetture", oggiLocale);
   }
 
-}, 60 * 60 * 1000); // 1 ora
+  // ================= AGGIORNA UI =================
+
+  function aggiornaContatoreUI(){
+    const el = document.getElementById("contatoreLetture");
+    if(el){
+      el.innerText = "🔥 Letture: " + lettureOggi;
+    }
+  }
+
+  // ================= INTERCETTA QUERY GET =================
+
+  const originalQueryGet = firebase.firestore.Query.prototype.get;
+
+  firebase.firestore.Query.prototype.get = function(...args){
+    return originalQueryGet.apply(this, args).then(snapshot => {
+
+      const count = snapshot.size || 0;
+
+      totaleSessione += count;
+      lettureOggi += count;
+
+      localStorage.setItem("lettureOggi", lettureOggi);
+
+      console.log(
+        "🔥 FIRESTORE GET | letti:",
+        count,
+        "| totale sessione:",
+        totaleSessione
+      );
+
+      aggiornaContatoreUI();
+
+      return snapshot;
+    });
+  };
+
+  // ================= INTERCETTA DOC GET =================
+
+  const originalDocGet = firebase.firestore.DocumentReference.prototype.get;
+
+  firebase.firestore.DocumentReference.prototype.get = function(...args){
+    return originalDocGet.apply(this, args).then(doc => {
+
+      if(doc.exists){
+        totaleSessione += 1;
+        lettureOggi += 1;
+
+        localStorage.setItem("lettureOggi", lettureOggi);
+
+        console.log(
+          "🔥 FIRESTORE DOC GET | letti: 1 | totale sessione:",
+          totaleSessione
+        );
+
+        aggiornaContatoreUI();
+      }
+
+      return doc;
+    });
+  };
+
+  // ================= SYNC SU FIRESTORE =================
+
+  function getDataOggi(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  async function sincronizzaMonitor(){
+
+    const lettureLocali = Number(localStorage.getItem("lettureOggi") || 0);
+
+    if(lettureLocali <= 0) return;
+
+    const oggi = getDataOggi();
+
+    try{
+
+      // 🔹 Storico globale
+      await db.collection("monitor")
+        .doc("globale")
+        .set({
+          totaleStorico: firebase.firestore.FieldValue.increment(lettureLocali),
+          ultimoAggiornamento: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge:true });
+
+      // 🔹 Giornaliero
+      await db.collection("monitor")
+        .doc("giorni")
+        .collection("giorni")
+        .doc(oggi)
+        .set({
+          totaleGiorno: firebase.firestore.FieldValue.increment(lettureLocali),
+          data: oggi
+        }, { merge:true });
+
+      localStorage.setItem("lettureOggi", 0);
+
+      console.log("✅ Sync monitor completata:", lettureLocali);
+
+    }catch(err){
+      console.error("Errore sync monitor:", err);
+    }
+  }
+
+  // 🔹 Sync ogni 10 minuti (sicura)
+  setInterval(() => {
+    sincronizzaMonitor();
+  }, 10 * 60 * 1000);
+
+  // 🔹 Sync quando chiudi pagina
+  window.addEventListener("beforeunload", () => {
+    sincronizzaMonitor();
+  });
+
+})();
