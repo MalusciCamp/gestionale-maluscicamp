@@ -647,35 +647,52 @@ function chiudiPopupAggiungi(){
 }
 async function cercaAtleta(){
 
-  const testo = document
-    .getElementById("ricercaCognome")
-    .value
-    .toLowerCase()
-    .trim();
-
+  const input = document.getElementById("ricercaCognome");
   const box = document.getElementById("risultatiRicerca");
+
+  const testo = input.value.toLowerCase().trim();
+
   box.innerHTML = "";
 
-  if(testo.length < 2) return;
+  if(testo.length < 2){
+    box.style.display = "none";
+    return;
+  }
 
-  const snapshot = await db.collection("atleti").get();
+  try{
 
-  snapshot.forEach(doc => {
+    const snapshot = await db.collection("atleti")
+      .where("camp","==",CAMP)
+      .where("cognomeLower", ">=", testo)
+      .where("cognomeLower", "<=", testo + "\uf8ff")
+      .orderBy("cognomeLower")
+      .limit(10)
+      .get();
 
-    const atleta = doc.data();
+    snapshot.forEach(doc => {
 
-    if(atleta.cognomeLower?.includes(testo)){
+      const atleta = doc.data();
 
       const div = document.createElement("div");
       div.className = "riga-risultato";
-      div.innerText = atleta.cognome + " " + atleta.nome;
 
-      div.onclick = () => aggiungiIscrizioneManuale(doc.id);
+      div.innerHTML = `
+        ${atleta.cognome} ${atleta.nome}
+      `;
+
+      div.onclick = () => {
+        aggiungiIscrizione(doc.id);
+      };
 
       box.appendChild(div);
-    }
 
-  });
+    });
+
+    box.style.display = "block";
+
+  }catch(err){
+    console.error("Errore ricerca:", err);
+  }
 }
 async function aggiungiIscrizioneManuale(atletaId){
 
