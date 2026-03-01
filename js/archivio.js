@@ -23,76 +23,82 @@ fetch("components/header.html")
 
 // ================= CARICA ATLETE =================
 
-function caricaAtlete(){
+// ================= PAGINAZIONE =================
+
+let lastVisible = null;
+let loading = false;
+const PAGE_SIZE = 25;
+
+async function caricaAtlete(reset = true){
+
+  if(loading) return;
+  loading = true;
 
   const tbody = document.getElementById("tbodyAtleti");
   if(!tbody) return;
 
-  tbody.innerHTML = "";
+  if(reset){
+    tbody.innerHTML = "";
+    lastVisible = null;
+  }
 
-  db.collection("atleti")
-    .where("camp","==",CAMP)
-    .get()
-    .then(snapshot=>{
+  try{
 
-      const atlete = [];
+    let query = db.collection("atleti")
+      .where("camp","==",CAMP)
+      .orderBy("cognomeLower")
+      .limit(PAGE_SIZE);
 
-      snapshot.forEach(doc=>{
-        atlete.push({
-          id: doc.id,
-          ...doc.data()
-        });
-      });
+    if(lastVisible){
+      query = query.startAfter(lastVisible);
+    }
 
-      // ===== ORDINE ALFABETICO COGNOME =====
-      atlete.sort((a,b)=>{
-        return (a.cognome || "")
-          .toLowerCase()
-          .localeCompare(
-            (b.cognome || "").toLowerCase()
-          );
-      });
+    const snapshot = await query.get();
 
-      // ===== CREAZIONE RIGHE =====
-      atlete.forEach(d=>{
+    if(snapshot.empty){
+      loading = false;
+      return;
+    }
 
-        const tr = document.createElement("tr");
+    lastVisible = snapshot.docs[snapshot.docs.length - 1];
 
-        tr.innerHTML = `
-          <td>${d.cognome || ""}</td>
-          <td>${d.nome || ""}</td>
-          <td>${d.classe || ""}</td>
-          <td>${d.ruolo || "-"}</td>
+    snapshot.forEach(doc => {
 
-          <td>
-            <div class="archivio-actions">
+      const d = doc.data();
 
-              <button class="view"
-                onclick="visualizzaScheda('${d.id}')">
-                <i class="fa-solid fa-eye"></i>
-              </button>
+      const tr = document.createElement("tr");
 
-              <button class="delete"
-                onclick="eliminaAtleta('${d.id}')">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+      tr.innerHTML = `
+        <td>${d.cognome || ""}</td>
+        <td>${d.nome || ""}</td>
+        <td>${d.classe || ""}</td>
+        <td>${d.ruolo || "-"}</td>
 
-            </div>
-          </td>
-        `;
+        <td>
+          <div class="archivio-actions">
+            <button class="view"
+              onclick="visualizzaScheda('${doc.id}')">
+              <i class="fa-solid fa-eye"></i>
+            </button>
 
-        tbody.appendChild(tr);
+            <button class="delete"
+              onclick="eliminaAtleta('${doc.id}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      `;
 
-      });
+      tbody.appendChild(tr);
 
-    })
-    .catch(err=>{
-      console.error("Errore caricamento archivio:", err);
     });
 
+  }catch(err){
+    console.error("Errore caricamento archivio:", err);
+  }
+
+  loading = false;
 }
-
-
 // ================= ELIMINA =================
 
 function eliminaAtleta(id){
