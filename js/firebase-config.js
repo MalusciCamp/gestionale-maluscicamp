@@ -114,3 +114,48 @@ if(giornoSalvato !== oggi){
   localStorage.setItem("lettureOggi", 0);
   localStorage.setItem("giornoLetture", oggi);
 }
+// ================= MONITOR PROFESSIONALE =================
+
+function getDataOggi(){
+  return new Date().toISOString().slice(0,10);
+}
+
+// 🔹 Incremento locale già esistente
+
+// 🔹 Sync ogni ora
+setInterval(async () => {
+
+  const lettureLocali = Number(localStorage.getItem("lettureOggi") || 0);
+
+  if(lettureLocali <= 0) return;
+
+  const oggi = getDataOggi();
+
+  try{
+
+    // 🔹 Incremento storico
+    await db.collection("monitor")
+      .doc("globale")
+      .set({
+        totaleStorico: firebase.firestore.FieldValue.increment(lettureLocali),
+        ultimoAggiornamento: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge:true });
+
+    // 🔹 Incremento giornaliero
+    await db.collection("monitor")
+      .doc("giorni")
+      .collection("giorni")
+      .doc(oggi)
+      .set({
+        totaleGiorno: firebase.firestore.FieldValue.increment(lettureLocali),
+        data: oggi
+      }, { merge:true });
+
+    // 🔥 Reset locale
+    localStorage.setItem("lettureOggi", 0);
+
+  }catch(err){
+    console.error("Errore sync monitor:", err);
+  }
+
+}, 60 * 60 * 1000); // 1 ora
