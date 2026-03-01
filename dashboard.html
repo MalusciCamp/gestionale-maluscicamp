@@ -322,7 +322,7 @@ window.onload = function() {
     .orderBy("createdAt")
     .get()
     .then((querySnapshot) => {
-      console.log("🔥 DASHBOARD - settimane lette:", querySnapshot.size);
+      
 
       const oggi = new Date();
       const settimanePerAnno = {};
@@ -414,7 +414,7 @@ const pass = document.getElementById("newPassword").value.trim();
     .where("nickname", "==", nick)
     .get()
     .then(snapshot => {
-      console.log("🔥 DASHBOARD - controllo nickname:", snapshot.size);
+  
 
       if (!snapshot.empty) {
         alert("Nickname già esistente");
@@ -451,7 +451,7 @@ function caricaUtenti() {
   db.collection("utenti")
     .get()
     .then(snapshot => {
-      console.log("🔥 DASHBOARD - utenti caricati:", snapshot.size);
+     
 
       snapshot.forEach(doc => {
 
