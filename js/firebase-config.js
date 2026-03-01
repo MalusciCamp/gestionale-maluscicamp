@@ -66,3 +66,51 @@ const db = firebase.firestore();
   console.log("✅ Monitor globale Firestore attivo");
 
 })();
+
+// ================= CONTATORE LETTURE GLOBALE =================
+
+let lettureOggi = Number(localStorage.getItem("lettureOggi")) || 0;
+
+// funzione per aggiornare UI
+function aggiornaContatoreUI(){
+  const el = document.getElementById("contatoreLetture");
+  if(el){
+    el.innerText = "🔥 Letture: " + lettureOggi;
+  }
+}
+
+// wrapper GET
+const originalGet = firebase.firestore.Query.prototype.get;
+
+firebase.firestore.Query.prototype.get = function(...args){
+  return originalGet.apply(this, args).then(snapshot=>{
+    lettureOggi += snapshot.size;
+    localStorage.setItem("lettureOggi", lettureOggi);
+    aggiornaContatoreUI();
+    return snapshot;
+  });
+};
+
+// wrapper DOC GET
+const originalDocGet = firebase.firestore.DocumentReference.prototype.get;
+
+firebase.firestore.DocumentReference.prototype.get = function(...args){
+  return originalDocGet.apply(this, args).then(doc=>{
+    if(doc.exists){
+      lettureOggi += 1;
+      localStorage.setItem("lettureOggi", lettureOggi);
+      aggiornaContatoreUI();
+    }
+    return doc;
+  });
+};
+
+// reset automatico giornaliero
+const oggi = new Date().toDateString();
+const giornoSalvato = localStorage.getItem("giornoLetture");
+
+if(giornoSalvato !== oggi){
+  lettureOggi = 0;
+  localStorage.setItem("lettureOggi", 0);
+  localStorage.setItem("giornoLetture", oggi);
+}
