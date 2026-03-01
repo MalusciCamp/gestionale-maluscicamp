@@ -224,21 +224,20 @@ async function generaReport() {
         : "";
     }
 
-    if (campo === "allergie") {
+ if (campo === "allergie") {
 
-  // Se NON esistono allergie
-  if (!atleta.allergie || atleta.allergie === "Nessuna") {
+  const haAllergie = atleta.allergie?.stato === true;
+  const descrizione = atleta.allergie?.descrizione || "";
+
+  if (!haAllergie) {
     return "NO";
   }
 
-  // Se esistono allergie
-  let risultato = "SI";
-
-  if (atleta.noteAllergie && atleta.noteAllergie.trim() !== "") {
-    risultato += " - " + atleta.noteAllergie;
+  if (descrizione.trim() !== "") {
+    return "SI - " + descrizione;
   }
 
-  return risultato;
+  return "SI";
 }
 
 
