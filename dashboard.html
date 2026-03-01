@@ -11,6 +11,7 @@
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
 
   <!-- Icone -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -111,24 +112,6 @@
 if (!sessionStorage.getItem("utenteLoggato")) {
   window.location.href = "index.html";
 }
-  // ===============================
-  // FIREBASE CONFIG
-  // ===============================
-  const firebaseConfig = {
-    apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
-    authDomain: "gestionale-maluscicamp.firebaseapp.com",
-    projectId: "gestionale-maluscicamp",
-    storageBucket: "gestionale-maluscicamp.appspot.com",
-    messagingSenderId: "615282026849",
-    appId: "1:615282026849:web:bf46adfca227570d7d7d20"
-  };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
-  const db = firebase.firestore();
-
 
   // ===============================
   // NAVIGAZIONE
