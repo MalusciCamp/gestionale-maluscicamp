@@ -2,17 +2,7 @@ let filtroDataAttivo = null;
 
 // ================= FIREBASE =================
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
-  authDomain: "gestionale-maluscicamp.firebaseapp.com",
-  projectId: "gestionale-maluscicamp",
-  storageBucket: "gestionale-maluscicamp.appspot.com",
-  messagingSenderId: "615282026849",
-  appId: "1:615282026849:web:bf46adfca227570d7d7d20"
-};
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 
 fetch("components/header.html")
   .then(r => r.text())
