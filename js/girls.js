@@ -582,15 +582,32 @@ if(atleta.settimane && atleta.settimane.length > 0){
   .set({
     atletaId: atletaId,
     settimanaId: settimana.id,
-    quota: Number(settimana.prezzo),
 
-    // 🔥 AGGIUNGI QUESTO
-    sconto: Number(atleta.pagamento.sconto || 0),
+    // 🔹 DATI ANAGRAFICI COPIATI
+    cognome: atleta.cognome,
+    nome: atleta.nome,
+
+    // 🔹 DOCUMENTI COPIATI
+    certMedico: atleta.documenti?.certMedico || false,
+    documentoIdentita: atleta.documenti?.documentoIdentita || false,
+    fotoCodiceFiscale: atleta.documenti?.fotoCodiceFiscale || false,
+    tesseraSanitaria: atleta.documenti?.tesseraSanitaria || "",
+
+    // 🔹 PAGAMENTO BASE
+    quota: Number(settimana.prezzo),
+    pagatoTotale: Number(atleta.pagamento?.acconto || 0),
+
+    statoPagamento:
+      Number(atleta.pagamento?.acconto || 0) >= Number(settimana.prezzo)
+        ? "pagato"
+        : Number(atleta.pagamento?.acconto || 0) > 0
+          ? "parziale"
+          : "da_pagare",
 
     anno: new Date().getFullYear(),
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-
+  
     // 🔥 SE C'È ACCONTO → CREA MOVIMENTO PAGAMENTO
    // 🔥 SE C'È ACCONTO → CREA MOVIMENTO PAGAMENTO
 if(atleta.pagamento && Number(atleta.pagamento.acconto) > 0){
