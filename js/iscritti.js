@@ -700,7 +700,7 @@ async function cercaAtleta(){
       `;
 
       div.onclick = () => {
-        aggiungiIscrizione(doc.id);
+        aggiungiIscrizioneManuale(doc.id);
       };
 
       box.appendChild(div);
