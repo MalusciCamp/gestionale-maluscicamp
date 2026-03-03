@@ -283,12 +283,16 @@ function creaCardSettimana(data, containerParam = null) {
   const dalFormattato = formattaDataIT(data.dal);
   const alFormattato = formattaDataIT(data.al);
 
-  card.innerHTML = `
-    <h3>${data.nome}</h3>
-    <p><strong>Periodo:</strong> ${dalFormattato} - ${alFormattato}</p>
-    <small>${data.camp.toUpperCase()}</small>
-  `;
+ card.innerHTML = `
+  <h3>${data.nome}</h3>
+  <p><strong>Periodo:</strong> ${dalFormattato} - ${alFormattato}</p>
 
+  <div class="badge-iscritti">
+    👦 ${data.numeroIscritti || 0} iscritti
+  </div>
+
+  <small>${data.camp.toUpperCase()}</small>
+`;
   container.appendChild(card);
 }
 
@@ -322,14 +326,14 @@ window.onload = function() {
         const data = doc.data();
         const dataFine = new Date(data.al);
 
-        const settimanaObj = {
-          id: doc.id,
-          nome: data.nome,
-          dal: data.dal,
-          al: data.al,
-          camp: data.camp
-        };
-
+       const settimanaObj = {
+  id: doc.id,
+  nome: data.nome,
+  dal: data.dal,
+  al: data.al,
+  camp: data.camp,
+  numeroIscritti: data.numeroIscritti || 0
+};
         // 🔵 SETTIMANE ATTIVE
         if(dataFine >= oggi){
 
