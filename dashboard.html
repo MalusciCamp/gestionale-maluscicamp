@@ -288,7 +288,8 @@ function creaCardSettimana(data, containerParam = null) {
   <p><strong>Periodo:</strong> ${dalFormattato} - ${alFormattato}</p>
 
   <div class="badge-iscritti">
-    👦 ${data.numeroIscritti || 0} iscritti
+    ${data.camp === "girls" ? "👧" : "👦"} 
+    ${data.numeroIscritti || 0} iscritti
   </div>
 
   <small>${data.camp.toUpperCase()}</small>
