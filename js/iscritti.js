@@ -742,7 +742,12 @@ async function aggiungiIscrizioneManuale(atletaId){
     anno: new Date().getFullYear(),
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-
+// 🔹 Incrementa contatore settimana
+await db.collection("settimane")
+  .doc(settimanaID)
+  .update({
+    numeroIscritti: firebase.firestore.FieldValue.increment(1)
+  });
   alert("Iscrizione aggiunta!");
 
   chiudiPopupAggiungi();
@@ -785,6 +790,12 @@ async function eliminaIscrizione(idIscrizione){
   await db.collection("iscrizioni")
     .doc(idIscrizione)
     .delete();
+    // 🔹 Decrementa contatore settimana
+await db.collection("settimane")
+  .doc(settimanaID)
+  .update({
+    numeroIscritti: firebase.firestore.FieldValue.increment(-1)
+  });
 
   // 🔹 Trova pagamenti collegati
   const pagamentiSnap = await db.collection("pagamenti")
