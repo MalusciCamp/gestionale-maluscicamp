@@ -184,6 +184,7 @@ function logout() {
       al: al,
       prezzo: prezzo,
       camp: camp,
+      numeroIscritti: 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then((docRef) => {
