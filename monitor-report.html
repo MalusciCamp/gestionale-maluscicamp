@@ -47,6 +47,12 @@ h1{
   color:#22c55e;
 }
 
+.percentuale{
+  margin-top:5px;
+  font-size:14px;
+  color:#94a3b8;
+}
+
 .tabella{
   width:100%;
   border-collapse:collapse;
@@ -91,10 +97,12 @@ h1{
 <div class="box">
   <h2>Totale Oggi</h2>
   <div id="totaleOggi" class="numero">Caricamento...</div>
+  <div id="percentuale" class="percentuale"></div>
 </div>
 
 <div class="box">
-  <h2>Report Giornaliero</h2>
+  <h2>Report Giornaliero (ultimi 30 giorni)</h2>
+
   <table class="tabella">
     <thead>
       <tr>
@@ -102,12 +110,14 @@ h1{
         <th>Letture</th>
       </tr>
     </thead>
+
     <tbody id="tabellaGiorni"></tbody>
+
   </table>
 </div>
 
 <div class="footer">
-  Aggiornamento automatico ogni 30 secondi
+Aggiornamento automatico ogni 30 secondi
 </div>
 
 </div>
@@ -115,6 +125,8 @@ h1{
 <script>
 
 async function caricaMonitor(){
+
+  const limiteSpark = 50000;
 
   // 🔹 Totale Storico
   const globaleDoc = await db.collection("monitor")
@@ -129,6 +141,7 @@ async function caricaMonitor(){
       .innerText = 0;
   }
 
+
   // 🔹 Totale Oggi
   const oggi = new Date().toISOString().slice(0,10);
 
@@ -138,19 +151,41 @@ async function caricaMonitor(){
     .doc(oggi)
     .get();
 
+  let totaleOggi = 0;
+
   if(giornoDoc.exists){
-    document.getElementById("totaleOggi")
-      .innerText = giornoDoc.data().totaleGiorno || 0;
-  }else{
-    document.getElementById("totaleOggi")
-      .innerText = 0;
+    totaleOggi = giornoDoc.data().totaleGiorno || 0;
   }
 
-  // 🔹 Tabella Giornaliera
+  const numero = document.getElementById("totaleOggi");
+  numero.innerText = totaleOggi;
+
+  const percentuale = Math.round((totaleOggi / limiteSpark) * 100);
+
+  document.getElementById("percentuale").innerText =
+    percentuale + "% del limite giornaliero";
+
+
+  // 🔹 Colore sicurezza
+
+  if(percentuale >= 80){
+    numero.style.color = "#ef4444";
+  }
+  else if(percentuale >= 50){
+    numero.style.color = "#f59e0b";
+  }
+  else{
+    numero.style.color = "#22c55e";
+  }
+
+
+  // 🔹 Tabella ultimi 30 giorni
+
   const snap = await db.collection("monitor")
     .doc("giorni")
     .collection("giorni")
     .orderBy("data","desc")
+    .limit(30)
     .get();
 
   const tbody = document.getElementById("tabellaGiorni");
@@ -173,8 +208,10 @@ async function caricaMonitor(){
 
 }
 
+
 // 🔹 Carica subito
 caricaMonitor();
+
 
 // 🔹 Aggiorna ogni 30 secondi
 setInterval(() => {
