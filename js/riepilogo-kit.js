@@ -34,6 +34,14 @@ async function caricaKit(){
     .where("settimanaId","==", settimanaID)
     .get();
 
+  const atletiSnap = await db.collection("atleti").get();
+
+  const atletiMap = {};
+
+  atletiSnap.forEach(doc=>{
+    atletiMap[doc.id] = doc.data();
+  });
+
   const tbody = document.getElementById("tabellaKit");
   tbody.innerHTML = "";
 
@@ -49,17 +57,12 @@ async function caricaKit(){
     senior: 0
   };
 
-  for(const doc of iscrizioniSnap.docs){
+  iscrizioniSnap.forEach(doc => {
 
     const iscr = doc.data();
+    const atleta = atletiMap[iscr.atletaId];
 
-    const atletaDoc = await db.collection("atleti")
-      .doc(iscr.atletaId)
-      .get();
-
-    if(!atletaDoc.exists) continue;
-
-    const atleta = atletaDoc.data();
+    if(!atleta) return;
 
     totale++;
 
@@ -95,8 +98,10 @@ async function caricaKit(){
       <td>${taglia}</td>
       <td>${scarpa}</td>
     `;
+
     tbody.appendChild(tr);
-  }
+
+  });
 
   document.getElementById("totaleAtleti").innerText = totale;
 
