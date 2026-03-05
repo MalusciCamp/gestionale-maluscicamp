@@ -262,7 +262,6 @@ async function stampaKit(){
     );
   }
 
-const blob = pdf.output("blob");
-const url = URL.createObjectURL(blob);
-window.open(url);
+pdf.save("riepilogo-kit.pdf");
+
 
