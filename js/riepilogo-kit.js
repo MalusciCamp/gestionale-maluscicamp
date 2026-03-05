@@ -107,23 +107,33 @@ function stampaTotali(){
 
   const boxTaglie = document.getElementById("totaliTaglie");
   const boxScarpe = document.getElementById("totaliScarpe");
+  const boxCalzettoni = document.getElementById("totaliCalzettoni");
 
   boxTaglie.innerHTML = "";
   boxScarpe.innerHTML = "";
+  boxCalzettoni.innerHTML = "";
 
+  // TAGLIE
   Object.keys(totaliTaglie)
     .sort()
     .forEach(t=>{
       boxTaglie.innerHTML += `<div>${t}: <strong>${totaliTaglie[t]}</strong></div>`;
     });
 
+  // NUMERI SCARPA
   Object.keys(totaliScarpe)
     .sort((a,b)=>a-b)
     .forEach(s=>{
       boxScarpe.innerHTML += `<div>${s}: <strong>${totaliScarpe[s]}</strong></div>`;
     });
-}
 
+  // ORDINE CALZETTONI
+  boxCalzettoni.innerHTML += `
+    <div>BOY (33-36): <strong>${riepilogoCalzettoni.boy}</strong></div>
+    <div>JUNIOR (37-40): <strong>${riepilogoCalzettoni.junior}</strong></div>
+    <div>SENIOR (41-44): <strong>${riepilogoCalzettoni.senior}</strong></div>
+  `;
+}
 async function stampaKit(){
 
   const { jsPDF } = window.jspdf;
