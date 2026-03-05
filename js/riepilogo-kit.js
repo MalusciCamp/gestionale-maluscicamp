@@ -262,5 +262,8 @@ async function stampaKit(){
     );
   }
 
-  pdf.output("dataurlnewwindow");
+  const blob = pdf.output("blob");
+const url = URL.createObjectURL(blob);
+window.open(url);pdf.output("dataurlnewwindow");
+
 }
