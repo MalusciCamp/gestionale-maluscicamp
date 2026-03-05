@@ -252,19 +252,24 @@ async function stampaKit(){
 
   const pageCount = pdf.internal.getNumberOfPages();
 
-  for(let i=1;i<=pageCount;i++){
-    pdf.setPage(i);
-    pdf.setFontSize(8);
-    pdf.text(
-      "Documento generato il " + dataOggi + " - Pagina " + i + "/" + pageCount,
-      15,
-      290
-    );
-  }
-pdf.save("riepilogo-kit.pdf");
-
+for(let i=1;i<=pageCount;i++){
+  pdf.setPage(i);
+  pdf.setFontSize(8);
+  pdf.text(
+    "Documento generato il " + dataOggi + " - Pagina " + i + "/" + pageCount,
+    15,
+    290
+  );
 }
 
+const blob = pdf.output("blob");
 
+const link = document.createElement("a");
+link.href = URL.createObjectURL(blob);
+link.download = "riepilogo-kit.pdf";
 
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
 
+}
