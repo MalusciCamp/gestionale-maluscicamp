@@ -1,5 +1,3 @@
-
-
 fetch("components/header.html")
   .then(r => r.text())
   .then(h => document.getElementById("header").innerHTML = h);
@@ -10,6 +8,12 @@ const settimanaID = params.get("id");
 let datiKit = [];
 let totaliTaglie = {};
 let totaliScarpe = {};
+
+let riepilogoCalzettoni = {
+  boy: 0,
+  junior: 0,
+  senior: 0
+};
 
 window.addEventListener("DOMContentLoaded", async () => {
   await caricaKit();
@@ -34,9 +38,16 @@ async function caricaKit(){
   tbody.innerHTML = "";
 
   let totale = 0;
+
   datiKit = [];
   totaliTaglie = {};
   totaliScarpe = {};
+
+  riepilogoCalzettoni = {
+    boy: 0,
+    junior: 0,
+    senior: 0
+  };
 
   for(const doc of iscrizioniSnap.docs){
 
@@ -57,6 +68,18 @@ async function caricaKit(){
 
     totaliTaglie[taglia] = (totaliTaglie[taglia] || 0) + 1;
     totaliScarpe[scarpa] = (totaliScarpe[scarpa] || 0) + 1;
+
+    const numeroScarpa = parseInt(scarpa);
+
+    if(numeroScarpa >= 33 && numeroScarpa <= 36){
+      riepilogoCalzettoni.boy++;
+    }
+    else if(numeroScarpa >= 37 && numeroScarpa <= 40){
+      riepilogoCalzettoni.junior++;
+    }
+    else if(numeroScarpa >= 41 && numeroScarpa <= 44){
+      riepilogoCalzettoni.senior++;
+    }
 
     datiKit.push({
       nome: atleta.cognome + " " + atleta.nome,
@@ -107,9 +130,6 @@ async function stampaKit(){
   const pdf = new jsPDF("p","mm","a4");
 
   const dataOggi = new Date().toLocaleDateString("it-IT");
-  const anno = new Date().getFullYear();
-
-  // ================= HEADER UFFICIALE =================
 
   try{
     pdf.addImage("img/logo.png", "PNG", 15, 10, 30, 12);
@@ -134,13 +154,9 @@ async function stampaKit(){
   pdf.setFontSize(10);
   pdf.text("Data generazione: " + dataOggi, 150, 38);
 
-  // ================= TOTALE ATLETI =================
-
   pdf.setFontSize(12);
   pdf.setFont("helvetica","bold");
   pdf.text("Totale Atleti Iscritti: " + datiKit.length, 15, 50);
-
-  // ================= RIEPILOGO TAGLIE =================
 
   let y = 60;
 
@@ -158,8 +174,6 @@ async function stampaKit(){
       y += 5;
     });
 
-  // ================= RIEPILOGO SCARPE =================
-
   y += 4;
 
   pdf.setFont("helvetica","bold");
@@ -175,8 +189,21 @@ async function stampaKit(){
       y += 5;
     });
 
-  // ================= TABELLA ATLETI =================
+  y += 6;
 
+  pdf.setFont("helvetica","bold");
+  pdf.text("Ordine Calzettoni (da numeri scarpa):", 15, y);
+
+  y += 6;
+  pdf.setFont("helvetica","normal");
+
+  pdf.text(`BOY (33-36): ${riepilogoCalzettoni.boy}`, 20, y);
+  y += 5;
+
+  pdf.text(`JUNIOR (37-40): ${riepilogoCalzettoni.junior}`, 20, y);
+  y += 5;
+
+  pdf.text(`SENIOR (41-44): ${riepilogoCalzettoni.senior}`, 20, y);
   y += 8;
 
   pdf.setFont("helvetica","bold");
@@ -213,8 +240,6 @@ async function stampaKit(){
     y += 6;
   });
 
-  // ================= FOOTER =================
-
   const pageCount = pdf.internal.getNumberOfPages();
 
   for(let i=1;i<=pageCount;i++){
@@ -227,6 +252,5 @@ async function stampaKit(){
     );
   }
 
-  // 🔥 APRE A VIDEO INVECE DI SALVARE
   pdf.output("dataurlnewwindow");
 }
