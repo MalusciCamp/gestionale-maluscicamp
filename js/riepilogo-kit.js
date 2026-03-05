@@ -34,13 +34,27 @@ async function caricaKit(){
     .where("settimanaId","==", settimanaID)
     .get();
 
-  const atletiSnap = await db.collection("atleti").get();
+const atletaIds = [];
 
-  const atletiMap = {};
+iscrizioniSnap.forEach(doc=>{
+  atletaIds.push(doc.data().atletaId);
+});
 
-  atletiSnap.forEach(doc=>{
+const atletiMap = {};
+
+for(let i=0;i<atletaIds.length;i+=10){
+
+  const chunk = atletaIds.slice(i,i+10);
+
+  const snap = await db.collection("atleti")
+    .where(firebase.firestore.FieldPath.documentId(),"in",chunk)
+    .get();
+
+  snap.forEach(doc=>{
     atletiMap[doc.id] = doc.data();
   });
+
+}
 
   const tbody = document.getElementById("tabellaKit");
   tbody.innerHTML = "";
