@@ -262,6 +262,11 @@ async function stampaKit(){
     );
   }
 
-pdf.save("riepilogo-kit.pdf");
+// apertura PDF
+const blob = pdf.output("blob");
+const url = URL.createObjectURL(blob);
+window.open(url);
+
+}
 
 
