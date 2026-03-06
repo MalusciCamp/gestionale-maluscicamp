@@ -105,15 +105,7 @@ for(let i=0;i<atletaIds.length;i+=10){
       scarpa: scarpa
     });
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${atleta.cognome} ${atleta.nome}</td>
-      <td>${atleta.altezza || "-"}</td>
-      <td>${taglia}</td>
-      <td>${scarpa}</td>
-    `;
 
-    tbody.appendChild(tr);
 
   });
 
