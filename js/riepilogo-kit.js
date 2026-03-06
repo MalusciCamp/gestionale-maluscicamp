@@ -117,6 +117,25 @@ for(let i=0;i<atletaIds.length;i+=10){
 
   });
 
+  // ordine alfabetico
+datiKit.sort((a,b)=> a.nome.localeCompare(b.nome));
+
+// stampa tabella ordinata
+datiKit.forEach(d => {
+
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td>${d.nome}</td>
+    <td>${d.altezza}</td>
+    <td>${d.taglia}</td>
+    <td>${d.scarpa}</td>
+  `;
+
+  tbody.appendChild(tr);
+
+});
+
   document.getElementById("totaleAtleti").innerText = totale;
 
   stampaTotali();
@@ -253,6 +272,8 @@ async function stampaKit(){
   y += 6;
 
   pdf.setFont("helvetica","normal");
+
+  datiKit.sort((a,b)=> a.nome.localeCompare(b.nome));
 
   datiKit.forEach(d=>{
 
