@@ -595,6 +595,7 @@ if(atleta.settimane && atleta.settimane.length > 0){
 
     // 🔹 PAGAMENTO BASE
     quota: Number(settimana.prezzo),
+     sconto: Number(atleta.pagamento?.sconto || 0),
     pagatoTotale: Number(atleta.pagamento?.acconto || 0),
 
     statoPagamento:
