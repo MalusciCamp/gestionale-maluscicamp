@@ -50,11 +50,11 @@ text-align:left;
 
 <h2>Ricevuta pagamento Malusci Camp</h2>
 
-<div id="preview">
+<div id="preview" style="margin-top:30px;">
 Caricamento ricevuta...
 </div>
 
-<button onclick="generaRicevuta()">Scarica ricevuta PDF</button>
+<button onclick="scaricaPDF()">Scarica ricevuta PDF</button>
 
 <script>
 
@@ -250,11 +250,28 @@ const pdfBlob = pdf.output("blob");
 const url = URL.createObjectURL(pdfBlob);
 
 document.getElementById("preview").innerHTML =
-`<iframe src="${url}" width="100%" height="500px"></iframe>`;
+'<iframe src="'+url+'" width="100%" height="550"></iframe>';
+
+window.pdfCorrente = pdf;
 
 }
 
+function scaricaPDF(){
+
+if(!window.pdfCorrente){
+alert("Ricevuta non ancora pronta");
+return;
+}
+
+window.pdfCorrente.save(
+"Ricevuta_" + atletaId + "_" + new Date().getFullYear() + ".pdf"
+);
+
+}
+
+generaRicevuta();
 </script>
+
 
 </body>
 </html>
