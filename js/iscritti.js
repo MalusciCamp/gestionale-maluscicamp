@@ -333,9 +333,8 @@ pagamentiSnap.forEach(p => {
       ${dataPag} - €${importo} ${metodo}
     </span>
 
-    <button onclick="modificaMovimento('${id}')">
-      ✏️
-    </button>
+   <button onclick="modificaMovimento('${id}')">✏️</button>
+<button onclick="eliminaPagamento('${id}')">🗑️</button>
   `;
 
   boxStorico.appendChild(div);
@@ -371,31 +370,6 @@ if(btnMod){
 
 function chiudiPopupPagamento(){
   document.getElementById("popupPagamento").style.display = "none";
-}
-
-async function attivaModificaPagamento(){
-
-  const pagamentiSnap = await db.collection("pagamenti")
-    .where("atletaId","==", atletaPagamentoInCorso)
-    .where("settimanaId","==", settimanaID)
-    .orderBy("data","desc")
-    .limit(1)
-    .get();
-
-  if(pagamentiSnap.empty){
-    alert("Nessun pagamento da modificare");
-    return;
-  }
-
-  const doc = pagamentiSnap.docs[0];
-  const pagamento = doc.data();
-
-  ultimoPagamentoRegistrato = doc.id;
-
-  document.getElementById("importoPagamento").value = pagamento.importo || "";
-  document.getElementById("metodoPagamento").value = pagamento.metodo || "";
-  document.getElementById("scontoPagamento").value = pagamento.scontoExtra || 0;
-
 }
 
 
@@ -493,6 +467,21 @@ pagamentoInModifica = null;
   document.getElementById("scontoPagamento").value = data.scontoExtra || 0;
 
   document.querySelector("#popupPagamento h3").innerText = "Modifica pagamento";
+
+}
+
+async function eliminaPagamento(idPagamento){
+
+  const conferma = confirm("Eliminare questo pagamento?");
+
+  if(!conferma) return;
+
+  await db.collection("pagamenti")
+    .doc(idPagamento)
+    .delete();
+
+  await caricaIscritti();
+  await apriPagamento(atletaPagamentoInCorso);
 
 }
 
