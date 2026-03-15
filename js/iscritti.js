@@ -299,7 +299,7 @@ let quotaTotale = Number(iscrizione.quota || 0);
     .get();
 
   const atletaData = atletaDoc.data() || {};
-  const scontoIscrizione = Number(atletaData?.pagamento?.sconto || 0);
+  const scontoIscrizione = Number(iscrizione.sconto || 0);
 
   // 🔹 Calcolo pagato
   const pagamentiSnap = await db.collection("pagamenti")
@@ -857,6 +857,7 @@ async function aggiungiIscrizioneManuale(atletaId){
     atletaId: atletaId,
     settimanaId: settimanaID,
     quota: Number(settimana.prezzo),
+     sconto: 0,
     pagato: 0,
     statoPagamento: "da_pagare",
     anno: new Date().getFullYear(),
