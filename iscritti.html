@@ -62,6 +62,9 @@
 </p>
     <p>Totale pagato: <strong id="totalePagato">0</strong> €</p>
     <p>Residuo: <strong id="residuoPagamento">0</strong> €</p>
+    <h4 style="margin-top:15px;">Storico pagamenti</h4>
+
+<div id="storicoPagamenti" style="max-height:150px;overflow:auto;font-size:14px;"></div>
 
 
 <p>
@@ -78,7 +81,12 @@
     </select>
 
     <button onclick="registraPagamento()">Registra</button>
-    <button onclick="chiudiPopupPagamento()">Annulla</button>
+
+<button id="btnModificaPagamento" onclick="attivaModificaPagamento()" style="display:none;">
+✏️ Modifica ultimo pagamento
+</button>
+
+<button onclick="chiudiPopupPagamento()">Annulla</button>
 
     <button id="btnStampaRicevuta"
         onclick="stampaRicevuta()"
