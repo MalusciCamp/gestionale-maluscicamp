@@ -14,6 +14,7 @@ if(CAMP === "girls"){
 } else if(CAMP === "boys"){
   document.getElementById("titoloArchivio").innerText = "Archivio Atleti - Boys Camp";
 }
+
 // ================= HEADER =================
 
 fetch("components/header.html")
@@ -21,13 +22,14 @@ fetch("components/header.html")
 .then(h => document.getElementById("header").innerHTML = h);
 
 
-// ================= CARICA ATLETE =================
-
 // ================= PAGINAZIONE =================
 
 let lastVisible = null;
 let loading = false;
 const PAGE_SIZE = 25;
+
+
+// ================= CARICA ATLETE =================
 
 async function caricaAtlete(reset = true){
 
@@ -99,6 +101,8 @@ async function caricaAtlete(reset = true){
 
   loading = false;
 }
+
+
 // ================= ELIMINA =================
 
 function eliminaAtleta(id){
@@ -135,6 +139,61 @@ function visualizzaScheda(id){
 
 window.onload = caricaAtlete;
 
+
+// ================= FILTRA ATLETA IN TABELLA =================
+
+async function filtraTabellaAtleta(atletaId){
+
+  try{
+
+    const atletaDoc = await db.collection("atleti")
+      .doc(atletaId)
+      .get();
+
+    if(!atletaDoc.exists) return;
+
+    const atleta = atletaDoc.data();
+
+    const tbody = document.getElementById("tbodyAtleti");
+
+    const tr = document.createElement("tr");
+
+    tr.style.background = "#fff8dc";
+
+    tr.innerHTML = `
+      <td>${atleta.cognome || ""}</td>
+      <td>${atleta.nome || ""}</td>
+      <td>${atleta.classe || ""}</td>
+      <td>${atleta.ruolo || "-"}</td>
+
+      <td>
+        <div class="archivio-actions">
+
+          <button class="view"
+            onclick="visualizzaScheda('${atletaId}')">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+
+          <button class="delete"
+            onclick="eliminaAtleta('${atletaId}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+
+        </div>
+      </td>
+    `;
+
+    tbody.prepend(tr);
+
+  }catch(err){
+    console.error("Errore filtro atleta:", err);
+  }
+
+}
+
+
+// ================= RICERCA =================
+
 async function cercaArchivio(){
 
   const input = document.getElementById("inputRicercaArchivio");
@@ -151,7 +210,6 @@ async function cercaArchivio(){
 
   try{
 
-    // 🔥 QUERY OTTIMIZZATA CON RANGE
     const snapshot = await db.collection("atleti")
       .where("camp","==",CAMP)
       .where("cognomeLower", ">=", testo)
@@ -172,7 +230,6 @@ async function cercaArchivio(){
       const cognome = atleta.cognome || "";
       const nome = atleta.nome || "";
 
-      // 🔥 EVIDENZIAZIONE PARTE CERCATA
       const regex = new RegExp(`(${testo})`, "gi");
       const cognomeEvidenziato = cognome.replace(regex, "<strong>$1</strong>");
 
@@ -181,7 +238,8 @@ async function cercaArchivio(){
       div.innerHTML = `${cognomeEvidenziato} ${nome}`;
 
       div.onclick = () => {
-        visualizzaScheda(doc.id);
+        filtraTabellaAtleta(doc.id);
+        box.style.display = "none";
       };
 
       box.appendChild(div);
@@ -195,6 +253,10 @@ async function cercaArchivio(){
   }
 
 }
+
+
+// ================= CHIUSURA RICERCA =================
+
 document.addEventListener("click", function(e){
 
   const box = document.getElementById("risultatiRicercaArchivio");
