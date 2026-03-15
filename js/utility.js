@@ -21,16 +21,7 @@ function chiudiTuttiPopup() {
 
 // ================= MAIL =================
 
-function apriMailBox() {
-  chiudiTuttiPopup();
-  document.getElementById("popupMail").style.display = "flex";
-}
-
-function chiudiMail() {
-  document.getElementById("popupMail").style.display = "none";
-}
-
-function inviaMailSettimana() {
+async function inviaMailSettimana() {
 
   const oggetto = document.getElementById("oggettoMail").value.trim();
   const testo = document.getElementById("testoMail").value.trim();
@@ -40,11 +31,98 @@ function inviaMailSettimana() {
     return;
   }
 
-  alert("Funzione invio email non ancora attiva.");
-  chiudiMail();
+  try {
+
+    const iscrizioniSnap = await db.collection("iscrizioni")
+      .where("settimanaId","==",settimanaID)
+      .get();
+
+    if(iscrizioniSnap.empty){
+      alert("Nessun iscritto trovato");
+      return;
+    }
+
+    // 🔹 Recupero dati settimana UNA SOLA VOLTA
+    const settimanaDoc = await db.collection("settimane")
+      .doc(settimanaID)
+      .get();
+
+    let nomeSettimana = "";
+    let periodo = "";
+
+    if(settimanaDoc.exists){
+
+      const data = settimanaDoc.data();
+
+      nomeSettimana = data.nome || "";
+
+      if(data.dal && data.al){
+
+        const dal = data.dal.toDate
+          ? data.dal.toDate()
+          : new Date(data.dal);
+
+        const al = data.al.toDate
+          ? data.al.toDate()
+          : new Date(data.al);
+
+        periodo =
+          dal.toLocaleDateString("it-IT")
+          + " - " +
+          al.toLocaleDateString("it-IT");
+
+      }
+
+    }
+
+    let inviate = 0;
+
+    for (const doc of iscrizioniSnap.docs) {
+
+      const atletaId = doc.data().atletaId;
+
+      const atletaDoc = await db.collection("atleti")
+        .doc(atletaId)
+        .get();
+
+      if (!atletaDoc.exists) continue;
+
+      const atleta = atletaDoc.data();
+
+      if (!atleta.email || atleta.email.trim() === "") continue;
+
+      await emailjs.send(
+        "service_ezo9gbn",
+        "template_rudrhf7",
+        {
+          email: atleta.email,
+          oggetto: oggetto,
+          messaggio: testo,
+          atleta: atleta.cognome + " " + atleta.nome,
+          settimana: nomeSettimana,
+          periodo: periodo
+        }
+      );
+
+      inviate++;
+
+      // 🔹 Micro pausa per evitare blocchi EmailJS
+      await new Promise(resolve => setTimeout(resolve, 350));
+
+    }
+
+    alert("Email inviate: " + inviate);
+
+    chiudiMail();
+
+  } catch(error) {
+
+    console.error(error);
+    alert("Errore invio email");
+
+  }
+
 }
-
-
 // ================= REPORT =================
 
 function apriReport() {
