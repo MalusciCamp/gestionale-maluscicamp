@@ -85,6 +85,11 @@ async function inviaMailSettimana() {
     }
 
     let inviate = 0;
+    const progressBox = document.getElementById("progressContainer");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+
+progressBox.style.display = "block";
 
     for (const doc of iscrizioniSnap.docs) {
 
@@ -115,11 +120,18 @@ async function inviaMailSettimana() {
 
       inviate++;
 
+      const percent = Math.round((inviate / iscrizioniSnap.size) * 100);
+
+progressBar.style.width = percent + "%";
+progressText.innerText =
+  "Email inviate: " + inviate + " / " + iscrizioniSnap.size;
+
       // 🔹 Micro pausa per evitare blocchi EmailJS
       await new Promise(resolve => setTimeout(resolve, 350));
 
     }
-
+progressBar.style.width = "100%";
+progressText.innerText = "Invio completato!";
     alert("Email inviate: " + inviate);
 
     chiudiMail();
