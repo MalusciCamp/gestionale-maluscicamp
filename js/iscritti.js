@@ -106,7 +106,7 @@ pagamentiSnap.forEach(p=>{
 
 
 const quota = Number(iscrizione.quota || 0);
-const scontoIscrizione = Number(atleta.pagamento?.sconto || 0);
+const scontoIscrizione = Number(iscrizione.sconto || 0);
 
 const quotaNetta = quota - scontoIscrizione - scontoExtraTotale;
 
