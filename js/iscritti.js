@@ -714,15 +714,14 @@ if(codiceFiscale){
     y
   );
 
-  pdf.rect(120, 85, 65, 35);
-
-try{
- pdf.addImage("img/firma.png", "PNG", 125, 88, 45, 18);
-}catch(e){}
+pdf.rect(120, 85, 65, 35);
 
 pdf.setFontSize(8);
 pdf.text("Per Associazione Sportiva Dilettantistica", 122, 92);
 
+try{
+  pdf.addImage("img/firma.png", "PNG", 125, 98, 50, 18);
+}catch(e){}
 
   pdf.save(`Ricevuta_${numeroRicevuta}_${atleta.cognome}.pdf`);
 }
