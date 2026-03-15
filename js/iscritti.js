@@ -218,6 +218,16 @@ function apriPagamento(atletaId){
 }
 
 
+function modificaPagamento(idIscrizione){
+
+  atletaPagamento = idIscrizione;
+
+  document.getElementById("popupPagamento").classList.remove("popup-hidden");
+
+  document.querySelector("#popupPagamento h3").innerText = "Modifica Pagamento";
+
+}
+
 
 // ================= AVVIO =================
 
