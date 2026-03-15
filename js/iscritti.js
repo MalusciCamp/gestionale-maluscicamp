@@ -177,10 +177,16 @@ if(pagato >= quotaNetta && quotaNetta > 0){
 
 
   ${stato === "pagato" ? `
-    <button onclick="stampaRicevutaDiretta('${atletaId}')">
-      🖨️
-    </button>
-  ` : ""}
+  <button onclick="stampaRicevutaDiretta('${atletaId}')">
+    🖨️
+  </button>
+
+  <button onclick="inviaRicevutaEmail('${atletaId}')">
+    ✉️
+  </button>
+` : ""}
+
+
 
   <button onclick="eliminaIscrizione('${docIscr.id}')">
     🗑️
