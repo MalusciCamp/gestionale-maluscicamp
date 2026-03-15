@@ -172,6 +172,10 @@ if(pagato >= quotaNetta && quotaNetta > 0){
     💰
   </button>
 
+  <button onclick="modificaPagamento('${iscritto.id}')">
+✏️
+</button>
+
   ${stato === "pagato" ? `
     <button onclick="stampaRicevutaDiretta('${atletaId}')">
       🖨️
