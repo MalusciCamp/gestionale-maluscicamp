@@ -715,9 +715,14 @@ if(codiceFiscale){
   );
 
   pdf.rect(120, 85, 65, 35);
-  pdf.setFontSize(8);
-  pdf.text("Per Associazione Sportiva Dilettantistica", 122, 92);
-  pdf.text("Timbro e Firma", 122, 98);
+
+try{
+  pdf.addImage("img/firma.jpg", "JPEG", 125, 90, 55, 20);
+}catch(e){}
+
+pdf.setFontSize(8);
+pdf.text("Per Associazione Sportiva Dilettantistica", 122, 92);
+pdf.text("Timbro e Firma", 122, 120);
 
   pdf.save(`Ricevuta_${numeroRicevuta}_${atleta.cognome}.pdf`);
 }
