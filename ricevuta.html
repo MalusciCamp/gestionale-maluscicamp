@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Ricevuta pagamento</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+padding:40px;
+}
+
+button{
+padding:12px 25px;
+font-size:16px;
+background:#1e88e5;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Ricevuta pagamento Malusci Camp</h2>
+
+<p>La ricevuta è pronta.</p>
+
+<button onclick="generaRicevuta()">Scarica ricevuta PDF</button>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+
+const atletaId = params.get("atleta");
+const settimanaID = params.get("settimana");
+
+async function generaRicevuta(){
+
+const pagamentiSnap = await db.collection("pagamenti")
+.where("atletaId","==", atletaId)
+.where("settimanaId","==", settimanaID)
+.orderBy("data")
+.get();
+
+if(pagamentiSnap.empty){
+alert("Pagamento non trovato");
+return;
+}
+
+let numeroRicevuta = null;
+
+pagamentiSnap.forEach(doc=>{
+const data = doc.data();
+if(data.numeroRicevuta){
+numeroRicevuta = data.numeroRicevuta;
+}
+});
+
+const atletaDoc = await db.collection("atleti")
+.doc(atletaId)
+.get();
+
+const atleta = atletaDoc.data();
+
+const iscrizioniSnap = await db.collection("iscrizioni")
+.where("atletaId","==", atletaId)
+.where("settimanaId","==", settimanaID)
+.get();
+
+const iscrizione = iscrizioniSnap.docs[0].data();
+
+let quotaTotale = Number(iscrizione.quota || 0);
+
+const settimanaDoc = await db.collection("settimane")
+.doc(settimanaID)
+.get();
+
+const settimana = settimanaDoc.data();
+
+let periodoTesto = "";
+
+if(settimana){
+
+const dal = settimana.dal?.toDate
+? settimana.dal.toDate()
+: settimana.dal;
+
+const al = settimana.al?.toDate
+? settimana.al.toDate()
+: settimana.al;
+
+periodoTesto =
+new Date(dal).toLocaleDateString("it-IT")
++ " - " +
+new Date(al).toLocaleDateString("it-IT");
+
+}
+
+const dataOggi = new Date().toLocaleDateString("it-IT");
+
+const { jsPDF } = window.jspdf;
+
+const pdf = new jsPDF({
+orientation:"landscape",
+unit:"mm",
+format:"a5"
+});
+
+pdf.addImage("img/logo.png","PNG",10,8,35,12);
+
+pdf.setFontSize(10);
+pdf.text("A.S.D. MALUSCI CAMP",55,12);
+pdf.text("Via Montalbano 98 - Quarrata (PT)",55,17);
+pdf.text("P.IVA 01963540479",55,22);
+
+pdf.line(10,28,200,28);
+
+pdf.setFontSize(12);
+pdf.text(
+"RICEVUTA DI PAGAMENTO N° "+numeroRicevuta,
+15,
+38
+);
+
+let y=48;
+
+pdf.setFontSize(9);
+
+pdf.text(
+"Ha versato la somma di € "+quotaTotale.toFixed(2),
+15,
+y
+);
+
+y+=6;
+
+pdf.text("Periodo: "+periodoTesto,15,y);
+
+y+=10;
+
+pdf.text(
+"Atleta: "+atleta.cognome+" "+atleta.nome,
+15,
+y
+);
+
+y+=6;
+
+pdf.text(
+"Nato a "+(atleta.luogoNascita || ""),
+15,
+y
+);
+
+y+=6;
+
+pdf.text(
+"Residente in "+(atleta.indirizzo || ""),
+15,
+y
+);
+
+y+=12;
+
+pdf.text(
+"Data "+dataOggi,
+15,
+y
+);
+
+pdf.rect(120,85,65,35);
+
+pdf.setFontSize(8);
+pdf.text("Per Associazione Sportiva",122,92);
+
+pdf.addImage("img/firma.png","PNG",125,98,50,18);
+
+pdf.save("Ricevuta_"+numeroRicevuta+"_"+atleta.cognome+".pdf");
+
+}
+
+</script>
+
+</body>
+</html>
