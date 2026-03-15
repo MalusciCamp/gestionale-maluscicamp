@@ -722,7 +722,7 @@ try{
 
 pdf.setFontSize(8);
 pdf.text("Per Associazione Sportiva Dilettantistica", 122, 92);
-pdf.text("Timbro e Firma", 122, 120);
+
 
   pdf.save(`Ricevuta_${numeroRicevuta}_${atleta.cognome}.pdf`);
 }
