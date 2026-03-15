@@ -278,82 +278,78 @@ async function apriPagamento(atletaId){
 
   atletaPagamentoInCorso = atletaId;
 
- // ================= RECUPERO ISCRIZIONE =================
+  // ================= RECUPERO ISCRIZIONE =================
 
-const iscrizioniSnap = await db.collection("iscrizioni")
-  .where("atletaId","==", atletaId)
-  .where("settimanaId","==", settimanaID)
-  .get();
-
-if(iscrizioniSnap.empty){
-  alert("Iscrizione non trovata");
-  return;
-}
-
-const iscrizione = iscrizioniSnap.docs[0].data();
-let quotaTotale = Number(iscrizione.quota || 0);
-
-  // 🔹 Recupero sconto da atleta
-  const atletaDoc = await db.collection("atleti")
-    .doc(atletaId)
+  const iscrizioniSnap = await db.collection("iscrizioni")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
     .get();
 
-  const atletaData = atletaDoc.data() || {};
+  if(iscrizioniSnap.empty){
+    alert("Iscrizione non trovata");
+    return;
+  }
+
+  const iscrizione = iscrizioniSnap.docs[0].data();
+
+  const quotaTotale = Number(iscrizione.quota || 0);
   const scontoIscrizione = Number(iscrizione.sconto || 0);
 
-  // 🔹 Calcolo pagato
+  // ================= RECUPERO PAGAMENTI =================
+
   const pagamentiSnap = await db.collection("pagamenti")
     .where("atletaId","==", atletaId)
     .where("settimanaId","==", settimanaID)
     .get();
 
- let pagato = 0;
-let scontoExtraTotale = 0;
+  let pagato = 0;
+  let scontoExtraTotale = 0;
 
-pagamentiSnap.forEach(p=>{
-  const data = p.data();
-  pagato += Number(data.importo || 0);
-  scontoExtraTotale += Number(data.scontoExtra || 0);
-});
+  pagamentiSnap.forEach(p=>{
+    const data = p.data();
+    pagato += Number(data.importo || 0);
+    scontoExtraTotale += Number(data.scontoExtra || 0);
+  });
 
-// ================= STORICO PAGAMENTI =================
+  // ================= STORICO PAGAMENTI =================
 
-const boxStorico = document.getElementById("storicoPagamenti");
-boxStorico.innerHTML = "";
+  const boxStorico = document.getElementById("storicoPagamenti");
+  boxStorico.innerHTML = "";
 
-pagamentiSnap.forEach(p => {
+  pagamentiSnap.forEach(p => {
 
-  const data = p.data();
-  const id = p.id;
+    const data = p.data();
+    const id = p.id;
 
-  const importo = Number(data.importo || 0);
-  const metodo = data.metodo || "";
-  const dataPag = formattaData(data.data?.toDate());
+    const importo = Number(data.importo || 0);
+    const metodo = data.metodo || "";
+    const dataPag = formattaData(data.data?.toDate());
 
-  const div = document.createElement("div");
+    const div = document.createElement("div");
 
-  div.style.display = "flex";
-  div.style.justifyContent = "space-between";
-  div.style.marginBottom = "5px";
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.marginBottom = "5px";
 
-  div.innerHTML = `
-    <span>
-      ${dataPag} - €${importo} ${metodo}
-    </span>
+    div.innerHTML = `
+      <span>
+        ${dataPag} - €${importo} ${metodo}
+      </span>
 
-   <button onclick="modificaMovimento('${id}')">✏️</button>
-<button onclick="eliminaPagamento('${id}')">🗑️</button>
-  `;
+      <button onclick="modificaMovimento('${id}')">✏️</button>
+      <button onclick="eliminaPagamento('${id}')">🗑️</button>
+    `;
 
-  boxStorico.appendChild(div);
+    boxStorico.appendChild(div);
 
-});
+  });
 
-  // 🔹 Aggiorno campi
+  // ================= AGGIORNO CAMPI =================
+
   document.getElementById("totaleDovuto").innerText = quotaTotale;
   document.getElementById("totalePagato").innerText = pagato;
 
-  // 🔹 Mostra sconto
+  // 🔹 Mostra sconto iscrizione
   if(scontoIscrizione > 0){
     document.getElementById("scontoIscrizione").innerText = scontoIscrizione;
     document.getElementById("rigaScontoIscrizione").style.display = "block";
@@ -361,19 +357,24 @@ pagamentiSnap.forEach(p => {
     document.getElementById("rigaScontoIscrizione").style.display = "none";
   }
 
-  // 🔥 RESIDUO CORRETTO
- const residuo = quotaTotale - scontoIscrizione - scontoExtraTotale - pagato;
+  // 🔥 Calcolo residuo corretto
+  const residuo = quotaTotale - scontoIscrizione - scontoExtraTotale - pagato;
+
   document.getElementById("residuoPagamento").innerText = residuo;
 
   // reset campi
   document.getElementById("scontoPagamento").value = 0;
   document.getElementById("importoPagamento").value = "";
   document.getElementById("metodoPagamento").value = "";
-const btnMod = document.getElementById("btnModificaPagamento");
-if(btnMod){
-  btnMod.style.display = "inline-block";
-}
+
+  const btnMod = document.getElementById("btnModificaPagamento");
+
+  if(btnMod){
+    btnMod.style.display = "inline-block";
+  }
+
   document.getElementById("popupPagamento").style.display = "flex";
+
 }
 
 function chiudiPopupPagamento(){
