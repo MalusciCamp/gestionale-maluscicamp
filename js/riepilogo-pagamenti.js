@@ -99,7 +99,7 @@ pagamentiSnap.forEach(p => {
 });
 
 // 🔥 CORRETTO: campo giusto
-const scontoIniziale = Number(iscr.sconto || 0);
+const scontoIniziale = Number(atleta.pagamento?.sconto || 0);
 
 // 🔥 Calcolo totale sconti atleta
 const scontoTotaleAtleta = scontoIniziale + scontoExtraAtleta;
