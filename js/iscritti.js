@@ -717,7 +717,7 @@ if(codiceFiscale){
   pdf.rect(120, 85, 65, 35);
 
 try{
-  pdf.addImage("img/firma.png", "png", 125, 90, 55, 20);
+ pdf.addImage("img/firma.png", "PNG", 125, 88, 45, 18);
 }catch(e){}
 
 pdf.setFontSize(8);
