@@ -20,6 +20,13 @@ async function inviaRicevutaEmail(atletaId){
 
   if(!nuovaEmail) return;
 
+const emailValida = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if(!emailValida.test(nuovaEmail)){
+  alert("Email non valida");
+  return;
+}
+
   try{
 
     // salva email su Firebase
@@ -46,47 +53,31 @@ async function inviaRicevutaEmail(atletaId){
 
 
 async function inviaPDF(atletaId, email){
+    document.body.style.cursor = "wait";
+
+  const linkRicevuta =
+  "https://maluscicamp.github.io/gestionale-maluscicamp/ricevuta.html?atleta="
+  + atletaId +
+  "&settimana=" + settimanaID;
 
   try{
 
-    // genera PDF ricevuta
-    const pdfBlob = await generaPDFRicevuta(atletaId);
+    await emailjs.send(
+      "service_ezo9gbn",
+      "template_lr908qc",
+      {
+        email: email,
+        link_ricevuta: linkRicevuta
+      }
+    );
 
-    const reader = new FileReader();
+    alert("Ricevuta inviata a " + email);
 
-    reader.readAsDataURL(pdfBlob);
+  }catch(error){
 
-    reader.onloadend = function(){
-
-      const base64PDF = reader.result;
-
-      emailjs.send(
-        "service_ezo9gbn",
-        "template_lr908qc",
-        {
-          email: email,
-          attachment: base64PDF
-        }
-      )
-      .then(function(){
-
-        alert("Ricevuta inviata a " + email);
-
-      })
-      .catch(function(error){
-
-        console.error(error);
-        alert("Errore invio email");
-
-      });
-
-    };
-
-  }catch(err){
-
-    console.error(err);
-    alert("Errore generazione ricevuta");
+    console.error(error);
+    alert("Errore invio email");
 
   }
-
+document.body.style.cursor = "default";
 }
