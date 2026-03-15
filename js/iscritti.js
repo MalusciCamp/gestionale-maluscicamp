@@ -1,5 +1,6 @@
 let ultimoPagamentoRegistrato = null;
 let pagamentoInModifica = null;
+let cacheAtleti = {};
 
 
 
@@ -85,6 +86,7 @@ async function caricaIscritti(){
       if(!atletaDoc.exists) continue;
 
       const atleta = atletaDoc.data();
+      cacheAtleti[atletaId] = atleta;
 
       // 🔹 Calcolo pagamenti reali
 const pagamentiSnap = await db.collection("pagamenti")
