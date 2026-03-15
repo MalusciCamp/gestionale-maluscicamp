@@ -51,8 +51,7 @@ text-align:left;
 <h2>Ricevuta pagamento Malusci Camp</h2>
 
 <div id="preview">
-<p>La ricevuta è pronta.</p>
-<p>Clicca il pulsante sotto per scaricare il PDF.</p>
+Caricamento ricevuta...
 </div>
 
 <button onclick="generaRicevuta()">Scarica ricevuta PDF</button>
@@ -247,7 +246,11 @@ try{
 pdf.addImage("img/firma.png","PNG",125,98,50,18);
 }catch(e){}
 
-pdf.save("Ricevuta_"+numeroRicevuta+"_"+(atleta.cognome || "")+".pdf");
+const pdfBlob = pdf.output("blob");
+const url = URL.createObjectURL(pdfBlob);
+
+document.getElementById("preview").innerHTML =
+`<iframe src="${url}" width="100%" height="500px"></iframe>`;
 
 }
 
