@@ -21,6 +21,15 @@ function chiudiTuttiPopup() {
 
 // ================= MAIL =================
 
+function apriMailBox() {
+  chiudiTuttiPopup();
+  document.getElementById("popupMail").style.display = "flex";
+}
+
+function chiudiMail() {
+  document.getElementById("popupMail").style.display = "none";
+}
+
 async function inviaMailSettimana() {
 
   const oggetto = document.getElementById("oggettoMail").value.trim();
