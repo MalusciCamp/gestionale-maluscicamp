@@ -325,13 +325,39 @@ pagamentiSnap.forEach(p=>{
   document.getElementById("scontoPagamento").value = 0;
   document.getElementById("importoPagamento").value = "";
   document.getElementById("metodoPagamento").value = "";
-
+document.getElementById("btnModificaPagamento").style.display = "inline-block";
   document.getElementById("popupPagamento").style.display = "flex";
 }
 
 function chiudiPopupPagamento(){
   document.getElementById("popupPagamento").style.display = "none";
 }
+
+async function attivaModificaPagamento(){
+
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", atletaPagamentoInCorso)
+    .where("settimanaId","==", settimanaID)
+    .orderBy("data","desc")
+    .limit(1)
+    .get();
+
+  if(pagamentiSnap.empty){
+    alert("Nessun pagamento da modificare");
+    return;
+  }
+
+  const doc = pagamentiSnap.docs[0];
+  const pagamento = doc.data();
+
+  ultimoPagamentoRegistrato = doc.id;
+
+  document.getElementById("importoPagamento").value = pagamento.importo || "";
+  document.getElementById("metodoPagamento").value = pagamento.metodo || "";
+  document.getElementById("scontoPagamento").value = pagamento.scontoExtra || 0;
+
+}
+
 
 async function registraPagamento(){
 
@@ -406,37 +432,6 @@ async function registraPagamento(){
 
   }
 
-// 🔹 CREA PAGAMENTO
-const pagamentoRef = db.collection("pagamenti").doc();
-
-await pagamentoRef.set({
-  atletaId: atletaPagamentoInCorso,
-  settimanaId: settimanaID,
-  importo: importo,
-  metodo: metodo,
-
-  // 🔥 NUOVO CAMPO SCONTO EXTRA
-  scontoExtra: Number(document.getElementById("scontoPagamento")?.value) || 0,
-
-  numeroRicevuta: null,
-  data: firebase.firestore.FieldValue.serverTimestamp(),
-  anno: new Date().getFullYear()
-});
-
-  // 🔹 NON chiudere popup
-  await caricaIscritti();
-  await apriPagamento(atletaPagamentoInCorso);
-
-  // 🔹 Mostra pulsante stampa
-  const btn = document.getElementById("btnStampaRicevuta");
-
- if(btn){
-  btn.style.display = "block";
-
-  btn.onclick = function(){
-    stampaRicevutaDiretta(atletaPagamentoInCorso);
-  };
-}
 
 } // 🔥 CHIUSURA CORRETTA DI registraPagamento
 
