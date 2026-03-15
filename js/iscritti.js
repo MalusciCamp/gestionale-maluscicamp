@@ -172,7 +172,7 @@ if(pagato >= quotaNetta && quotaNetta > 0){
     💰
   </button>
 
-  <button onclick="modificaPagamento('${iscritto.id}')">
+  <button onclick="modificaPagamento('${atletaId}')">
 ✏️
 </button>
 
@@ -218,13 +218,36 @@ function apriPagamento(atletaId){
 }
 
 
-function modificaPagamento(idIscrizione){
+async function modificaPagamento(atletaId){
 
-  atletaPagamento = idIscrizione;
+  atletaPagamentoInCorso = atletaId;
 
-  document.getElementById("popupPagamento").classList.remove("popup-hidden");
+  // 🔹 Recupero pagamenti esistenti
+  const pagamentiSnap = await db.collection("pagamenti")
+    .where("atletaId","==", atletaId)
+    .where("settimanaId","==", settimanaID)
+    .orderBy("data","desc")
+    .limit(1)
+    .get();
+
+  if(pagamentiSnap.empty){
+    alert("Nessun pagamento da modificare");
+    return;
+  }
+
+  const pagamento = pagamentiSnap.docs[0].data();
+  const pagamentoId = pagamentiSnap.docs[0].id;
+
+  ultimoPagamentoRegistrato = pagamentoId;
+
+  // 🔹 Carica dati nel popup
+  document.getElementById("importoPagamento").value = pagamento.importo || "";
+  document.getElementById("metodoPagamento").value = pagamento.metodo || "";
+  document.getElementById("scontoPagamento").value = pagamento.scontoExtra || 0;
 
   document.querySelector("#popupPagamento h3").innerText = "Modifica Pagamento";
+
+  document.getElementById("popupPagamento").style.display = "flex";
 
 }
 
@@ -355,8 +378,9 @@ function chiudiPopupPagamento(){
 
 async function registraPagamento(){
 
-  const importo = Number(importoPagamento.value);
-  const metodo = metodoPagamento.value;
+  const importo = Number(document.getElementById("importoPagamento").value);
+  const metodo = document.getElementById("metodoPagamento").value;
+  const scontoExtra = Number(document.getElementById("scontoPagamento")?.value) || 0;
 
   if(!importo || importo <= 0){
     alert("Inserisci importo valido");
@@ -367,6 +391,64 @@ async function registraPagamento(){
     alert("Seleziona metodo pagamento");
     return;
   }
+
+  try{
+
+    // 🔹 SE ESISTE UN PAGAMENTO DA MODIFICARE
+    if(ultimoPagamentoRegistrato){
+
+      await db.collection("pagamenti")
+        .doc(ultimoPagamentoRegistrato)
+        .update({
+          importo: importo,
+          metodo: metodo,
+          scontoExtra: scontoExtra
+        });
+
+      ultimoPagamentoRegistrato = null;
+
+    }else{
+
+      // 🔹 CREA NUOVO PAGAMENTO
+      const pagamentoRef = db.collection("pagamenti").doc();
+
+      await pagamentoRef.set({
+        atletaId: atletaPagamentoInCorso,
+        settimanaId: settimanaID,
+        importo: importo,
+        metodo: metodo,
+        scontoExtra: scontoExtra,
+        numeroRicevuta: null,
+        data: firebase.firestore.FieldValue.serverTimestamp(),
+        anno: new Date().getFullYear()
+      });
+
+    }
+
+    // 🔹 Aggiorna tabella iscritti
+    await caricaIscritti();
+
+    // 🔹 Riapre popup con dati aggiornati
+    await apriPagamento(atletaPagamentoInCorso);
+
+    // 🔹 Mostra pulsante stampa ricevuta
+    const btn = document.getElementById("btnStampaRicevuta");
+
+    if(btn){
+      btn.style.display = "block";
+
+      btn.onclick = function(){
+        stampaRicevutaDiretta(atletaPagamentoInCorso);
+      };
+    }
+
+  }catch(error){
+
+    console.error("Errore pagamento:", error);
+    alert("Errore registrazione pagamento");
+
+  }
+
 // 🔹 CREA PAGAMENTO
 const pagamentoRef = db.collection("pagamenti").doc();
 
