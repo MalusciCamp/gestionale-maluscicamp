@@ -172,9 +172,6 @@ if(pagato >= quotaNetta && quotaNetta > 0){
     💰
   </button>
 
-  <button onclick="modificaPagamento('${atletaId}')">
-✏️
-</button>
 
   ${stato === "pagato" ? `
     <button onclick="stampaRicevutaDiretta('${atletaId}')">
@@ -210,46 +207,6 @@ if(pagato >= quotaNetta && quotaNetta > 0){
   }
 }
 
-
-// ================= PAGAMENTO (placeholder) =================
-
-function apriPagamento(atletaId){
-  alert("Prossimo step: popup pagamento automatico.");
-}
-
-
-async function modificaPagamento(atletaId){
-
-  atletaPagamentoInCorso = atletaId;
-
-  // 🔹 Recupero pagamenti esistenti
-  const pagamentiSnap = await db.collection("pagamenti")
-    .where("atletaId","==", atletaId)
-    .where("settimanaId","==", settimanaID)
-    .orderBy("data","desc")
-    .limit(1)
-    .get();
-
-  if(pagamentiSnap.empty){
-    alert("Nessun pagamento da modificare");
-    return;
-  }
-
-  const pagamento = pagamentiSnap.docs[0].data();
-  const pagamentoId = pagamentiSnap.docs[0].id;
-
-  ultimoPagamentoRegistrato = pagamentoId;
-
-  // 🔹 Carica dati nel popup
-  document.getElementById("importoPagamento").value = pagamento.importo || "";
-  document.getElementById("metodoPagamento").value = pagamento.metodo || "";
-  document.getElementById("scontoPagamento").value = pagamento.scontoExtra || 0;
-
-  document.querySelector("#popupPagamento h3").innerText = "Modifica Pagamento";
-
-  document.getElementById("popupPagamento").style.display = "flex";
-
-}
 
 
 // ================= AVVIO =================
