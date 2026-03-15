@@ -325,7 +325,10 @@ pagamentiSnap.forEach(p=>{
   document.getElementById("scontoPagamento").value = 0;
   document.getElementById("importoPagamento").value = "";
   document.getElementById("metodoPagamento").value = "";
-document.getElementById("btnModificaPagamento").style.display = "inline-block";
+const btnMod = document.getElementById("btnModificaPagamento");
+if(btnMod){
+  btnMod.style.display = "inline-block";
+}
   document.getElementById("popupPagamento").style.display = "flex";
 }
 
