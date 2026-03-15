@@ -1,4 +1,5 @@
 let ultimoPagamentoRegistrato = null;
+let pagamentoInModifica = null;
 
 
 
@@ -99,6 +100,8 @@ pagamentiSnap.forEach(p=>{
   pagato += Number(data.importo || 0);
   scontoExtraTotale += Number(data.scontoExtra || 0);
 });
+
+
 
 const quota = Number(iscrizione.quota || 0);
 const scontoIscrizione = Number(atleta.pagamento?.sconto || 0);
@@ -305,6 +308,40 @@ pagamentiSnap.forEach(p=>{
   scontoExtraTotale += Number(data.scontoExtra || 0);
 });
 
+// ================= STORICO PAGAMENTI =================
+
+const boxStorico = document.getElementById("storicoPagamenti");
+boxStorico.innerHTML = "";
+
+pagamentiSnap.forEach(p => {
+
+  const data = p.data();
+  const id = p.id;
+
+  const importo = Number(data.importo || 0);
+  const metodo = data.metodo || "";
+  const dataPag = formattaData(data.data?.toDate());
+
+  const div = document.createElement("div");
+
+  div.style.display = "flex";
+  div.style.justifyContent = "space-between";
+  div.style.marginBottom = "5px";
+
+  div.innerHTML = `
+    <span>
+      ${dataPag} - €${importo} ${metodo}
+    </span>
+
+    <button onclick="modificaMovimento('${id}')">
+      ✏️
+    </button>
+  `;
+
+  boxStorico.appendChild(div);
+
+});
+
   // 🔹 Aggiorno campi
   document.getElementById("totaleDovuto").innerText = quotaTotale;
   document.getElementById("totalePagato").innerText = pagato;
@@ -381,10 +418,10 @@ async function registraPagamento(){
   try{
 
     // 🔹 SE ESISTE UN PAGAMENTO DA MODIFICARE
-    if(ultimoPagamentoRegistrato){
+    if(pagamentoInModifica){
 
       await db.collection("pagamenti")
-        .doc(ultimoPagamentoRegistrato)
+        .doc(pagamentoInModifica)
         .update({
           importo: importo,
           metodo: metodo,
@@ -410,7 +447,7 @@ async function registraPagamento(){
       });
 
     }
-
+pagamentoInModifica = null;
     // 🔹 Aggiorna tabella iscritti
     await caricaIscritti();
 
@@ -436,7 +473,28 @@ async function registraPagamento(){
   }
 
 
+
 } // 🔥 CHIUSURA CORRETTA DI registraPagamento
+
+  async function modificaMovimento(idPagamento){
+
+  const doc = await db.collection("pagamenti")
+    .doc(idPagamento)
+    .get();
+
+  if(!doc.exists) return;
+
+  const data = doc.data();
+
+  pagamentoInModifica = idPagamento;
+
+  document.getElementById("importoPagamento").value = data.importo || "";
+  document.getElementById("metodoPagamento").value = data.metodo || "";
+  document.getElementById("scontoPagamento").value = data.scontoExtra || 0;
+
+  document.querySelector("#popupPagamento h3").innerText = "Modifica pagamento";
+
+}
 
 async function stampaRicevutaDiretta(atletaId){
 
