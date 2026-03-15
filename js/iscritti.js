@@ -439,6 +439,16 @@ pagamentoInModifica = null;
       };
     }
 
+    const btnMail = document.getElementById("btnInviaRicevuta");
+
+if(btnMail){
+  btnMail.style.display = "block";
+
+  btnMail.onclick = function(){
+    inviaRicevutaEmail(atletaPagamentoInCorso);
+  };
+}
+
   }catch(error){
 
     console.error("Errore pagamento:", error);
@@ -985,3 +995,8 @@ async function salvaTesseraInline(atletaId, input){
 }
 window.salvaTesseraInline = salvaTesseraInline;
 
+async function inviaRicevutaEmail(atletaId){
+
+  alert("Funzione invio email in preparazione");
+
+}
