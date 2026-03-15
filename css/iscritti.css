@@ -104,6 +104,8 @@ th{
   display:flex;
   flex-direction:column;
   gap:15px;
+  max-height:90vh;
+overflow-y:auto;
 }
 
 #popupPagamento h3{
