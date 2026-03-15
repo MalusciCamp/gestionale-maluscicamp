@@ -728,7 +728,7 @@ if(codiceFiscale){
 
   y += 12;
   pdf.text(
-    `Luogo ____________________    Data ${dataOggi}`,
+    `Luogo  QUARRATA   Data ${dataOggi}`,
     15,
     y
   );
