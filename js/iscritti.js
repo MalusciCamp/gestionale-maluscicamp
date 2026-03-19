@@ -1,6 +1,9 @@
 let ultimoPagamentoRegistrato = null;
 let pagamentoInModifica = null;
 let cacheAtleti = {};
+let iscrittiCache = [];
+let paginaCorrente = 1;
+const perPagina = 15;
 
 
 
@@ -204,18 +207,12 @@ if(pagato >= quotaNetta && quotaNetta > 0){
     // Ordine alfabetico per cognome
     righe.sort((a,b)=>a.cognome.localeCompare(b.cognome));
 
-   righe.forEach((r, index) => {
+// 🔥 SALVO IN CACHE
+iscrittiCache = righe;
 
-  const numero = index + 1;
-
-  const rigaConNumero = r.html.replace(
-    "<tr>",
-    `<tr><td><strong>${numero}</strong></td>`
-  );
-
-  tbody.innerHTML += rigaConNumero;
-
-});
+// 🔥 MOSTRO PRIMA PAGINA
+mostraPagina(1);
+aggiornaPaginazione();
 
   } catch(error){
     console.error("Errore caricamento iscritti:", error);
@@ -227,7 +224,78 @@ if(pagato >= quotaNetta && quotaNetta > 0){
   }
 }
 
+// ================= PAGINAZIONE =================
 
+function mostraPagina(pagina){
+
+  paginaCorrente = pagina;
+  tbody.innerHTML = "";
+
+  const start = (pagina - 1) * perPagina;
+  const end = start + perPagina;
+
+  const slice = iscrittiCache.slice(start, end);
+
+  slice.forEach((r, index) => {
+
+    const numero = start + index + 1;
+
+    const riga = r.html.replace(
+      "<tr>",
+      `<tr><td><strong>${numero}</strong></td>`
+    );
+
+    tbody.innerHTML += riga;
+
+  });
+
+}
+
+function aggiornaPaginazione(){
+
+  const totalePagine = Math.ceil(iscrittiCache.length / perPagina);
+  const container = document.getElementById("paginazione");
+
+  if(!container) return;
+
+  container.innerHTML = "";
+
+  for(let i = 1; i <= totalePagine; i++){
+
+    const btn = document.createElement("button");
+    btn.innerText = i;
+
+    btn.onclick = () => mostraPagina(i);
+
+    container.appendChild(btn);
+  }
+
+}
+
+// ================= RICERCA =================
+
+function cercaIscritti(testo){
+
+  testo = testo.toLowerCase();
+
+  const filtrati = iscrittiCache.filter(r =>
+    r.cognome.toLowerCase().includes(testo)
+  );
+
+  tbody.innerHTML = "";
+
+  filtrati.forEach((r, index) => {
+
+    const riga = r.html.replace(
+      "<tr>",
+      `<tr><td><strong>${index+1}</strong></td>`
+    );
+
+    tbody.innerHTML += riga;
+
+  });
+
+}
 
 // ================= AVVIO =================
 
