@@ -388,10 +388,10 @@ async function registraPagamento(){
   const metodo = document.getElementById("metodoPagamento").value;
   const scontoExtra = Number(document.getElementById("scontoPagamento")?.value) || 0;
 
-  if(!importo || importo <= 0){
-    alert("Inserisci importo valido");
-    return;
-  }
+if (importo < 0 || isNaN(importo)) {
+  alert("Inserisci importo valido");
+  return;
+}
 
   if(!metodo){
     alert("Seleziona metodo pagamento");
