@@ -254,3 +254,9 @@ th{
   font-weight:600;
   color:#0f5132;
 }
+
+td:first-child {
+  font-weight: bold;
+  text-align: center;
+  width: 40px;
+}
