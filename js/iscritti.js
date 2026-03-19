@@ -393,10 +393,10 @@ if (importo < 0 || isNaN(importo)) {
   return;
 }
 
-  if(!metodo){
-    alert("Seleziona metodo pagamento");
-    return;
-  }
+ if (importo > 0 && !metodo) {
+  alert("Seleziona metodo pagamento");
+  return;
+}
 
   try{
 
