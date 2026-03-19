@@ -40,6 +40,12 @@ emailjs.init("uDH64MkoExH-c-9P-");
     <i class="fa-solid fa-plus"></i> Aggiungi Iscrizione
   </button>
 
+  <input 
+  type="text" 
+  placeholder="🔍 Cerca cognome..." 
+  oninput="cercaIscritti(this.value)"
+  style="margin-bottom:10px;padding:8px;width:250px;border-radius:6px;border:1px solid #ccc;"
+>
   <div class="tabella-container">
     <table>
       <thead>
@@ -57,6 +63,7 @@ emailjs.init("uDH64MkoExH-c-9P-");
       <tbody id="listaIscritti"></tbody>
     </table>
   </div>
+  <div id="paginazione" style="margin-top:15px;"></div>
 
 </div>
 
