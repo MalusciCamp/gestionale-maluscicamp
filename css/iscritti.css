@@ -260,3 +260,17 @@ td:first-child {
   text-align: center;
   width: 40px;
 }
+
+#paginazione button {
+  margin: 3px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  background: #2c3e50;
+  color: white;
+  cursor: pointer;
+}
+
+#paginazione button:hover {
+  background: #34495e;
+}
