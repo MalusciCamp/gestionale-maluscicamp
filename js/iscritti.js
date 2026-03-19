@@ -204,9 +204,18 @@ if(pagato >= quotaNetta && quotaNetta > 0){
     // Ordine alfabetico per cognome
     righe.sort((a,b)=>a.cognome.localeCompare(b.cognome));
 
-    righe.forEach(r=>{
-      tbody.innerHTML += r.html;
-    });
+   righe.forEach((r, index) => {
+
+  const numero = index + 1;
+
+  const rigaConNumero = r.html.replace(
+    "<tr>",
+    `<tr><td><strong>${numero}</strong></td>`
+  );
+
+  tbody.innerHTML += rigaConNumero;
+
+});
 
   } catch(error){
     console.error("Errore caricamento iscritti:", error);
