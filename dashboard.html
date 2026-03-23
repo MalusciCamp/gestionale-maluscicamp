@@ -337,7 +337,7 @@ window.onload = function() {
 
 // 🔥 CONTEGGIO REALE ISCRITTI
 db.collection("iscritti")
-  .where("settimanaID", "==", doc.id)
+  .where("settimanaId", "==", doc.id)
   .get()
   .then(snapshot => {
 
