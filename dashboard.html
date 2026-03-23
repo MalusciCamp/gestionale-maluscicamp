@@ -337,7 +337,7 @@ querySnapshot.forEach((doc) => {
     camp: data.camp
   };
 
-  const p = db.collection("iscritti")
+  const p = db.collection("iscrizioni")
     .where("settimanaId", "==", doc.id)
     .get()
     .then(snapshot => {
