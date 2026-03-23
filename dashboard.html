@@ -322,48 +322,51 @@ window.onload = function() {
       const oggi = new Date();
       const settimanePerAnno = {};
 
-      querySnapshot.forEach((doc) => {
+      const promises = [];
 
-        const data = doc.data();
-        const dataFine = new Date(data.al);
+querySnapshot.forEach((doc) => {
 
- const settimanaObj = {
-  id: doc.id,
-  nome: data.nome,
-  dal: data.dal,
-  al: data.al,
-  camp: data.camp
-};
+  const data = doc.data();
+  const dataFine = new Date(data.al);
 
-// 🔥 CONTEGGIO REALE ISCRITTI
-db.collection("iscritti")
-  .where("settimanaId", "==", doc.id)
-  .get()
-  .then(snapshot => {
+  const settimanaObj = {
+    id: doc.id,
+    nome: data.nome,
+    dal: data.dal,
+    al: data.al,
+    camp: data.camp
+  };
 
-    settimanaObj.numeroIscritti = snapshot.size;
+  const p = db.collection("iscritti")
+    .where("settimanaId", "==", doc.id)
+    .get()
+    .then(snapshot => {
 
-    // 🔵 SETTIMANE ATTIVE
-    if(dataFine >= oggi){
+      settimanaObj.numeroIscritti = snapshot.size;
 
-      creaCardSettimana(settimanaObj, containerAttive);
+      if(dataFine >= oggi){
+        creaCardSettimana(settimanaObj, containerAttive);
+      } else {
 
-    } 
-    // 🔴 SETTIMANE CONCLUSE
-    else {
+        const anno = dataFine.getFullYear();
 
-      const anno = dataFine.getFullYear();
+        if(!settimanePerAnno[anno]){
+          settimanePerAnno[anno] = [];
+        }
 
-      if(!settimanePerAnno[anno]){
-        settimanePerAnno[anno] = [];
+        settimanePerAnno[anno].push(settimanaObj);
       }
 
-      settimanePerAnno[anno].push(settimanaObj);
-    }
+    });
 
-  });
+  promises.push(p);
 
-      });
+});
+
+Promise.all(promises).then(() => {
+  console.log("✅ Conteggi aggiornati");
+});
+
 
       // 🔥 CREA SEZIONI STORICO
 Object.keys(settimanePerAnno)
