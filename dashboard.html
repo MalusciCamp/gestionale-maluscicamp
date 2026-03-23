@@ -327,31 +327,41 @@ window.onload = function() {
         const data = doc.data();
         const dataFine = new Date(data.al);
 
-       const settimanaObj = {
+ const settimanaObj = {
   id: doc.id,
   nome: data.nome,
   dal: data.dal,
   al: data.al,
-  camp: data.camp,
-  numeroIscritti: data.numeroIscritti || 0
+  camp: data.camp
 };
-        // 🔵 SETTIMANE ATTIVE
-        if(dataFine >= oggi){
 
-          creaCardSettimana(settimanaObj, containerAttive);
+// 🔥 CONTEGGIO REALE ISCRITTI
+db.collection("iscritti")
+  .where("settimanaID", "==", doc.id)
+  .get()
+  .then(snapshot => {
 
-        } 
-        // 🔴 SETTIMANE CONCLUSE
-        else {
+    settimanaObj.numeroIscritti = snapshot.size;
 
-          const anno = dataFine.getFullYear();
+    // 🔵 SETTIMANE ATTIVE
+    if(dataFine >= oggi){
 
-          if(!settimanePerAnno[anno]){
-            settimanePerAnno[anno] = [];
-          }
+      creaCardSettimana(settimanaObj, containerAttive);
 
-          settimanePerAnno[anno].push(settimanaObj);
-        }
+    } 
+    // 🔴 SETTIMANE CONCLUSE
+    else {
+
+      const anno = dataFine.getFullYear();
+
+      if(!settimanePerAnno[anno]){
+        settimanePerAnno[anno] = [];
+      }
+
+      settimanePerAnno[anno].push(settimanaObj);
+    }
+
+  });
 
       });
 
