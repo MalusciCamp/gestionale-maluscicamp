@@ -148,6 +148,7 @@ async function costruisciDatiReport(filtroData = null){
   return {
     righe,
     totali: {
+      totaleIscritti: iscrizioniSnap.size,
       totaleIncassare: filtroData ? 0 : totaleIncassare,
       totaleSconti,
       totaleIncassato,
@@ -197,6 +198,7 @@ async function caricaRiepilogo(){
   });
 
   document.getElementById("totaleIncassare").innerText = totali.totaleIncassare + " €";
+  document.getElementById("totaleIscritti").innerText = totali.totaleIscritti;
   document.getElementById("totaleSconti").innerText = totali.totaleSconti + " €";
   document.getElementById("totaleIncassato").innerText = totali.totaleIncassato + " €";
   document.getElementById("totaleContanti").innerText = totali.contanti + " €";
@@ -261,6 +263,9 @@ if(filtroDataAttivo){
 }
 
 pdf.text(titoloReport, 15, 38);
+pdf.setFont("helvetica","normal");
+pdf.text("Totale iscritti: " + totali.totaleIscritti, 15 + pdf.getTextWidth(titoloReport) + 5, 38);
+pdf.setFont("helvetica","bold");
 
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(10);
@@ -389,6 +394,7 @@ async function filtraPerData(){
   });
 
   document.getElementById("totaleIncassato").innerText = totali.totaleIncassato + " €";
+  document.getElementById("totaleIscritti").innerText = totali.totaleIscritti;
   document.getElementById("totaleContanti").innerText = totali.contanti + " €";
   document.getElementById("totaleBonifico").innerText = totali.bonifico + " €";
   document.getElementById("totaleCarta").innerText = totali.carta + " €";
