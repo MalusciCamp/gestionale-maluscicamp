@@ -4,7 +4,7 @@
 
 .riepilogo-container{
   display:grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap:15px;
   margin-bottom:40px;
 }
@@ -33,6 +33,7 @@
 }
 
 .totale{ background:#3949ab; }
+.iscritti{ background:#ff7043; }
 .incassato{ background:#43a047; }
 .contanti{ background:#00897b; }
 .bonifico{ background:#1e88e5; }
