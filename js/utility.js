@@ -275,7 +275,9 @@ async function generaReport() {
 
     pdf.setFontSize(12);
     pdf.setFont("helvetica", "bold");
-    pdf.text("REPORT ISCRITTI — Totale iscritti: " + atleti.length, 15, 38);
+    const titoloReport = "REPORT ISCRITTI";
+    pdf.text(titoloReport, 15, 38);
+    pdf.text("Totale iscritti: " + atleti.length, 15 + pdf.getTextWidth(titoloReport) + 5, 38);
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
