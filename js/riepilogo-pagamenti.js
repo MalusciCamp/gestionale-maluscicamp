@@ -19,11 +19,149 @@ window.addEventListener("DOMContentLoaded", async () => {
   await caricaRiepilogo();
 });
 
-async function caricaRiepilogo(){
+function pagamentoNelFiltro(dataPagamento, filtroData){
 
+  if(!filtroData) return true;
+
+  const dataPag = dataPagamento?.toDate
+    ? dataPagamento.toDate()
+    : new Date(dataPagamento);
+
+  const inizio = new Date(filtroData);
+  inizio.setHours(0, 0, 0, 0);
+
+  const fine = new Date(filtroData);
+  fine.setHours(23, 59, 59, 999);
+
+  return dataPag >= inizio && dataPag <= fine;
+}
+
+async function costruisciDatiReport(filtroData = null){
+
+  const iscrizioniSnap = await db.collection("iscrizioni")
+    .where("settimanaId", "==", settimanaID)
+    .get();
+
+  const righe = [];
+  let totaleIncassare = 0;
   let totaleSconti = 0;
+  let totaleIncassato = 0;
+  let contanti = 0;
+  let bonifico = 0;
+  let carta = 0;
 
+  for(const doc of iscrizioniSnap.docs){
 
+    const iscr = doc.data();
+    totaleIncassare += Number(iscr.quota || 0);
+
+    const atletaDoc = await db.collection("atleti")
+      .doc(iscr.atletaId)
+      .get();
+
+    if(!atletaDoc.exists) continue;
+
+    const atleta = atletaDoc.data();
+
+    const pagamentiSnap = await db.collection("pagamenti")
+      .where("atletaId", "==", iscr.atletaId)
+      .where("settimanaId", "==", settimanaID)
+      .get();
+
+    let movimenti = [];
+    let totaleAtleta = 0;
+    let scontoExtraAtleta = 0;
+    let contantiAtleta = 0;
+    let bonificoAtleta = 0;
+    let cartaAtleta = 0;
+
+    pagamentiSnap.forEach(p => {
+
+      const data = p.data();
+
+      if(!pagamentoNelFiltro(data.data, filtroData)) return;
+
+      const importo = Number(data.importo || 0);
+      const sExtra = Number(data.scontoExtra || 0);
+
+      totaleAtleta += importo;
+      scontoExtraAtleta += sExtra;
+
+      if(data.metodo === "Contanti") contantiAtleta += importo;
+      if(data.metodo === "Bonifico") bonificoAtleta += importo;
+      if(data.metodo === "Carta") cartaAtleta += importo;
+
+      movimenti.push(
+        formattaData(data.data?.toDate()) +
+        " - €" + importo +
+        " " + data.metodo +
+        (sExtra > 0 ? " (Sconto €" + sExtra + ")" : "")
+      );
+
+    });
+
+    if(filtroData && movimenti.length === 0) continue;
+
+    const scontoIniziale = filtroData ? 0 : Number(iscr.sconto || 0);
+    const scontoTotaleAtleta = scontoIniziale + scontoExtraAtleta;
+    const quota = Number(iscr.quota || 0);
+    const quotaNetta = quota - scontoTotaleAtleta;
+    const residuoAtleta = filtroData
+      ? null
+      : quotaNetta - totaleAtleta;
+
+    if(!filtroData){
+      totaleSconti += scontoTotaleAtleta;
+      totaleIncassato += totaleAtleta;
+    }else{
+      totaleIncassato += totaleAtleta;
+      totaleSconti += scontoExtraAtleta;
+    }
+
+    contanti += contantiAtleta;
+    bonifico += bonificoAtleta;
+    carta += cartaAtleta;
+
+    let stato = "da_pagare";
+
+    if(!filtroData){
+      if(totaleAtleta >= quotaNetta && quotaNetta > 0){
+        stato = "pagato";
+      }else if(totaleAtleta > 0){
+        stato = "parziale";
+      }
+    }else{
+      stato = "pagamento";
+    }
+
+    righe.push({
+      atleta: atleta.cognome + " " + atleta.nome,
+      quota: quota,
+      sconti: scontoTotaleAtleta,
+      pagato: totaleAtleta,
+      residuo: residuoAtleta,
+      stato: stato,
+      movimenti: movimenti
+    });
+  }
+
+  return {
+    righe,
+    totali: {
+      totaleIncassare: filtroData ? 0 : totaleIncassare,
+      totaleSconti,
+      totaleIncassato,
+      contanti,
+      bonifico,
+      carta,
+      totaleResiduo: filtroData
+        ? 0
+        : totaleIncassare - totaleSconti - totaleIncassato
+    }
+  };
+}
+
+async function caricaRiepilogo(){
 
   const settimanaDoc = await db.collection("settimane")
     .doc(settimanaID)
@@ -34,127 +172,37 @@ async function caricaRiepilogo(){
   document.getElementById("titoloSettimana")
     .innerText = "Riepilogo - " + settimanaDoc.data().nome;
 
-  const iscrizioniSnap = await db.collection("iscrizioni")
-    .where("settimanaId","==", settimanaID)
-    .get();
-
-  let totaleIncassare = 0;
-  let totaleIncassato = 0;
-  
-
-  let contanti = 0;
-  let bonifico = 0;
-  let carta = 0;
+  const { righe, totali } = await costruisciDatiReport(null);
+  datiReport = righe;
 
   const tbody = document.getElementById("tabellaPagamenti");
   tbody.innerHTML = "";
 
-  for(const doc of iscrizioniSnap.docs){
+  righe.forEach(riga => {
 
-  const iscr = doc.data();
+    const tr = document.createElement("tr");
 
-  // 🔹 Totale da incassare
-  totaleIncassare += Number(iscr.quota || 0);
+    tr.innerHTML = `
+      <td>${riga.atleta}</td>
+      <td>${riga.quota} €</td>
+      <td>${riga.sconti} €</td>
+      <td>${riga.pagato} €</td>
+      <td>${riga.residuo} €</td>
+      <td>${riga.stato}</td>
+      <td style="text-align:left">${riga.movimenti.join("<br>")}</td>
+    `;
 
-  // 🔹 Recupero atleta
-  const atletaDoc = await db.collection("atleti")
-    .doc(iscr.atletaId)
-    .get();
+    tbody.appendChild(tr);
 
-  if(!atletaDoc.exists) continue;
+  });
 
-  const atleta = atletaDoc.data();
-
- // 🔹 Recupero pagamenti REALI
-const pagamentiSnap = await db.collection("pagamenti")
-  .where("atletaId","==", iscr.atletaId)
-  .where("settimanaId","==", settimanaID)
-  .get();
-
-let movimenti = [];
-let totaleAtleta = 0;
-let scontoExtraAtleta = 0;
-
-pagamentiSnap.forEach(p => {
-
-  const data = p.data();
-  const importo = Number(data.importo || 0);
-  const sExtra = Number(data.scontoExtra || 0);
-
-  totaleAtleta += importo;
-  scontoExtraAtleta += sExtra;
-
-  // Totali globali per metodo
-  if(data.metodo === "Contanti") contanti += importo;
-  if(data.metodo === "Bonifico") bonifico += importo;
-  if(data.metodo === "Carta") carta += importo;
-
-  movimenti.push(
-    formattaData(data.data?.toDate()) +
-    " - €" + importo +
-    " " + data.metodo +
-    (sExtra > 0 ? " (Sconto €" + sExtra + ")" : "")
-  );
-
-});
-
-// 🔥 CORRETTO: campo giusto
-const scontoIniziale = Number(iscr.sconto || 0);
-
-// 🔥 Calcolo totale sconti atleta
-const scontoTotaleAtleta = scontoIniziale + scontoExtraAtleta;
-
-// 🔥 Aggiorno totale generale sconti UNA SOLA VOLTA
-totaleSconti += scontoTotaleAtleta;
-
-const quotaNetta = Number(iscr.quota || 0) - scontoTotaleAtleta;
-const residuoAtleta = quotaNetta - totaleAtleta;
-
-// 🔹 Totale incassato globale
-totaleIncassato += totaleAtleta;
-
-// 🔹 Calcolo stato dinamico
-let stato = "da_pagare";
-
-if(totaleAtleta >= quotaNetta && quotaNetta > 0){
-  stato = "pagato";
-}else if(totaleAtleta > 0){
-  stato = "parziale";
-}
-
-// 🔹 Creazione riga tabella
-const tr = document.createElement("tr");
-
-tr.innerHTML = `
-  <td>${atleta.cognome} ${atleta.nome}</td>
-  <td>${Number(iscr.quota || 0)} €</td>
-  <td>${scontoTotaleAtleta} €</td>
-  <td>${totaleAtleta} €</td>
-  <td>${residuoAtleta} €</td>
-  <td>${stato}</td>
-  <td style="text-align:left">${movimenti.join("<br>")}</td>
-`;
-
-tbody.appendChild(tr);
-
-// 🔹 Salvataggio per PDF
-datiReport.push({
-  atleta: atleta.cognome + " " + atleta.nome,
-  quota: Number(iscr.quota || 0),
-  sconti: scontoTotaleAtleta,
-  pagato: totaleAtleta,
-  movimenti: movimenti
-});
-}
-
-  document.getElementById("totaleIncassare").innerText = totaleIncassare + " €";
-  document.getElementById("totaleSconti").innerText = totaleSconti + " €";
-  document.getElementById("totaleIncassato").innerText = totaleIncassato + " €";
-  document.getElementById("totaleContanti").innerText = contanti + " €";
-  document.getElementById("totaleBonifico").innerText = bonifico + " €";
-  document.getElementById("totaleCarta").innerText = carta + " €";
-document.getElementById("totaleResiduo").innerText =
-  (totaleIncassare - totaleSconti - totaleIncassato) + " €";
+  document.getElementById("totaleIncassare").innerText = totali.totaleIncassare + " €";
+  document.getElementById("totaleSconti").innerText = totali.totaleSconti + " €";
+  document.getElementById("totaleIncassato").innerText = totali.totaleIncassato + " €";
+  document.getElementById("totaleContanti").innerText = totali.contanti + " €";
+  document.getElementById("totaleBonifico").innerText = totali.bonifico + " €";
+  document.getElementById("totaleCarta").innerText = totali.carta + " €";
+  document.getElementById("totaleResiduo").innerText = totali.totaleResiduo + " €";
 }
 
 // ================= PDF REPORT =================
@@ -163,29 +211,13 @@ document.getElementById("totaleResiduo").innerText =
 
 async function stampaReportPagamenti(){
 
-  datiReport = [];
-  let pagamentiSnap;
+  const { righe, totali } = await costruisciDatiReport(filtroDataAttivo);
+  datiReport = righe;
 
-if(filtroDataAttivo){
-
-  const inizio = new Date(filtroDataAttivo);
-  inizio.setHours(0,0,0,0);
-
-  const fine = new Date(filtroDataAttivo);
-  fine.setHours(23,59,59,999);
-
-  pagamentiSnap = await db.collection("pagamenti")
-    .where("settimanaId","==", settimanaID)
-    .where("data", ">=", inizio)
-    .where("data", "<=", fine)
-    .get();
-
-}else{
-
-  pagamentiSnap = await db.collection("pagamenti")
-    .where("settimanaId","==", settimanaID)
-    .get();
-}
+  if(datiReport.length === 0){
+    alert("Nessun dato da stampare");
+    return;
+  }
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p","mm","a4");
@@ -237,26 +269,13 @@ pdf.text(titoloReport, 15, 38);
 
   // ================= TOTALI =================
 
-  let totaleQuote = 0;
-  let totaleSconti = 0;
-  let totalePagato = 0;
-  let contanti = 0;
-  let bonifico = 0;
-  let carta = 0;
-
-  datiReport.forEach(d=>{
-    totaleQuote += d.quota;
-    totaleSconti += d.sconti || 0;
-    totalePagato += d.pagato;
-
-    d.movimenti.forEach(m=>{
-      if(m.includes("Contanti")) contanti += parseFloat(m.split("€")[1]);
-      if(m.includes("Bonifico")) bonifico += parseFloat(m.split("€")[1]);
-      if(m.includes("Carta")) carta += parseFloat(m.split("€")[1]);
-    });
-  });
-
-  const residuo = totaleQuote - totaleSconti - totalePagato;
+  const totaleQuote = totali.totaleIncassare;
+  const totaleSconti = totali.totaleSconti;
+  const totalePagato = totali.totaleIncassato;
+  const contanti = totali.contanti;
+  const bonifico = totali.bonifico;
+  const carta = totali.carta;
+  const residuo = totali.totaleResiduo;
 
   pdf.setFont("helvetica","bold");
   pdf.setFontSize(10);
@@ -345,64 +364,34 @@ async function filtraPerData(){
 
   filtroDataAttivo = dataInput;
 
-  const inizio = new Date(dataInput);
-  inizio.setHours(0,0,0,0);
-
-  const fine = new Date(dataInput);
-  fine.setHours(23,59,59,999);
-
-  const pagamentiSnap = await db.collection("pagamenti")
-    .where("settimanaId","==", settimanaID)
-    .where("data", ">=", inizio)
-    .where("data", "<=", fine)
-    .get();
+  const { righe, totali } = await costruisciDatiReport(filtroDataAttivo);
+  datiReport = righe;
 
   const tbody = document.getElementById("tabellaPagamenti");
-  tbody.innerHTML = "";   // 🔥 SVUOTA TABELLA
+  tbody.innerHTML = "";
 
-  let totale = 0;
-  let contanti = 0;
-  let bonifico = 0;
-  let carta = 0;
-
-  for(const doc of pagamentiSnap.docs){
-
-    const p = doc.data();
-    const importo = Number(p.importo || 0);
-
-    totale += importo;
-
-    if(p.metodo === "Contanti") contanti += importo;
-    if(p.metodo === "Bonifico") bonifico += importo;
-    if(p.metodo === "Carta") carta += importo;
-
-    // 🔹 Recupero atleta
-    const atletaDoc = await db.collection("atleti")
-      .doc(p.atletaId)
-      .get();
-
-    const atleta = atletaDoc.data();
+  righe.forEach(riga => {
 
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${atleta.cognome} ${atleta.nome}</td>
+      <td>${riga.atleta}</td>
+      <td>${riga.quota} €</td>
+      <td>${riga.sconti} €</td>
+      <td>${riga.pagato} €</td>
       <td>-</td>
-      <td>${p.scontoExtra || 0} €</td>
-      <td>${importo} €</td>
-      <td>-</td>
-      <td>pagamento</td>
-      <td>${formattaData(p.data?.toDate())} - €${importo} ${p.metodo}</td>
+      <td>${riga.stato}</td>
+      <td style="text-align:left">${riga.movimenti.join("<br>")}</td>
     `;
 
     tbody.appendChild(tr);
-  }
 
-  // 🔹 Aggiorno box
-  document.getElementById("totaleIncassato").innerText = totale + " €";
-  document.getElementById("totaleContanti").innerText = contanti + " €";
-  document.getElementById("totaleBonifico").innerText = bonifico + " €";
-  document.getElementById("totaleCarta").innerText = carta + " €";
+  });
+
+  document.getElementById("totaleIncassato").innerText = totali.totaleIncassato + " €";
+  document.getElementById("totaleContanti").innerText = totali.contanti + " €";
+  document.getElementById("totaleBonifico").innerText = totali.bonifico + " €";
+  document.getElementById("totaleCarta").innerText = totali.carta + " €";
 }
 
 function resetFiltro(){
