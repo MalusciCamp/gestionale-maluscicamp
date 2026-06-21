@@ -73,7 +73,7 @@ async function inviaPDF(atletaId, email){
   }catch(error){
 
     console.error(error);
-    alert("Errore invio email");
+    alert("Errore invio email: " + (error.message || "riprova tra poco"));
 
   }
 document.body.style.cursor = "default";

@@ -1,4 +1,4 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 
 const brevoApiKey = defineSecret("BREVO_API_KEY");
@@ -6,6 +6,13 @@ const brevoSenderEmail = defineSecret("BREVO_SENDER_EMAIL");
 const brevoSenderName = defineSecret("BREVO_SENDER_NAME");
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const ALLOWED_ORIGINS = new Set([
+  "https://maluscicamp.github.io",
+  "http://localhost:5000",
+  "http://127.0.0.1:5500",
+  "http://localhost:5500"
+]);
 
 function escapeHtml(text) {
   return String(text || "")
@@ -31,7 +38,7 @@ function buildMassEmailHtml({ messaggio, atleta, settimana, periodo }) {
         ${escapeHtml(periodo)}
       </p>
       <p style="margin:16px 0 0;font-size:13px;color:#888;">
-        A.S.D. Malusci Camp
+        ASD Malusci Camp
       </p>
     </div>
   `;
@@ -42,7 +49,7 @@ function buildRicevutaEmailHtml({ linkRicevuta }) {
     <div style="font-family:Arial,sans-serif;color:#222;max-width:600px;">
       <p style="margin:0 0 12px;">Gentile genitore,</p>
       <p style="margin:0 0 12px;">
-        in allegato trovi il link per scaricare la ricevuta di pagamento del Malusci Camp.
+        clicca il link qui sotto per scaricare la ricevuta di pagamento del Malusci Camp.
       </p>
       <p style="margin:0 0 20px;">
         <a href="${escapeHtml(linkRicevuta)}"
@@ -56,10 +63,22 @@ function buildRicevutaEmailHtml({ linkRicevuta }) {
         ${escapeHtml(linkRicevuta)}
       </p>
       <p style="margin:16px 0 0;font-size:13px;color:#888;">
-        A.S.D. Malusci Camp
+        ASD Malusci Camp
       </p>
     </div>
   `;
+}
+
+function setCorsHeaders(req, res) {
+  const origin = req.get("Origin") || "";
+
+  if (ALLOWED_ORIGINS.has(origin) || origin.startsWith("http://localhost")) {
+    res.set("Access-Control-Allow-Origin", origin);
+  }
+
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Access-Control-Max-Age", "3600");
 }
 
 async function inviaConBrevo(apiKey, senderEmail, senderName, payload) {
@@ -79,75 +98,86 @@ async function inviaConBrevo(apiKey, senderEmail, senderName, payload) {
   }
 }
 
-exports.sendCampEmail = onCall(
-  {
-    region: "europe-west1",
-    secrets: [brevoApiKey, brevoSenderEmail, brevoSenderName],
-    cors: [
-      "https://maluscicamp.github.io",
-      "http://localhost:5000",
-      "http://127.0.0.1:5500",
-      "http://localhost:5500"
-    ]
-  },
-  async (request) => {
-    const data = request.data || {};
-    const type = data.type || "massiva";
-    const to = String(data.to || "").trim().toLowerCase();
+async function inviaEmailDaPayload(data) {
+  const type = data.type || "massiva";
+  const to = String(data.to || "").trim().toLowerCase();
 
-    if (!EMAIL_REGEX.test(to)) {
-      throw new HttpsError("invalid-argument", "Email destinatario non valida");
+  if (!EMAIL_REGEX.test(to)) {
+    throw new Error("Email destinatario non valida");
+  }
+
+  let subject;
+  let htmlContent;
+
+  if (type === "ricevuta") {
+    const linkRicevuta = String(data.link_ricevuta || "").trim();
+
+    if (!linkRicevuta) {
+      throw new Error("Link ricevuta mancante");
     }
 
-    let subject;
-    let htmlContent;
+    subject = "Ricevuta pagamento - Malusci Camp";
+    htmlContent = buildRicevutaEmailHtml({ linkRicevuta });
+  } else {
+    const oggetto = String(data.oggetto || "").trim();
+    const messaggio = String(data.messaggio || "").trim();
 
-    if (type === "ricevuta") {
-      const linkRicevuta = String(data.link_ricevuta || "").trim();
+    if (!oggetto || !messaggio) {
+      throw new Error("Oggetto e messaggio obbligatori");
+    }
 
-      if (!linkRicevuta) {
-        throw new HttpsError("invalid-argument", "Link ricevuta mancante");
-      }
+    subject = oggetto;
+    htmlContent = buildMassEmailHtml({
+      messaggio,
+      atleta: data.atleta || "iscritto",
+      settimana: data.settimana || "",
+      periodo: data.periodo || ""
+    });
+  }
 
-      subject = "Ricevuta pagamento - Malusci Camp";
-      htmlContent = buildRicevutaEmailHtml({ linkRicevuta });
-    } else {
-      const oggetto = String(data.oggetto || "").trim();
-      const messaggio = String(data.messaggio || "").trim();
+  await inviaConBrevo(
+    brevoApiKey.value(),
+    brevoSenderEmail.value(),
+    brevoSenderName.value(),
+    {
+      sender: {
+        email: brevoSenderEmail.value(),
+        name: brevoSenderName.value()
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent
+    }
+  );
+}
 
-      if (!oggetto || !messaggio) {
-        throw new HttpsError("invalid-argument", "Oggetto e messaggio obbligatori");
-      }
+exports.sendCampEmail = onRequest(
+  {
+    region: "europe-west1",
+    invoker: "public",
+    secrets: [brevoApiKey, brevoSenderEmail, brevoSenderName]
+  },
+  async (req, res) => {
+    setCorsHeaders(req, res);
 
-      subject = oggetto;
-      htmlContent = buildMassEmailHtml({
-        messaggio,
-        atleta: data.atleta || "iscritto",
-        settimana: data.settimana || "",
-        periodo: data.periodo || ""
-      });
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Metodo non consentito" });
+      return;
     }
 
     try {
-      await inviaConBrevo(
-        brevoApiKey.value(),
-        brevoSenderEmail.value(),
-        brevoSenderName.value(),
-        {
-          sender: {
-            email: brevoSenderEmail.value(),
-            name: brevoSenderName.value()
-          },
-          to: [{ email: to }],
-          subject,
-          htmlContent
-        }
-      );
+      await inviaEmailDaPayload(req.body || {});
+      res.status(200).json({ success: true });
     } catch (error) {
-      console.error("Errore invio Brevo:", error);
-      throw new HttpsError("internal", "Invio email fallito. Controlla mittente e API key Brevo.");
+      console.error("Errore invio email:", error);
+      res.status(500).json({
+        error: error.message || "Invio email fallito"
+      });
     }
-
-    return { success: true };
   }
 );

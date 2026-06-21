@@ -136,7 +136,7 @@ progressText.innerText = "Invio completato!";
   } catch(error) {
 
     console.error(error);
-    alert("Errore invio email");
+    alert("Errore invio email: " + (error.message || "riprova tra poco"));
 
   }
 
