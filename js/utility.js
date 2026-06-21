@@ -105,18 +105,15 @@ progressBox.style.display = "block";
 
       if (!atleta.email || atleta.email.trim() === "") continue;
 
-      await emailjs.send(
-        "service_ezo9gbn",
-        "template_rudrhf7",
-        {
-          email: atleta.email,
-          oggetto: oggetto,
-          messaggio: testo,
-          atleta: atleta.cognome + " " + atleta.nome,
-          settimana: nomeSettimana,
-          periodo: periodo
-        }
-      );
+      await inviaEmailBrevo({
+        type: "massiva",
+        to: atleta.email,
+        oggetto: oggetto,
+        messaggio: testo,
+        atleta: atleta.cognome + " " + atleta.nome,
+        settimana: nomeSettimana,
+        periodo: periodo
+      });
 
       inviate++;
 

@@ -3,9 +3,12 @@
 // ===============================
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyDVomjMP2gDUy_mEIe-tnVf4hEdF7GFvws",
   authDomain: "gestionale-maluscicamp.firebaseapp.com",
-  projectId: "gestionale-maluscicamp"
+  projectId: "gestionale-maluscicamp",
+  storageBucket: "gestionale-maluscicamp.appspot.com",
+  messagingSenderId: "615282026849",
+  appId: "1:615282026849:web:bf46adfca227570d7d7d20"
 };
 
 if (!firebase.apps.length) {

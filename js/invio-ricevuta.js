@@ -62,14 +62,11 @@ async function inviaPDF(atletaId, email){
 
   try{
 
-    await emailjs.send(
-      "service_ezo9gbn",
-      "template_lr908qc",
-      {
-        email: email,
-        link_ricevuta: linkRicevuta
-      }
-    );
+    await inviaEmailBrevo({
+      type: "ricevuta",
+      to: email,
+      link_ricevuta: linkRicevuta
+    });
 
     alert("Ricevuta inviata a " + email);
 
