@@ -1,9 +1,13 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
+const nodemailer = require("nodemailer");
 
-const brevoApiKey = defineSecret("BREVO_API_KEY");
-const brevoSenderEmail = defineSecret("BREVO_SENDER_EMAIL");
-const brevoSenderName = defineSecret("BREVO_SENDER_NAME");
+const smtpPassword = defineSecret("SMTP_PASSWORD");
+
+const SMTP_HOST = "smtps.aruba.it";
+const SMTP_PORT = 465;
+const SMTP_USER = "info@albertomaluscicamp.it";
+const SMTP_SENDER_NAME = "ASD MALUSCI CAMP";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -81,24 +85,30 @@ function setCorsHeaders(req, res) {
   res.set("Access-Control-Max-Age", "3600");
 }
 
-async function inviaConBrevo(apiKey, senderEmail, senderName, payload) {
-  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: {
-      "api-key": apiKey,
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    },
-    body: JSON.stringify(payload)
+function createTransporter(password) {
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: true,
+    auth: {
+      user: SMTP_USER,
+      pass: password
+    }
   });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(errorBody || `Errore Brevo HTTP ${response.status}`);
-  }
 }
 
-async function inviaEmailDaPayload(data) {
+async function inviaConAruba(password, { to, subject, html }) {
+  const transporter = createTransporter(password);
+
+  await transporter.sendMail({
+    from: `"${SMTP_SENDER_NAME}" <${SMTP_USER}>`,
+    to,
+    subject,
+    html
+  });
+}
+
+async function inviaEmailDaPayload(password, data) {
   const type = data.type || "massiva";
   const to = String(data.to || "").trim().toLowerCase();
 
@@ -107,7 +117,7 @@ async function inviaEmailDaPayload(data) {
   }
 
   let subject;
-  let htmlContent;
+  let html;
 
   if (type === "ricevuta") {
     const linkRicevuta = String(data.link_ricevuta || "").trim();
@@ -117,7 +127,7 @@ async function inviaEmailDaPayload(data) {
     }
 
     subject = "Ricevuta pagamento - Malusci Camp";
-    htmlContent = buildRicevutaEmailHtml({ linkRicevuta });
+    html = buildRicevutaEmailHtml({ linkRicevuta });
   } else {
     const oggetto = String(data.oggetto || "").trim();
     const messaggio = String(data.messaggio || "").trim();
@@ -127,7 +137,7 @@ async function inviaEmailDaPayload(data) {
     }
 
     subject = oggetto;
-    htmlContent = buildMassEmailHtml({
+    html = buildMassEmailHtml({
       messaggio,
       atleta: data.atleta || "iscritto",
       settimana: data.settimana || "",
@@ -135,27 +145,14 @@ async function inviaEmailDaPayload(data) {
     });
   }
 
-  await inviaConBrevo(
-    brevoApiKey.value(),
-    brevoSenderEmail.value(),
-    brevoSenderName.value(),
-    {
-      sender: {
-        email: brevoSenderEmail.value(),
-        name: brevoSenderName.value()
-      },
-      to: [{ email: to }],
-      subject,
-      htmlContent
-    }
-  );
+  await inviaConAruba(password, { to, subject, html });
 }
 
 exports.sendCampEmail = onRequest(
   {
     region: "europe-west1",
     invoker: "public",
-    secrets: [brevoApiKey, brevoSenderEmail, brevoSenderName]
+    secrets: [smtpPassword]
   },
   async (req, res) => {
     setCorsHeaders(req, res);
@@ -171,10 +168,10 @@ exports.sendCampEmail = onRequest(
     }
 
     try {
-      await inviaEmailDaPayload(req.body || {});
+      await inviaEmailDaPayload(smtpPassword.value(), req.body || {});
       res.status(200).json({ success: true });
     } catch (error) {
-      console.error("Errore invio email:", error);
+      console.error("Errore invio email Aruba:", error);
       res.status(500).json({
         error: error.message || "Invio email fallito"
       });

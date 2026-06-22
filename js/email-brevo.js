@@ -1,4 +1,4 @@
-// Invio email tramite Firebase HTTP Function + Brevo
+// Invio email tramite Firebase HTTP Function + SMTP Aruba
 
 const SEND_CAMP_EMAIL_URL =
   "https://europe-west1-gestionale-maluscicamp.cloudfunctions.net/sendCampEmail";
