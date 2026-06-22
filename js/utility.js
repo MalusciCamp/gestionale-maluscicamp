@@ -21,13 +21,203 @@ function chiudiTuttiPopup() {
 
 // ================= MAIL =================
 
+const EMAIL_VALIDA_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+let ultimoInvioMail = null;
+let erroriInvioMail = [];
+
 function apriMailBox() {
   chiudiTuttiPopup();
   document.getElementById("popupMail").style.display = "flex";
+  nascondiReportErroriMail();
 }
 
 function chiudiMail() {
   document.getElementById("popupMail").style.display = "none";
+}
+
+function nascondiReportErroriMail() {
+  const box = document.getElementById("reportErroriMail");
+  if (box) {
+    box.style.display = "none";
+    box.innerHTML = "";
+  }
+  erroriInvioMail = [];
+}
+
+function validaEmail(email) {
+  return EMAIL_VALIDA_REGEX.test(String(email || "").trim());
+}
+
+async function caricaDatiSettimanaMail() {
+  const settimanaDoc = await db.collection("settimane")
+    .doc(settimanaID)
+    .get();
+
+  let nomeSettimana = "";
+  let periodo = "";
+
+  if (settimanaDoc.exists) {
+    const data = settimanaDoc.data();
+    nomeSettimana = data.nome || "";
+
+    if (data.dal && data.al) {
+      const dal = data.dal.toDate ? data.dal.toDate() : new Date(data.dal);
+      const al = data.al.toDate ? data.al.toDate() : new Date(data.al);
+      periodo =
+        dal.toLocaleDateString("it-IT") +
+        " - " +
+        al.toLocaleDateString("it-IT");
+    }
+  }
+
+  return { nomeSettimana, periodo };
+}
+
+async function inviaEmailAdAtleta(atletaId, atleta, email, contesto) {
+  await inviaEmailBrevo({
+    type: "massiva",
+    to: email,
+    oggetto: contesto.oggetto,
+    messaggio: contesto.testo,
+    atleta: atleta.cognome + " " + atleta.nome,
+    settimana: contesto.nomeSettimana,
+    periodo: contesto.periodo
+  });
+}
+
+function aggiornaProgresso(processati, totali, testoExtra) {
+  const progressBox = document.getElementById("progressContainer");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+
+  progressBox.style.display = "block";
+
+  const percent = totali > 0 ? Math.round((processati / totali) * 100) : 0;
+  progressBar.style.width = percent + "%";
+  progressText.innerText = testoExtra || ("Elaborati: " + processati + " / " + totali);
+}
+
+function renderReportErroriMail(inviate, totali) {
+  const box = document.getElementById("reportErroriMail");
+  if (!box) return;
+
+  if (erroriInvioMail.length === 0) {
+    box.style.display = "none";
+    box.innerHTML = "";
+    return;
+  }
+
+  let html = `
+    <h3>⚠️ Report invio non riuscito (${erroriInvioMail.length})</h3>
+    <p class="riepilogo-ok">Inviate con successo: ${inviate} su ${totali}</p>
+  `;
+
+  erroriInvioMail.forEach((err) => {
+    const inputEmail = err.emailMancante
+      ? `<input type="email" id="emailRetry_${err.atletaId}" placeholder="Inserisci email genitore">`
+      : (err.email
+        ? `<p style="font-size:12px;margin:0 0 8px;color:#555;">Email: ${err.email}</p>`
+        : "");
+
+    html += `
+      <div class="report-errore-item" id="erroreItem_${err.atletaId}">
+        <div class="nome-atleta">${err.nome}</div>
+        <div class="motivo">${err.motivo}</div>
+        ${inputEmail}
+        <button type="button" class="btn-reinvia"
+          onclick="reinviaEmailAtleta('${err.atletaId}')">
+          Invia di nuovo
+        </button>
+      </div>
+    `;
+  });
+
+  box.innerHTML = html;
+  box.style.display = "block";
+}
+
+async function reinviaEmailAtleta(atletaId) {
+  if (!ultimoInvioMail) {
+    alert("Dati invio non disponibili. Ripeti l'invio massivo.");
+    return;
+  }
+
+  const errore = erroriInvioMail.find((e) => e.atletaId === atletaId);
+  if (!errore) return;
+
+  const btn = document.querySelector(`#erroreItem_${atletaId} .btn-reinvia`);
+  if (btn) btn.disabled = true;
+
+  let email = errore.email || "";
+
+  if (errore.emailMancante) {
+    const input = document.getElementById("emailRetry_" + atletaId);
+    email = input ? input.value.trim() : "";
+
+    if (!email) {
+      alert("Inserisci un indirizzo email");
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    if (!validaEmail(email)) {
+      alert("Email non valida");
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    try {
+      await db.collection("atleti").doc(atletaId).update({ email });
+    } catch (error) {
+      console.error(error);
+      alert("Errore salvataggio email");
+      if (btn) btn.disabled = false;
+      return;
+    }
+  }
+
+  try {
+    const atletaDoc = await db.collection("atleti").doc(atletaId).get();
+    if (!atletaDoc.exists) {
+      alert("Atleta non trovato");
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    const atleta = atletaDoc.data();
+
+    await inviaEmailAdAtleta(atletaId, atleta, email, ultimoInvioMail);
+
+    erroriInvioMail = erroriInvioMail.filter((e) => e.atletaId !== atletaId);
+
+    const item = document.getElementById("erroreItem_" + atletaId);
+    if (item) item.remove();
+
+    if (erroriInvioMail.length === 0) {
+      nascondiReportErroriMail();
+      alert("Email inviata con successo. Tutti gli errori sono stati risolti.");
+    } else {
+      const box = document.getElementById("reportErroriMail");
+      const titolo = box.querySelector("h3");
+      if (titolo) {
+        titolo.textContent = "⚠️ Report invio non riuscito (" + erroriInvioMail.length + ")";
+      }
+      alert("Email inviata a " + atleta.cognome + " " + atleta.nome);
+    }
+
+  } catch (error) {
+    console.error(error);
+    errore.motivo = "Errore invio: " + (error.message || "riprova tra poco");
+    errore.email = email;
+    errore.emailMancante = false;
+
+    const motivoEl = document.querySelector(`#erroreItem_${atletaId} .motivo`);
+    if (motivoEl) motivoEl.textContent = errore.motivo;
+
+    alert("Invio non riuscito: " + error.message);
+    if (btn) btn.disabled = false;
+  }
 }
 
 async function inviaMailSettimana() {
@@ -40,106 +230,120 @@ async function inviaMailSettimana() {
     return;
   }
 
+  const btnInvia = document.querySelector("#popupMail .popup-content > button");
+  if (btnInvia) btnInvia.disabled = true;
+
+  erroriInvioMail = [];
+  nascondiReportErroriMail();
+
   try {
 
     const iscrizioniSnap = await db.collection("iscrizioni")
-      .where("settimanaId","==",settimanaID)
+      .where("settimanaId", "==", settimanaID)
       .get();
 
-    if(iscrizioniSnap.empty){
+    if (iscrizioniSnap.empty) {
       alert("Nessun iscritto trovato");
       return;
     }
 
-    // 🔹 Recupero dati settimana UNA SOLA VOLTA
-    const settimanaDoc = await db.collection("settimane")
-      .doc(settimanaID)
-      .get();
+    const { nomeSettimana, periodo } = await caricaDatiSettimanaMail();
 
-    let nomeSettimana = "";
-    let periodo = "";
+    ultimoInvioMail = { oggetto, testo, nomeSettimana, periodo };
 
-    if(settimanaDoc.exists){
-
-      const data = settimanaDoc.data();
-
-      nomeSettimana = data.nome || "";
-
-      if(data.dal && data.al){
-
-        const dal = data.dal.toDate
-          ? data.dal.toDate()
-          : new Date(data.dal);
-
-        const al = data.al.toDate
-          ? data.al.toDate()
-          : new Date(data.al);
-
-        periodo =
-          dal.toLocaleDateString("it-IT")
-          + " - " +
-          al.toLocaleDateString("it-IT");
-
-      }
-
-    }
-
+    const totali = iscrizioniSnap.size;
+    let processati = 0;
     let inviate = 0;
-    const progressBox = document.getElementById("progressContainer");
-const progressBar = document.getElementById("progressBar");
-const progressText = document.getElementById("progressText");
 
-progressBox.style.display = "block";
+    aggiornaProgresso(0, totali, "Preparazione invio...");
 
     for (const doc of iscrizioniSnap.docs) {
 
       const atletaId = doc.data().atletaId;
+      const atletaDoc = await db.collection("atleti").doc(atletaId).get();
 
-      const atletaDoc = await db.collection("atleti")
-        .doc(atletaId)
-        .get();
+      processati++;
+      aggiornaProgresso(processati, totali, "Elaborati: " + processati + " / " + totali);
 
-      if (!atletaDoc.exists) continue;
+      if (!atletaDoc.exists) {
+        erroriInvioMail.push({
+          atletaId,
+          nome: "Atleta sconosciuto",
+          motivo: "Anagrafica atleta non trovata",
+          email: "",
+          emailMancante: false
+        });
+        continue;
+      }
 
       const atleta = atletaDoc.data();
+      const nome = (atleta.cognome || "") + " " + (atleta.nome || "");
+      const email = (atleta.email || "").trim();
 
-      if (!atleta.email || atleta.email.trim() === "") continue;
+      if (!email) {
+        erroriInvioMail.push({
+          atletaId,
+          nome: nome.trim(),
+          motivo: "Email mancante",
+          email: "",
+          emailMancante: true
+        });
+        continue;
+      }
 
-      await inviaEmailBrevo({
-        type: "massiva",
-        to: atleta.email,
-        oggetto: oggetto,
-        messaggio: testo,
-        atleta: atleta.cognome + " " + atleta.nome,
-        settimana: nomeSettimana,
-        periodo: periodo
-      });
+      if (!validaEmail(email)) {
+        erroriInvioMail.push({
+          atletaId,
+          nome: nome.trim(),
+          motivo: "Email non valida: " + email,
+          email,
+          emailMancante: true
+        });
+        continue;
+      }
 
-      inviate++;
-
-      const percent = Math.round((inviate / iscrizioniSnap.size) * 100);
-
-progressBar.style.width = percent + "%";
-progressText.innerText =
-  "Email inviate: " + inviate + " / " + iscrizioniSnap.size;
-
-      // 🔹 Micro pausa per evitare blocchi EmailJS
-      await new Promise(resolve => setTimeout(resolve, 350));
-
+      try {
+        await inviaEmailAdAtleta(atletaId, atleta, email, ultimoInvioMail);
+        inviate++;
+        aggiornaProgresso(processati, totali, "Inviate: " + inviate + " / " + totali);
+        await new Promise((resolve) => setTimeout(resolve, 350));
+      } catch (error) {
+        erroriInvioMail.push({
+          atletaId,
+          nome: nome.trim(),
+          motivo: "Errore invio: " + (error.message || "sconosciuto"),
+          email,
+          emailMancante: false
+        });
+      }
     }
-progressBar.style.width = "100%";
-progressText.innerText = "Invio completato!";
-    alert("Email inviate: " + inviate);
 
-    chiudiMail();
+    document.getElementById("progressBar").style.width = "100%";
+    document.getElementById("progressText").innerText =
+      "Completato: " + inviate + " inviate, " + erroriInvioMail.length + " errori";
 
-  } catch(error) {
+    renderReportErroriMail(inviate, totali);
+
+    if (erroriInvioMail.length === 0) {
+      alert("Email inviate con successo a tutti: " + inviate);
+      chiudiMail();
+    } else {
+      alert(
+        "Invio completato.\n" +
+        "Inviate: " + inviate + "\n" +
+        "Non inviate: " + erroriInvioMail.length + "\n\n" +
+        "Controlla il report sotto per correggere e reinviare."
+      );
+    }
+
+  } catch (error) {
 
     console.error(error);
     alert("Errore invio email: " + (error.message || "riprova tra poco"));
 
+  } finally {
+    if (btnInvia) btnInvia.disabled = false;
   }
-
 }
 // ================= REPORT =================
 

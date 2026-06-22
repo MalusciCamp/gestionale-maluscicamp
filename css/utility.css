@@ -73,7 +73,10 @@ body{
   background:white;
   padding:30px;
   border-radius:12px;
-  width:400px;
+  width:480px;
+  max-width:95vw;
+  max-height:90vh;
+  overflow-y:auto;
   display:flex;
   flex-direction:column;
   gap:15px;
@@ -150,4 +153,73 @@ body{
   color:#0f5132;
   font-weight:600;
   transform:scale(1.03);
+}
+
+/* ===== REPORT ERRORI INVIO MAIL ===== */
+
+.report-errori-mail{
+  margin-top:10px;
+  border-top:2px solid #f5c2c7;
+  padding-top:12px;
+}
+
+.report-errori-mail h3{
+  margin:0 0 10px;
+  font-size:15px;
+  color:#842029;
+}
+
+.report-errori-mail .riepilogo-ok{
+  margin:0 0 12px;
+  font-size:13px;
+  color:#0f5132;
+}
+
+.report-errore-item{
+  background:#fff5f5;
+  border:1px solid #f5c2c7;
+  border-radius:8px;
+  padding:10px;
+  margin-bottom:10px;
+}
+
+.report-errore-item .nome-atleta{
+  font-weight:bold;
+  font-size:14px;
+  margin-bottom:4px;
+}
+
+.report-errore-item .motivo{
+  font-size:13px;
+  color:#842029;
+  margin-bottom:8px;
+}
+
+.report-errore-item input[type="email"]{
+  width:100%;
+  padding:7px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:8px;
+  box-sizing:border-box;
+}
+
+.report-errore-item .btn-reinvia{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background:#dc3545;
+  color:white;
+  font-size:13px;
+  cursor:pointer;
+}
+
+.report-errore-item .btn-reinvia:hover{
+  background:#bb2d3b;
+}
+
+.report-errore-item .btn-reinvia:disabled{
+  background:#ccc;
+  cursor:not-allowed;
 }
