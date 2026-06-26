@@ -13,9 +13,11 @@ if (!settimanaID) {
 function chiudiTuttiPopup() {
   const mail = document.getElementById("popupMail");
   const report = document.getElementById("popupReport");
+  const dettaglio = document.getElementById("popupDettaglioMail");
 
   if (mail) mail.style.display = "none";
   if (report) report.style.display = "none";
+  if (dettaglio) dettaglio.style.display = "none";
 }
 
 
@@ -25,6 +27,29 @@ const EMAIL_VALIDA_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 let ultimoInvioMail = null;
 let erroriInvioMail = [];
+let invioDettaglioCorrente = null;
+
+const STORICO_MAIL_LIMITE = 30;
+
+function escapeHtml(testo) {
+  return String(testo || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formattaDataOraInvio(timestamp) {
+  if (!timestamp) return { data: "-", ora: "-" };
+
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return { data: "-", ora: "-" };
+
+  return {
+    data: date.toLocaleDateString("it-IT"),
+    ora: date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })
+  };
+}
 
 function apriMailBox() {
   chiudiTuttiPopup();
@@ -137,6 +162,92 @@ function renderReportErroriMail(inviate, totali) {
   box.style.display = "block";
 }
 
+function creaContestoInvio(dati) {
+  return {
+    oggetto: dati.oggetto,
+    testo: dati.testo,
+    nomeSettimana: dati.nomeSettimana,
+    periodo: dati.periodo
+  };
+}
+
+async function eseguiReinvioSingolo(atletaId, email, contesto, opzioni = {}) {
+  const { emailMancante = false, btn = null } = opzioni;
+
+  if (emailMancante) {
+    if (!email) {
+      alert("Inserisci un indirizzo email");
+      if (btn) btn.disabled = false;
+      return null;
+    }
+
+    if (!validaEmail(email)) {
+      alert("Email non valida");
+      if (btn) btn.disabled = false;
+      return null;
+    }
+
+    try {
+      await db.collection("atleti").doc(atletaId).update({ email });
+    } catch (error) {
+      console.error(error);
+      alert("Errore salvataggio email");
+      if (btn) btn.disabled = false;
+      return null;
+    }
+  }
+
+  const atletaDoc = await db.collection("atleti").doc(atletaId).get();
+  if (!atletaDoc.exists) {
+    alert("Atleta non trovato");
+    if (btn) btn.disabled = false;
+    return null;
+  }
+
+  const atleta = atletaDoc.data();
+  await inviaEmailAdAtleta(atletaId, atleta, email, contesto);
+
+  return {
+    atleta,
+    nome: ((atleta.cognome || "") + " " + (atleta.nome || "")).trim(),
+    email
+  };
+}
+
+async function aggiornaDestinatarioNelLog(invioId, atletaId, aggiornamenti) {
+  const docRef = db.collection("mailInvii").doc(invioId);
+  const doc = await docRef.get();
+  if (!doc.exists) return;
+
+  const data = doc.data();
+  const destinatari = (data.destinatari || []).map((d) => {
+    if (d.atletaId !== atletaId) return d;
+    return { ...d, ...aggiornamenti };
+  });
+
+  const inviate = destinatari.filter((d) => d.stato === "ok").length;
+  const fallite = destinatari.length - inviate;
+
+  await docRef.update({
+    destinatari,
+    inviate,
+    fallite
+  });
+
+  if (invioDettaglioCorrente && invioDettaglioCorrente.id === invioId) {
+    invioDettaglioCorrente = {
+      id: invioId,
+      ...data,
+      destinatari,
+      inviate,
+      fallite
+    };
+    renderDettaglioInvio(invioDettaglioCorrente);
+  }
+
+  await caricaStoricoMail();
+}
+
 async function reinviaEmailAtleta(atletaId) {
   if (!ultimoInvioMail) {
     alert("Dati invio non disponibili. Ripeti l'invio massivo.");
@@ -154,40 +265,17 @@ async function reinviaEmailAtleta(atletaId) {
   if (errore.emailMancante) {
     const input = document.getElementById("emailRetry_" + atletaId);
     email = input ? input.value.trim() : "";
-
-    if (!email) {
-      alert("Inserisci un indirizzo email");
-      if (btn) btn.disabled = false;
-      return;
-    }
-
-    if (!validaEmail(email)) {
-      alert("Email non valida");
-      if (btn) btn.disabled = false;
-      return;
-    }
-
-    try {
-      await db.collection("atleti").doc(atletaId).update({ email });
-    } catch (error) {
-      console.error(error);
-      alert("Errore salvataggio email");
-      if (btn) btn.disabled = false;
-      return;
-    }
   }
 
   try {
-    const atletaDoc = await db.collection("atleti").doc(atletaId).get();
-    if (!atletaDoc.exists) {
-      alert("Atleta non trovato");
-      if (btn) btn.disabled = false;
-      return;
-    }
+    const risultato = await eseguiReinvioSingolo(
+      atletaId,
+      email,
+      ultimoInvioMail,
+      { emailMancante: errore.emailMancante, btn }
+    );
 
-    const atleta = atletaDoc.data();
-
-    await inviaEmailAdAtleta(atletaId, atleta, email, ultimoInvioMail);
+    if (!risultato) return;
 
     erroriInvioMail = erroriInvioMail.filter((e) => e.atletaId !== atletaId);
 
@@ -203,7 +291,7 @@ async function reinviaEmailAtleta(atletaId) {
       if (titolo) {
         titolo.textContent = "⚠️ Report invio non riuscito (" + erroriInvioMail.length + ")";
       }
-      alert("Email inviata a " + atleta.cognome + " " + atleta.nome);
+      alert("Email inviata a " + risultato.nome);
     }
 
   } catch (error) {
@@ -214,6 +302,70 @@ async function reinviaEmailAtleta(atletaId) {
 
     const motivoEl = document.querySelector(`#erroreItem_${atletaId} .motivo`);
     if (motivoEl) motivoEl.textContent = errore.motivo;
+
+    alert("Invio non riuscito: " + error.message);
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function reinviaEmailDaStorico(invioId, atletaId) {
+  const btn = document.querySelector(
+    `#dettaglioRiga_${atletaId} .btn-reinvia-storico`
+  );
+  if (btn) btn.disabled = true;
+
+  const doc = await db.collection("mailInvii").doc(invioId).get();
+  if (!doc.exists) {
+    alert("Invio non trovato");
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  const data = doc.data();
+  const destinatario = (data.destinatari || []).find((d) => d.atletaId === atletaId);
+  if (!destinatario || destinatario.stato === "ok") {
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  let email = destinatario.email || "";
+
+  if (destinatario.emailMancante) {
+    const input = document.getElementById("emailStorico_" + atletaId);
+    email = input ? input.value.trim() : "";
+  }
+
+  const contesto = creaContestoInvio(data);
+
+  try {
+    const risultato = await eseguiReinvioSingolo(
+      atletaId,
+      email,
+      contesto,
+      { emailMancante: destinatario.emailMancante, btn }
+    );
+
+    if (!risultato) return;
+
+    await aggiornaDestinatarioNelLog(invioId, atletaId, {
+      stato: "ok",
+      motivo: "",
+      email: risultato.email,
+      emailMancante: false,
+      nome: risultato.nome
+    });
+
+    alert("Email inviata a " + risultato.nome);
+
+  } catch (error) {
+    console.error(error);
+
+    await aggiornaDestinatarioNelLog(invioId, atletaId, {
+      stato: "errore",
+      motivo: "Errore invio: " + (error.message || "riprova tra poco"),
+      email,
+      emailMancante: false
+    });
 
     alert("Invio non riuscito: " + error.message);
     if (btn) btn.disabled = false;
@@ -254,6 +406,7 @@ async function inviaMailSettimana() {
     const totali = iscrizioniSnap.size;
     let processati = 0;
     let inviate = 0;
+    const destinatariLog = [];
 
     aggiornaProgresso(0, totali, "Preparazione invio...");
 
@@ -266,13 +419,15 @@ async function inviaMailSettimana() {
       aggiornaProgresso(processati, totali, "Elaborati: " + processati + " / " + totali);
 
       if (!atletaDoc.exists) {
-        erroriInvioMail.push({
+        const errore = {
           atletaId,
           nome: "Atleta sconosciuto",
           motivo: "Anagrafica atleta non trovata",
           email: "",
           emailMancante: false
-        });
+        };
+        erroriInvioMail.push(errore);
+        destinatariLog.push({ ...errore, stato: "errore" });
         continue;
       }
 
@@ -281,46 +436,72 @@ async function inviaMailSettimana() {
       const email = (atleta.email || "").trim();
 
       if (!email) {
-        erroriInvioMail.push({
+        const errore = {
           atletaId,
           nome: nome.trim(),
           motivo: "Email mancante",
           email: "",
           emailMancante: true
-        });
+        };
+        erroriInvioMail.push(errore);
+        destinatariLog.push({ ...errore, stato: "errore" });
         continue;
       }
 
       if (!validaEmail(email)) {
-        erroriInvioMail.push({
+        const errore = {
           atletaId,
           nome: nome.trim(),
           motivo: "Email non valida: " + email,
           email,
           emailMancante: true
-        });
+        };
+        erroriInvioMail.push(errore);
+        destinatariLog.push({ ...errore, stato: "errore" });
         continue;
       }
 
       try {
         await inviaEmailAdAtleta(atletaId, atleta, email, ultimoInvioMail);
         inviate++;
+        destinatariLog.push({
+          atletaId,
+          nome: nome.trim(),
+          email,
+          stato: "ok",
+          motivo: "",
+          emailMancante: false
+        });
         aggiornaProgresso(processati, totali, "Inviate: " + inviate + " / " + totali);
         await new Promise((resolve) => setTimeout(resolve, 350));
       } catch (error) {
-        erroriInvioMail.push({
+        const errore = {
           atletaId,
           nome: nome.trim(),
           motivo: "Errore invio: " + (error.message || "sconosciuto"),
           email,
           emailMancante: false
-        });
+        };
+        erroriInvioMail.push(errore);
+        destinatariLog.push({ ...errore, stato: "errore" });
       }
     }
 
     document.getElementById("progressBar").style.width = "100%";
     document.getElementById("progressText").innerText =
       "Completato: " + inviate + " inviate, " + erroriInvioMail.length + " errori";
+
+    await salvaLogInvio({
+      oggetto,
+      testo,
+      nomeSettimana,
+      periodo,
+      totali,
+      inviate,
+      destinatari: destinatariLog
+    });
+
+    await caricaStoricoMail();
 
     renderReportErroriMail(inviate, totali);
 
@@ -345,6 +526,215 @@ async function inviaMailSettimana() {
     if (btnInvia) btnInvia.disabled = false;
   }
 }
+
+async function salvaLogInvio(dati) {
+  const fallite = dati.destinatari.filter((d) => d.stato !== "ok").length;
+
+  await db.collection("mailInvii").add({
+    settimanaId: settimanaID,
+    dataInvio: firebase.firestore.FieldValue.serverTimestamp(),
+    oggetto: dati.oggetto,
+    testo: dati.testo,
+    nomeSettimana: dati.nomeSettimana,
+    periodo: dati.periodo,
+    totale: dati.totali,
+    inviate: dati.inviate,
+    fallite,
+    destinatari: dati.destinatari
+  });
+}
+
+// ================= STORICO INVII =================
+
+function classeBadgeInvio(inviate, totale) {
+  if (inviate === totale) return "ok";
+  if (inviate === 0) return "errore";
+  return "parziale";
+}
+
+async function caricaStoricoMail() {
+  const lista = document.getElementById("storicoMailLista");
+  if (!lista || !settimanaID) return;
+
+  try {
+    const snap = await db.collection("mailInvii")
+      .where("settimanaId", "==", settimanaID)
+      .orderBy("dataInvio", "desc")
+      .limit(STORICO_MAIL_LIMITE)
+      .get();
+
+    renderStoricoMail(snap.docs);
+
+  } catch (error) {
+    console.error("Errore caricamento storico mail:", error);
+
+    const messaggio = String(error.message || "");
+    if (messaggio.includes("index") || messaggio.includes("indexes")) {
+      lista.innerHTML =
+        '<p class="storico-mail-vuoto">Indice Firestore mancante. Controlla la console del browser per il link di creazione automatica.</p>';
+    } else {
+      lista.innerHTML =
+        '<p class="storico-mail-vuoto">Errore caricamento storico invii.</p>';
+    }
+  }
+}
+
+function renderStoricoMail(docs) {
+  const lista = document.getElementById("storicoMailLista");
+  if (!lista) return;
+
+  if (!docs.length) {
+    lista.innerHTML =
+      '<p class="storico-mail-vuoto">Nessun invio registrato per questa settimana.</p>';
+    return;
+  }
+
+  lista.innerHTML = docs.map((doc) => {
+    const data = doc.data();
+    const { data: dataIt, ora } = formattaDataOraInvio(data.dataInvio);
+    const inviate = data.inviate || 0;
+    const totale = data.totale || 0;
+    const badgeClass = classeBadgeInvio(inviate, totale);
+
+    return `
+      <button type="button" class="storico-mail-item" onclick="apriDettaglioInvio('${doc.id}')">
+        <div class="storico-mail-data">
+          <strong>${escapeHtml(dataIt)}</strong>
+          ${escapeHtml(ora)}
+        </div>
+        <div class="storico-mail-oggetto" title="${escapeHtml(data.oggetto)}">
+          ${escapeHtml(data.oggetto)}
+        </div>
+        <span class="storico-mail-badge ${badgeClass}">${inviate} su ${totale}</span>
+        <i class="fa-solid fa-chevron-right storico-mail-chevron"></i>
+      </button>
+    `;
+  }).join("");
+}
+
+async function apriDettaglioInvio(invioId) {
+  chiudiTuttiPopup();
+
+  try {
+    const doc = await db.collection("mailInvii").doc(invioId).get();
+    if (!doc.exists) {
+      alert("Invio non trovato");
+      return;
+    }
+
+    invioDettaglioCorrente = { id: doc.id, ...doc.data() };
+    renderDettaglioInvio(invioDettaglioCorrente);
+    document.getElementById("popupDettaglioMail").style.display = "flex";
+
+  } catch (error) {
+    console.error(error);
+    alert("Errore apertura dettaglio");
+  }
+}
+
+function chiudiDettaglioInvio() {
+  const popup = document.getElementById("popupDettaglioMail");
+  if (popup) popup.style.display = "none";
+  invioDettaglioCorrente = null;
+}
+
+function renderDettaglioInvio(data) {
+  const contenuto = document.getElementById("dettaglioMailContenuto");
+  const titolo = document.getElementById("dettaglioMailTitolo");
+  if (!contenuto) return;
+
+  const { data: dataIt, ora } = formattaDataOraInvio(data.dataInvio);
+  const inviate = data.inviate || 0;
+  const totale = data.totale || 0;
+  const fallite = data.fallite != null ? data.fallite : (totale - inviate);
+
+  if (titolo) titolo.textContent = "Dettaglio invio";
+
+  const destinatari = [...(data.destinatari || [])].sort((a, b) =>
+    (a.nome || "").localeCompare(b.nome || "")
+  );
+
+  const righe = destinatari.map((d) => {
+    const isErrore = d.stato !== "ok";
+    let azioni = "";
+
+    if (isErrore) {
+      const inputEmail = d.emailMancante
+        ? `<input type="email" id="emailStorico_${d.atletaId}" placeholder="Inserisci email">`
+        : (d.email
+          ? `<div class="dettaglio-motivo">Email: ${escapeHtml(d.email)}</div>`
+          : "");
+
+      azioni = `
+        ${inputEmail}
+        <div class="dettaglio-motivo">${escapeHtml(d.motivo || "Invio non riuscito")}</div>
+        <button type="button" class="btn-reinvia-storico"
+          onclick="reinviaEmailDaStorico('${data.id}', '${d.atletaId}')">
+          Invia di nuovo
+        </button>
+      `;
+    }
+
+    return `
+      <tr class="${isErrore ? "riga-errore" : ""}" id="dettaglioRiga_${d.atletaId}">
+        <td>${escapeHtml(d.nome)}</td>
+        <td>${escapeHtml(d.email || "-")}</td>
+        <td>
+          <span class="stato-invio ${isErrore ? "errore" : "ok"}">
+            <i class="fa-solid fa-${isErrore ? "circle-xmark" : "circle-check"}"></i>
+            ${isErrore ? "Non inviata" : "Inviata"}
+          </span>
+          ${azioni ? `<div class="dettaglio-reinvia">${azioni}</div>` : ""}
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  contenuto.innerHTML = `
+    <div class="dettaglio-meta">
+      <span><strong>Data:</strong> ${escapeHtml(dataIt)}</span>
+      <span><strong>Ora:</strong> ${escapeHtml(ora)}</span>
+      <span><strong>Settimana:</strong> ${escapeHtml(data.nomeSettimana || "")}</span>
+    </div>
+    <div class="dettaglio-riepilogo">
+      <div class="dettaglio-riepilogo-box totale">
+        <span class="num">${totale}</span>Totale
+      </div>
+      <div class="dettaglio-riepilogo-box ok">
+        <span class="num">${inviate}</span>Inviate
+      </div>
+      <div class="dettaglio-riepilogo-box ko">
+        <span class="num">${fallite}</span>Non inviate
+      </div>
+    </div>
+    <div class="dettaglio-testo-box">
+      <strong>Oggetto: ${escapeHtml(data.oggetto)}</strong>
+      ${escapeHtml(data.testo)}
+    </div>
+    <div class="dettaglio-destinatari">
+      <table>
+        <thead>
+          <tr>
+            <th>Atleta</th>
+            <th>Email</th>
+            <th>Stato</th>
+          </tr>
+        </thead>
+        <tbody>${righe}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.apriDettaglioInvio = apriDettaglioInvio;
+window.chiudiDettaglioInvio = chiudiDettaglioInvio;
+window.reinviaEmailDaStorico = reinviaEmailDaStorico;
+window.reinviaEmailAtleta = reinviaEmailAtleta;
+
+document.addEventListener("DOMContentLoaded", () => {
+  caricaStoricoMail();
+});
+
 // ================= REPORT =================
 
 function apriReport() {
@@ -363,9 +753,11 @@ document.addEventListener("click", function (e) {
 
   const popupMail = document.getElementById("popupMail");
   const popupReport = document.getElementById("popupReport");
+  const popupDettaglio = document.getElementById("popupDettaglioMail");
 
   if (e.target === popupMail) chiudiMail();
   if (e.target === popupReport) chiudiReport();
+  if (e.target === popupDettaglio) chiudiDettaglioInvio();
 });
 
 

@@ -223,3 +223,313 @@ body{
   background:#ccc;
   cursor:not-allowed;
 }
+
+/* ===== STORICO INVII MAIL ===== */
+
+.storico-mail-section{
+  margin-top:40px;
+  background:white;
+  border-radius:16px;
+  padding:28px 30px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+.storico-mail-header{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:20px;
+  padding-bottom:14px;
+  border-bottom:2px solid #e9ecef;
+}
+
+.storico-mail-header h2{
+  margin:0;
+  font-size:20px;
+  color:#0f5132;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.storico-mail-note{
+  font-size:13px;
+  color:#6c757d;
+}
+
+.storico-mail-lista{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.storico-mail-loading,
+.storico-mail-vuoto{
+  margin:0;
+  padding:24px;
+  text-align:center;
+  color:#6c757d;
+  font-size:14px;
+  background:#f8f9fa;
+  border-radius:10px;
+}
+
+.storico-mail-item{
+  display:grid;
+  grid-template-columns:160px 1fr auto auto;
+  gap:16px;
+  align-items:center;
+  padding:14px 18px;
+  background:#f8f9fa;
+  border:1px solid #e9ecef;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.2s ease;
+  text-align:left;
+}
+
+.storico-mail-item:hover{
+  background:#e8f5ee;
+  border-color:#198754;
+  transform:translateX(4px);
+}
+
+.storico-mail-data{
+  font-size:13px;
+  color:#495057;
+  line-height:1.4;
+}
+
+.storico-mail-data strong{
+  display:block;
+  font-size:14px;
+  color:#212529;
+}
+
+.storico-mail-oggetto{
+  font-size:15px;
+  font-weight:600;
+  color:#212529;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.storico-mail-badge{
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.storico-mail-badge.ok{
+  background:#d1e7dd;
+  color:#0f5132;
+}
+
+.storico-mail-badge.parziale{
+  background:#fff3cd;
+  color:#856404;
+}
+
+.storico-mail-badge.errore{
+  background:#f8d7da;
+  color:#842029;
+}
+
+.storico-mail-chevron{
+  color:#198754;
+  font-size:14px;
+}
+
+/* ===== POPUP DETTAGLIO INVIO ===== */
+
+.popup-dettaglio-mail{
+  width:640px;
+  max-width:95vw;
+}
+
+.popup-dettaglio-mail h2{
+  margin:0 0 4px;
+  font-size:18px;
+  color:#0f5132;
+}
+
+.dettaglio-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px 24px;
+  margin-bottom:16px;
+  padding-bottom:14px;
+  border-bottom:1px solid #e9ecef;
+  font-size:13px;
+  color:#495057;
+}
+
+.dettaglio-meta span strong{
+  color:#212529;
+}
+
+.dettaglio-riepilogo{
+  display:flex;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.dettaglio-riepilogo-box{
+  flex:1;
+  padding:12px;
+  border-radius:8px;
+  text-align:center;
+  font-size:13px;
+}
+
+.dettaglio-riepilogo-box.totale{
+  background:#e9ecef;
+}
+
+.dettaglio-riepilogo-box.ok{
+  background:#d1e7dd;
+  color:#0f5132;
+}
+
+.dettaglio-riepilogo-box.ko{
+  background:#f8d7da;
+  color:#842029;
+}
+
+.dettaglio-riepilogo-box .num{
+  display:block;
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:2px;
+}
+
+.dettaglio-testo-box{
+  background:#f8f9fa;
+  border:1px solid #e9ecef;
+  border-radius:8px;
+  padding:12px;
+  margin-bottom:18px;
+  font-size:13px;
+  line-height:1.5;
+  color:#495057;
+  max-height:120px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+}
+
+.dettaglio-testo-box strong{
+  display:block;
+  margin-bottom:6px;
+  color:#212529;
+}
+
+.dettaglio-destinatari{
+  max-height:320px;
+  overflow-y:auto;
+  border:1px solid #e9ecef;
+  border-radius:8px;
+}
+
+.dettaglio-destinatari table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+.dettaglio-destinatari th{
+  position:sticky;
+  top:0;
+  background:#0f5132;
+  color:white;
+  padding:10px 12px;
+  text-align:left;
+  font-weight:600;
+}
+
+.dettaglio-destinatari td{
+  padding:10px 12px;
+  border-bottom:1px solid #e9ecef;
+  vertical-align:middle;
+}
+
+.dettaglio-destinatari tr:last-child td{
+  border-bottom:none;
+}
+
+.dettaglio-destinatari tr.riga-errore{
+  background:#fff5f5;
+}
+
+.stato-invio{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:600;
+  font-size:12px;
+}
+
+.stato-invio.ok{
+  color:#0f5132;
+}
+
+.stato-invio.errore{
+  color:#842029;
+}
+
+.dettaglio-motivo{
+  font-size:12px;
+  color:#842029;
+  margin-top:4px;
+}
+
+.dettaglio-reinvia input[type="email"]{
+  width:100%;
+  max-width:200px;
+  padding:5px 8px;
+  border:1px solid #ccc;
+  border-radius:5px;
+  font-size:12px;
+  margin-right:6px;
+  margin-top:4px;
+}
+
+.btn-reinvia-storico{
+  padding:5px 10px;
+  border:none;
+  border-radius:5px;
+  background:#dc3545;
+  color:white;
+  font-size:12px;
+  cursor:pointer;
+  margin-top:4px;
+}
+
+.btn-reinvia-storico:hover{
+  background:#bb2d3b;
+}
+
+.btn-reinvia-storico:disabled{
+  background:#ccc;
+  cursor:not-allowed;
+}
+
+.btn-chiudi-dettaglio{
+  margin-top:16px;
+  align-self:flex-end;
+}
+
+@media (max-width:700px){
+  .storico-mail-item{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .storico-mail-chevron{
+    display:none;
+  }
+}

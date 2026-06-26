@@ -44,6 +44,19 @@
 
   </div>
 
+  <section class="storico-mail-section">
+    <div class="storico-mail-header">
+      <h2>
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Storico invii email
+      </h2>
+      <span class="storico-mail-note">Ultimi 30 invii · archivio completo su database</span>
+    </div>
+    <div id="storicoMailLista" class="storico-mail-lista">
+      <p class="storico-mail-loading">Caricamento storico...</p>
+    </div>
+  </section>
+
 </div>
 
 <!-- ===== POPUP MAIL ===== -->
@@ -145,6 +158,15 @@
     <button onclick="generaReport()">Genera PDF</button>
     <button onclick="chiudiReport()">Annulla</button>
 
+  </div>
+</div>
+
+<!-- ===== POPUP DETTAGLIO INVIO ===== -->
+<div id="popupDettaglioMail" class="popup-mail">
+  <div class="popup-content popup-dettaglio-mail">
+    <h2 id="dettaglioMailTitolo">Dettaglio invio</h2>
+    <div id="dettaglioMailContenuto"></div>
+    <button type="button" class="btn-chiudi-dettaglio" onclick="chiudiDettaglioInvio()">Chiudi</button>
   </div>
 </div>
 
