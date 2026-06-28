@@ -1,9 +1,16 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
+const nodemailer = require("nodemailer");
 
+const smtpPassword = defineSecret("SMTP_PASSWORD");
 const brevoApiKey = defineSecret("BREVO_API_KEY");
 const brevoSenderEmail = defineSecret("BREVO_SENDER_EMAIL");
 const brevoSenderName = defineSecret("BREVO_SENDER_NAME");
+
+const SMTP_HOST = "smtps.aruba.it";
+const SMTP_PORT = 465;
+const SMTP_USER = "info@albertomaluscicamp.it";
+const SMTP_SENDER_NAME = "ASD MALUSCI CAMP";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -81,32 +88,7 @@ function setCorsHeaders(req, res) {
   res.set("Access-Control-Max-Age", "3600");
 }
 
-async function inviaConBrevo(apiKey, senderEmail, senderName, { to, subject, htmlContent }) {
-  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: {
-      "api-key": apiKey,
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    },
-    body: JSON.stringify({
-      sender: {
-        email: senderEmail,
-        name: senderName
-      },
-      to: [{ email: to }],
-      subject,
-      htmlContent
-    })
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(errorBody || `Errore Brevo HTTP ${response.status}`);
-  }
-}
-
-async function inviaEmailDaPayload(secrets, data) {
+function buildEmailContent(data) {
   const type = data.type || "massiva";
   const to = String(data.to || "").trim().toLowerCase();
 
@@ -143,19 +125,78 @@ async function inviaEmailDaPayload(secrets, data) {
     });
   }
 
-  await inviaConBrevo(
-    secrets.apiKey,
-    secrets.senderEmail,
-    secrets.senderName,
-    { to, subject, htmlContent }
-  );
+  return { to, subject, htmlContent };
+}
+
+async function inviaConAruba(password, { to, subject, htmlContent }) {
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: true,
+    auth: {
+      user: SMTP_USER,
+      pass: password
+    }
+  });
+
+  await transporter.sendMail({
+    from: `"${SMTP_SENDER_NAME}" <${SMTP_USER}>`,
+    to,
+    subject,
+    html: htmlContent
+  });
+}
+
+async function inviaConBrevo(apiKey, senderEmail, senderName, { to, subject, htmlContent }) {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": apiKey,
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify({
+      sender: {
+        email: senderEmail,
+        name: senderName
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent
+    })
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(errorBody || `Errore Brevo HTTP ${response.status}`);
+  }
+}
+
+async function inviaEmailConFallback(secrets, data) {
+  const email = buildEmailContent(data);
+
+  try {
+    await inviaConAruba(secrets.smtpPassword, email);
+    return { provider: "aruba" };
+  } catch (arubaError) {
+    console.warn("Invio Aruba fallito, fallback Brevo:", arubaError.message || arubaError);
+
+    await inviaConBrevo(
+      secrets.brevoApiKey,
+      secrets.brevoSenderEmail,
+      secrets.brevoSenderName,
+      email
+    );
+
+    return { provider: "brevo", arubaError: arubaError.message || String(arubaError) };
+  }
 }
 
 exports.sendCampEmail = onRequest(
   {
     region: "europe-west1",
     invoker: "public",
-    secrets: [brevoApiKey, brevoSenderEmail, brevoSenderName]
+    secrets: [smtpPassword, brevoApiKey, brevoSenderEmail, brevoSenderName]
   },
   async (req, res) => {
     setCorsHeaders(req, res);
@@ -171,17 +212,19 @@ exports.sendCampEmail = onRequest(
     }
 
     try {
-      await inviaEmailDaPayload(
+      const result = await inviaEmailConFallback(
         {
-          apiKey: brevoApiKey.value(),
-          senderEmail: brevoSenderEmail.value(),
-          senderName: brevoSenderName.value()
+          smtpPassword: smtpPassword.value(),
+          brevoApiKey: brevoApiKey.value(),
+          brevoSenderEmail: brevoSenderEmail.value(),
+          brevoSenderName: brevoSenderName.value()
         },
         req.body || {}
       );
-      res.status(200).json({ success: true });
+
+      res.status(200).json({ success: true, provider: result.provider });
     } catch (error) {
-      console.error("Errore invio email Brevo:", error);
+      console.error("Errore invio email (Aruba + Brevo):", error);
       res.status(500).json({
         error: error.message || "Invio email fallito"
       });

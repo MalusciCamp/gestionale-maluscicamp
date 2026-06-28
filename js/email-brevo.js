@@ -1,4 +1,4 @@
-// Invio email tramite Firebase HTTP Function + Brevo API
+// Invio email: Firebase Function prova Aruba (info@), fallback Brevo
 
 const SEND_CAMP_EMAIL_URL =
   "https://europe-west1-gestionale-maluscicamp.cloudfunctions.net/sendCampEmail";
