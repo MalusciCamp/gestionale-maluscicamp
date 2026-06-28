@@ -1,13 +1,9 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
-const nodemailer = require("nodemailer");
 
-const smtpPassword = defineSecret("SMTP_PASSWORD");
-
-const SMTP_HOST = "smtps.aruba.it";
-const SMTP_PORT = 465;
-const SMTP_USER = "info@albertomaluscicamp.it";
-const SMTP_SENDER_NAME = "ASD MALUSCI CAMP";
+const brevoApiKey = defineSecret("BREVO_API_KEY");
+const brevoSenderEmail = defineSecret("BREVO_SENDER_EMAIL");
+const brevoSenderName = defineSecret("BREVO_SENDER_NAME");
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -85,30 +81,32 @@ function setCorsHeaders(req, res) {
   res.set("Access-Control-Max-Age", "3600");
 }
 
-function createTransporter(password) {
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: true,
-    auth: {
-      user: SMTP_USER,
-      pass: password
-    }
+async function inviaConBrevo(apiKey, senderEmail, senderName, { to, subject, htmlContent }) {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": apiKey,
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify({
+      sender: {
+        email: senderEmail,
+        name: senderName
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent
+    })
   });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(errorBody || `Errore Brevo HTTP ${response.status}`);
+  }
 }
 
-async function inviaConAruba(password, { to, subject, html }) {
-  const transporter = createTransporter(password);
-
-  await transporter.sendMail({
-    from: `"${SMTP_SENDER_NAME}" <${SMTP_USER}>`,
-    to,
-    subject,
-    html
-  });
-}
-
-async function inviaEmailDaPayload(password, data) {
+async function inviaEmailDaPayload(secrets, data) {
   const type = data.type || "massiva";
   const to = String(data.to || "").trim().toLowerCase();
 
@@ -117,7 +115,7 @@ async function inviaEmailDaPayload(password, data) {
   }
 
   let subject;
-  let html;
+  let htmlContent;
 
   if (type === "ricevuta") {
     const linkRicevuta = String(data.link_ricevuta || "").trim();
@@ -127,7 +125,7 @@ async function inviaEmailDaPayload(password, data) {
     }
 
     subject = "Ricevuta pagamento - Malusci Camp";
-    html = buildRicevutaEmailHtml({ linkRicevuta });
+    htmlContent = buildRicevutaEmailHtml({ linkRicevuta });
   } else {
     const oggetto = String(data.oggetto || "").trim();
     const messaggio = String(data.messaggio || "").trim();
@@ -137,7 +135,7 @@ async function inviaEmailDaPayload(password, data) {
     }
 
     subject = oggetto;
-    html = buildMassEmailHtml({
+    htmlContent = buildMassEmailHtml({
       messaggio,
       atleta: data.atleta || "iscritto",
       settimana: data.settimana || "",
@@ -145,14 +143,19 @@ async function inviaEmailDaPayload(password, data) {
     });
   }
 
-  await inviaConAruba(password, { to, subject, html });
+  await inviaConBrevo(
+    secrets.apiKey,
+    secrets.senderEmail,
+    secrets.senderName,
+    { to, subject, htmlContent }
+  );
 }
 
 exports.sendCampEmail = onRequest(
   {
     region: "europe-west1",
     invoker: "public",
-    secrets: [smtpPassword]
+    secrets: [brevoApiKey, brevoSenderEmail, brevoSenderName]
   },
   async (req, res) => {
     setCorsHeaders(req, res);
@@ -168,10 +171,17 @@ exports.sendCampEmail = onRequest(
     }
 
     try {
-      await inviaEmailDaPayload(smtpPassword.value(), req.body || {});
+      await inviaEmailDaPayload(
+        {
+          apiKey: brevoApiKey.value(),
+          senderEmail: brevoSenderEmail.value(),
+          senderName: brevoSenderName.value()
+        },
+        req.body || {}
+      );
       res.status(200).json({ success: true });
     } catch (error) {
-      console.error("Errore invio email Aruba:", error);
+      console.error("Errore invio email Brevo:", error);
       res.status(500).json({
         error: error.message || "Invio email fallito"
       });
