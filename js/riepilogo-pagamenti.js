@@ -49,6 +49,7 @@ async function costruisciDatiReport(filtroData = null){
   let contanti = 0;
   let bonifico = 0;
   let carta = 0;
+  let assegno = 0;
 
   for(const doc of iscrizioniSnap.docs){
 
@@ -74,6 +75,7 @@ async function costruisciDatiReport(filtroData = null){
     let contantiAtleta = 0;
     let bonificoAtleta = 0;
     let cartaAtleta = 0;
+    let assegnoAtleta = 0;
 
     pagamentiSnap.forEach(p => {
 
@@ -89,7 +91,8 @@ async function costruisciDatiReport(filtroData = null){
 
       if(data.metodo === "Contanti") contantiAtleta += importo;
       if(data.metodo === "Bonifico") bonificoAtleta += importo;
-      if(data.metodo === "Carta") cartaAtleta += importo;
+      if(data.metodo === "Carta" || data.metodo === "Carta di Credito") cartaAtleta += importo;
+      if(data.metodo === "Assegno") assegnoAtleta += importo;
 
       movimenti.push(
         formattaData(data.data?.toDate()) +
@@ -121,6 +124,7 @@ async function costruisciDatiReport(filtroData = null){
     contanti += contantiAtleta;
     bonifico += bonificoAtleta;
     carta += cartaAtleta;
+    assegno += assegnoAtleta;
 
     let stato = "da_pagare";
 
@@ -155,6 +159,7 @@ async function costruisciDatiReport(filtroData = null){
       contanti,
       bonifico,
       carta,
+      assegno,
       totaleResiduo: filtroData
         ? 0
         : totaleIncassare - totaleSconti - totaleIncassato
@@ -204,6 +209,7 @@ async function caricaRiepilogo(){
   document.getElementById("totaleContanti").innerText = totali.contanti + " €";
   document.getElementById("totaleBonifico").innerText = totali.bonifico + " €";
   document.getElementById("totaleCarta").innerText = totali.carta + " €";
+  document.getElementById("totaleAssegno").innerText = totali.assegno + " €";
   document.getElementById("totaleResiduo").innerText = totali.totaleResiduo + " €";
 }
 
@@ -280,6 +286,7 @@ pdf.setFont("helvetica","bold");
   const contanti = totali.contanti;
   const bonifico = totali.bonifico;
   const carta = totali.carta;
+  const assegno = totali.assegno;
   const residuo = totali.totaleResiduo;
 
   pdf.setFont("helvetica","bold");
@@ -293,12 +300,13 @@ pdf.setFont("helvetica","bold");
   pdf.text("Contanti: € " + contanti.toFixed(2), 100, 55);
   pdf.text("Bonifico: € " + bonifico.toFixed(2), 100, 60);
   pdf.text("Carta: € " + carta.toFixed(2), 100, 65);
+  pdf.text("Assegno: € " + assegno.toFixed(2), 100, 70);
 
-  pdf.line(15, 75, 195, 75);
+  pdf.line(15, 78, 195, 78);
 
   // ================= TABELLA =================
 
-  let y = 83;
+  let y = 86;
 
   pdf.setFont("helvetica","bold");
   pdf.text("Atleta", 15, y);
@@ -398,6 +406,7 @@ async function filtraPerData(){
   document.getElementById("totaleContanti").innerText = totali.contanti + " €";
   document.getElementById("totaleBonifico").innerText = totali.bonifico + " €";
   document.getElementById("totaleCarta").innerText = totali.carta + " €";
+  document.getElementById("totaleAssegno").innerText = totali.assegno + " €";
 }
 
 function resetFiltro(){
