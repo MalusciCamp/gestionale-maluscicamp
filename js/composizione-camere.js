@@ -115,8 +115,9 @@ function creaCamera() {
     return;
   }
 
-  if (maxPostiVal !== 4 && maxPostiVal !== 5) {
-    alert("I posti devono essere 4 o 5");
+  const postiConsentiti = [2, 3, 4, 5];
+  if (!postiConsentiti.includes(maxPostiVal)) {
+    alert("I posti devono essere 2, 3, 4 o 5");
     return;
   }
 
