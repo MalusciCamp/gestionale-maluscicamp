@@ -80,6 +80,59 @@ th{
   opacity: 0.8;
 }
 
+/* ================== INVIO RICEVUTA EMAIL ================== */
+
+.ricevuta-email-wrap{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #eceff1;
+  border: 2px solid #cfd8dc;
+  vertical-align: middle;
+}
+
+.ricevuta-email-wrap:hover{
+  opacity: 0.85;
+}
+
+.ricevuta-email-wrap.inviata{
+  background: #43a047;
+  border-color: #2e7d32;
+}
+
+.ricevuta-email-icon{
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ricevuta-email-data{
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+#btnInviaRicevuta.inviata{
+  background: #43a047 !important;
+  color: #fff;
+}
+
+.ricevuta-email-data-popup{
+  display: none;
+  font-size: 12px;
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
 
 /* ================== POPUP PAGAMENTO ================== */
 

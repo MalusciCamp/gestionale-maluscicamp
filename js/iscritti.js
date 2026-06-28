@@ -1,6 +1,7 @@
 let ultimoPagamentoRegistrato = null;
 let pagamentoInModifica = null;
 let cacheAtleti = {};
+let cacheIscrizioni = {};
 let iscrittiCache = [];
 let paginaCorrente = 1;
 const perPagina = 15;
@@ -53,6 +54,69 @@ async function caricaTitoloSettimana() {
 }
 
 
+function formattaDataInvioRicevuta(timestamp) {
+  if (!timestamp) return "";
+
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return (
+    date.toLocaleDateString("it-IT") +
+    " " +
+    date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })
+  );
+}
+
+function buildRicevutaEmailCell(atletaId, ricevutaEmailInviataIl) {
+  const inviata = !!ricevutaEmailInviataIl;
+  const dataTesto = formattaDataInvioRicevuta(ricevutaEmailInviataIl);
+
+  return `
+    <div id="ricevuta-email-${atletaId}"
+         class="ricevuta-email-wrap${inviata ? " inviata" : ""}"
+         onclick="inviaRicevutaEmail('${atletaId}')"
+         title="Clicca per inviare la ricevuta via email">
+      <span class="ricevuta-email-icon">✉️</span>
+      ${inviata ? `<small class="ricevuta-email-data">${dataTesto}</small>` : ""}
+    </div>
+  `;
+}
+
+function aggiornaUiRicevutaInviata(atletaId, timestamp) {
+  const dataTesto = formattaDataInvioRicevuta(timestamp);
+  const wrap = document.getElementById(`ricevuta-email-${atletaId}`);
+
+  if (wrap) {
+    wrap.classList.add("inviata");
+    wrap.innerHTML = `
+      <span class="ricevuta-email-icon">✉️</span>
+      <small class="ricevuta-email-data">${dataTesto}</small>
+    `;
+  }
+
+  iscrittiCache.forEach((riga) => {
+    if (riga.atletaId !== atletaId) return;
+
+    riga.ricevutaEmailInviataIl = timestamp;
+    riga.html = riga.html.replace(
+      /<div id="ricevuta-email-[^"]+"[\s\S]*?<\/div>/,
+      buildRicevutaEmailCell(atletaId, timestamp)
+    );
+  });
+
+  const btnMail = document.getElementById("btnInviaRicevuta");
+  const dataPopup = document.getElementById("dataInvioRicevuta");
+
+  if (btnMail && atletaPagamentoInCorso === atletaId) {
+    btnMail.classList.add("inviata");
+  }
+
+  if (dataPopup && atletaPagamentoInCorso === atletaId) {
+    dataPopup.style.display = "block";
+    dataPopup.textContent = "Inviata il " + dataTesto;
+  }
+}
+
 async function caricaIscritti(){
 
   tbody.innerHTML = "";
@@ -90,6 +154,7 @@ async function caricaIscritti(){
 
       const atleta = atletaDoc.data();
       cacheAtleti[atletaId] = atleta;
+      cacheIscrizioni[atletaId] = docIscr.id;
 
       // 🔹 Calcolo pagamenti reali
 const pagamentiSnap = await db.collection("pagamenti")
@@ -121,7 +186,9 @@ if(pagato >= quotaNetta && quotaNetta > 0){
   stato = "parziale";
 }
       righe.push({
+        atletaId,
         cognome: atleta.cognome || "",
+        ricevutaEmailInviataIl: iscrizione.ricevutaEmailInviataIl || null,
         html: `
           <tr>
             <td>${atleta.cognome} ${atleta.nome}</td>
@@ -186,9 +253,7 @@ if(pagato >= quotaNetta && quotaNetta > 0){
     🖨️
   </button>
 
-  <button onclick="inviaRicevutaEmail('${atletaId}')">
-    ✉️
-  </button>
+  ${buildRicevutaEmailCell(atletaId, iscrizione.ricevutaEmailInviataIl)}
 ` : ""}
 
 
@@ -448,6 +513,37 @@ async function apriPagamento(atletaId){
 
   if(btnMod){
     btnMod.style.display = "inline-block";
+  }
+
+  const btnMail = document.getElementById("btnInviaRicevuta");
+  const dataPopup = document.getElementById("dataInvioRicevuta");
+  const pagatoCompleto = residuo <= 0 && pagato > 0;
+
+  if (btnMail) {
+    btnMail.style.display = pagatoCompleto ? "block" : "none";
+    btnMail.classList.toggle("inviata", !!iscrizione.ricevutaEmailInviataIl);
+    btnMail.onclick = function () {
+      inviaRicevutaEmail(atletaId);
+    };
+  }
+
+  if (dataPopup) {
+    if (iscrizione.ricevutaEmailInviataIl) {
+      dataPopup.style.display = "block";
+      dataPopup.textContent =
+        "Inviata il " + formattaDataInvioRicevuta(iscrizione.ricevutaEmailInviataIl);
+    } else {
+      dataPopup.style.display = "none";
+      dataPopup.textContent = "";
+    }
+  }
+
+  const btnStampa = document.getElementById("btnStampaRicevuta");
+  if (btnStampa) {
+    btnStampa.style.display = pagatoCompleto ? "block" : "none";
+    btnStampa.onclick = function () {
+      stampaRicevutaDiretta(atletaId);
+    };
   }
 
   document.getElementById("popupPagamento").style.display = "flex";
