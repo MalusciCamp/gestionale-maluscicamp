@@ -174,12 +174,17 @@ async function inviaConBrevo(apiKey, senderEmail, senderName, { to, subject, htm
 
 async function inviaEmailConFallback(secrets, data) {
   const email = buildEmailContent(data);
+  const type = data.type || "massiva";
 
   try {
     await inviaConAruba(secrets.smtpPassword, email);
-    return { provider: "aruba" };
+    console.log(
+      `Email inviata via ARUBA | tipo: ${type} | destinatario: ${email.to} | mittente: ${SMTP_USER}`
+    );
+    return { provider: "aruba", type, to: email.to };
   } catch (arubaError) {
-    console.warn("Invio Aruba fallito, fallback Brevo:", arubaError.message || arubaError);
+    const arubaMsg = arubaError.message || String(arubaError);
+    console.warn(`Invio Aruba fallito, fallback Brevo | destinatario: ${email.to} | errore: ${arubaMsg}`);
 
     await inviaConBrevo(
       secrets.brevoApiKey,
@@ -188,7 +193,11 @@ async function inviaEmailConFallback(secrets, data) {
       email
     );
 
-    return { provider: "brevo", arubaError: arubaError.message || String(arubaError) };
+    console.log(
+      `Email inviata via BREVO (fallback) | tipo: ${type} | destinatario: ${email.to} | mittente: ${secrets.brevoSenderEmail}`
+    );
+
+    return { provider: "brevo", type, to: email.to, arubaError: arubaMsg };
   }
 }
 
@@ -212,6 +221,7 @@ exports.sendCampEmail = onRequest(
     }
 
     try {
+      const body = req.body || {};
       const result = await inviaEmailConFallback(
         {
           smtpPassword: smtpPassword.value(),
@@ -219,12 +229,17 @@ exports.sendCampEmail = onRequest(
           brevoSenderEmail: brevoSenderEmail.value(),
           brevoSenderName: brevoSenderName.value()
         },
-        req.body || {}
+        body
       );
 
       res.status(200).json({ success: true, provider: result.provider });
     } catch (error) {
-      console.error("Errore invio email (Aruba + Brevo):", error);
+      const to = String((req.body || {}).to || "").trim().toLowerCase();
+      const type = (req.body || {}).type || "massiva";
+      console.error(
+        `Errore invio email (Aruba + Brevo) | tipo: ${type} | destinatario: ${to || "?"} | errore:`,
+        error.message || error
+      );
       res.status(500).json({
         error: error.message || "Invio email fallito"
       });
