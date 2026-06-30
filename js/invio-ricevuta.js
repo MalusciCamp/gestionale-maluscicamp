@@ -75,13 +75,20 @@ async function salvaDataInvioRicevuta(atletaId) {
 async function inviaPDF(atletaId, email) {
   document.body.style.cursor = "wait";
 
-  const linkRicevuta =
-    "https://maluscicamp.github.io/gestionale-maluscicamp/ricevuta.html?atleta=" +
-    atletaId +
-    "&settimana=" +
-    settimanaID;
-
   try {
+    const info = await assicuraNumeroRicevuta(atletaId, settimanaID);
+
+    if (!info) {
+      alert("Nessun pagamento trovato per assegnare la ricevuta");
+      return;
+    }
+
+    const linkRicevuta =
+      "https://maluscicamp.github.io/gestionale-maluscicamp/ricevuta.html?atleta=" +
+      atletaId +
+      "&settimana=" +
+      settimanaID;
+
     await inviaEmailBrevo({
       type: "ricevuta",
       to: email,

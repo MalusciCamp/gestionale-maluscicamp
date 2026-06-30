@@ -329,6 +329,12 @@ iscrittiCache = righe;
 mostraPagina(1);
 aggiornaPaginazione();
 
+for (const r of righe) {
+  if (r.ricevutaEmailInviataIl && !r.numeroRicevuta) {
+    await assicuraNumeroRicevuta(r.atletaId, settimanaID);
+  }
+}
+
   } catch(error){
     console.error("Errore caricamento iscritti:", error);
     tbody.innerHTML = `
@@ -729,56 +735,18 @@ async function eliminaPagamento(idPagamento){
 
 async function stampaRicevutaDiretta(atletaId){
 
-  const anno = new Date().getFullYear();
+  const info = await assicuraNumeroRicevuta(atletaId, settimanaID);
+  if (!info) return;
 
-  // ================= RECUPERO PAGAMENTI =================
+  const numeroRicevuta = info.numeroRicevuta;
+  const anno = info.anno;
 
   const pagamentiSnap = await db.collection("pagamenti")
     .where("atletaId","==", atletaId)
     .where("settimanaId","==", settimanaID)
-    .orderBy("data")
     .get();
 
   if(pagamentiSnap.empty) return;
-
-  let numeroRicevuta = null;
-  let totalePagato = 0;
-
-  pagamentiSnap.forEach(doc=>{
-    const data = doc.data();
-    totalePagato += Number(data.importo || 0);
-
-    if(data.numeroRicevuta){
-      numeroRicevuta = data.numeroRicevuta;
-    }
-  });
-
-  // ================= ASSEGNA NUMERO SE NON ESISTE =================
-
-  if(!numeroRicevuta){
-
-    const configRef = db.collection("config").doc("contatori");
-    const configDoc = await configRef.get();
-
-    let progressivo = 1;
-
-    if(configDoc.exists){
-      progressivo = configDoc.data().numeroRicevute || 1;
-    }
-
-    numeroRicevuta = progressivo;
-
-    await configRef.set({
-      numeroRicevute: progressivo + 1
-    }, { merge:true });
-
-    const primoPagamento = pagamentiSnap.docs[0];
-    await primoPagamento.ref.update({
-      numeroRicevuta: numeroRicevuta
-    });
-  }
-
-  // ================= RECUPERO DATI ATLETA =================
 
   const atletaDoc = await db.collection("atleti")
     .doc(atletaId)
@@ -966,8 +934,6 @@ try{
 }catch(e){}
 
   pdf.save(`Ricevuta_${numeroRicevuta}_${atleta.cognome}.pdf`);
-
-  aggiornaUiNumeroRicevuta(atletaId, numeroRicevuta, anno);
 }
 
 
