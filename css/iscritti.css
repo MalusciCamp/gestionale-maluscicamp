@@ -133,6 +133,24 @@ th{
   margin-top: 4px;
 }
 
+.badge-numero-ricevuta{
+  display: inline-block;
+  margin: 2px 4px 4px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #e8f5e9;
+  border: 1px solid #43a047;
+  color: #1b5e20;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.azioni-box{
+  min-width: 120px;
+}
+
 
 /* ================== POPUP PAGAMENTO ================== */
 

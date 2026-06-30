@@ -82,6 +82,46 @@ function buildRicevutaEmailCell(atletaId, ricevutaEmailInviataIl) {
   `;
 }
 
+function buildBadgeNumeroRicevuta(atletaId, numeroRicevuta, annoRicevuta) {
+  const anno = annoRicevuta || new Date().getFullYear();
+
+  if (numeroRicevuta == null || numeroRicevuta === "") {
+    return `<span id="badge-ricevuta-${atletaId}" class="badge-numero-ricevuta vuota" style="display:none;"></span>`;
+  }
+
+  return `
+    <span id="badge-ricevuta-${atletaId}" class="badge-numero-ricevuta" title="Numero ricevuta">
+      ric n. ${numeroRicevuta}/${anno}
+    </span>
+  `;
+}
+
+function aggiornaUiNumeroRicevuta(atletaId, numeroRicevuta, annoRicevuta) {
+  const badge = document.getElementById(`badge-ricevuta-${atletaId}`);
+  const anno = annoRicevuta || new Date().getFullYear();
+  const htmlBadge = buildBadgeNumeroRicevuta(atletaId, numeroRicevuta, anno);
+
+  if (badge) {
+    const temp = document.createElement("div");
+    temp.innerHTML = htmlBadge.trim();
+    badge.replaceWith(temp.firstElementChild);
+  }
+
+  iscrittiCache.forEach((riga) => {
+    if (riga.atletaId !== atletaId) return;
+
+    riga.numeroRicevuta = numeroRicevuta;
+    riga.annoRicevuta = anno;
+
+    if (riga.html.includes(`id="badge-ricevuta-${atletaId}"`)) {
+      riga.html = riga.html.replace(
+        new RegExp(`<span id="badge-ricevuta-${atletaId}"[\\s\\S]*?</span>`, "i"),
+        htmlBadge.trim()
+      );
+    }
+  });
+}
+
 function aggiornaUiRicevutaInviata(atletaId, timestamp) {
   const dataTesto = formattaDataInvioRicevuta(timestamp);
   const wrap = document.getElementById(`ricevuta-email-${atletaId}`);
@@ -164,11 +204,18 @@ const pagamentiSnap = await db.collection("pagamenti")
 
 let pagato = 0;
 let scontoExtraTotale = 0;
+let numeroRicevuta = null;
+let annoRicevuta = new Date().getFullYear();
 
 pagamentiSnap.forEach(p=>{
   const data = p.data();
   pagato += Number(data.importo || 0);
   scontoExtraTotale += Number(data.scontoExtra || 0);
+
+  if (data.numeroRicevuta != null && data.numeroRicevuta !== "") {
+    numeroRicevuta = data.numeroRicevuta;
+    if (data.anno) annoRicevuta = data.anno;
+  }
 });
 
 
@@ -189,6 +236,8 @@ if(pagato >= quotaNetta && quotaNetta > 0){
         atletaId,
         cognome: atleta.cognome || "",
         ricevutaEmailInviataIl: iscrizione.ricevutaEmailInviataIl || null,
+        numeroRicevuta,
+        annoRicevuta,
         html: `
           <tr>
             <td>${atleta.cognome} ${atleta.nome}</td>
@@ -249,6 +298,7 @@ if(pagato >= quotaNetta && quotaNetta > 0){
 
 
   ${stato === "pagato" ? `
+  ${buildBadgeNumeroRicevuta(atletaId, numeroRicevuta, annoRicevuta)}
   <button onclick="stampaRicevutaDiretta('${atletaId}')">
     🖨️
   </button>
@@ -916,6 +966,8 @@ try{
 }catch(e){}
 
   pdf.save(`Ricevuta_${numeroRicevuta}_${atleta.cognome}.pdf`);
+
+  aggiornaUiNumeroRicevuta(atletaId, numeroRicevuta, anno);
 }
 
 
