@@ -768,7 +768,7 @@ if(iscrizioniSnap.empty){
 }
 
 const iscrizione = iscrizioniSnap.docs[0].data();
-let quotaTotale = Number(iscrizione.quota || 0);
+const totalePagato = calcolaTotalePagato(pagamentiSnap);
 
   // ================= PERIODO SETTIMANA =================
 
@@ -848,7 +848,7 @@ let quotaTotale = Number(iscrizione.quota || 0);
   let y = 48;
 
   pdf.text(
-    `Ha versato la somma di € ${quotaTotale.toFixed(2)} a titolo di partecipazione`,
+    `Ha versato la somma di € ${totalePagato.toFixed(2)} a titolo di partecipazione`,
     15,
     y
   );

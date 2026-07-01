@@ -57,3 +57,13 @@ async function assicuraNumeroRicevuta(atletaId, settimanaId) {
 
   return { numeroRicevuta, anno };
 }
+
+function calcolaTotalePagato(pagamentiSnap) {
+  let totale = 0;
+
+  pagamentiSnap.forEach((doc) => {
+    totale += Number(doc.data().importo || 0);
+  });
+
+  return totale;
+}
